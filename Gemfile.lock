@@ -192,7 +192,7 @@ GEM
     mini_mime (1.1.5)
     minitest (5.20.0)
     msgpack (1.8.0)
-    net-imap (0.4.9.1)
+    net-imap (0.4.23)
       date
       net-protocol
     net-pop (0.1.2)
@@ -297,7 +297,7 @@ GEM
     responders (3.2.0)
       actionpack (>= 7.0)
       railties (>= 7.0)
-    rexml (3.3.9)
+    rexml (3.4.4)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
@@ -393,7 +393,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
-    uri (0.13.1)
+    uri (0.13.3)
     useragent (0.16.11)
     warden (1.2.9)
       rack (>= 2.0.9)
