@@ -1,0 +1,36 @@
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Swap Requests</h1>
+
+<% if @swap_requests.empty? %>
+  <div class="text-center py-12 text-gray-500">No pending swap requests.</div>
+<% else %>
+  <div class="space-y-4">
+    <% @swap_requests.each do |sr| %>
+      <div id="swap_request_<%= sr.id %>" class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-sm font-medium text-gray-900">
+              <%= sr.from_assignment.volunteer_profile.full_name %> wants to swap
+            </p>
+            <p class="text-sm text-gray-500">
+              Shift: <%= sr.from_assignment.shift.title %> on
+              <%= sr.from_assignment.shift.starts_at.strftime("%b %-d, %H:%M") %>
+            </p>
+            <% if sr.notes.present? %>
+              <p class="text-xs text-gray-400 mt-1">Note: <%= sr.notes %></p>
+            <% end %>
+          </div>
+          <div class="flex gap-2">
+            <%= button_to "Approve",
+                approve_swap_request_path(sr),
+                method: :patch,
+                class: "bg-green-600 text-white px-3 py-1.5 rounded text-sm hover:bg-green-700" %>
+            <%= button_to "Decline",
+                decline_swap_request_path(sr),
+                method: :patch,
+                class: "bg-red-50 text-red-700 border border-red-300 px-3 py-1.5 rounded text-sm hover:bg-red-100" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

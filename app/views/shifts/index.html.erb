@@ -1,0 +1,31 @@
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Shifts</h1>
+    <p class="text-sm text-gray-500 mt-1"><%= link_to @program.name, program_path(@program), class: "text-indigo-600 hover:underline" %></p>
+  </div>
+  <% if policy(Shift).create? %>
+    <%= link_to "New Shift", new_program_shift_path(@program), class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+  <% end %>
+</div>
+
+<div class="mb-4 flex gap-3">
+  <%= form_with url: program_shifts_path(@program), method: :get, data: { turbo_frame: "shifts_list" }, class: "flex gap-3" do |f| %>
+    <%= f.date_field :from, value: params[:from], class: "rounded-md border-gray-300 shadow-sm text-sm" %>
+    <span class="self-center text-gray-500">to</span>
+    <%= f.date_field :to, value: params[:to], class: "rounded-md border-gray-300 shadow-sm text-sm" %>
+    <%= f.submit "Filter", class: "bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-200 cursor-pointer" %>
+  <% end %>
+</div>
+
+<%= turbo_frame_tag "shifts_list" do %>
+  <% if @shifts.empty? %>
+    <div class="text-center py-12 text-gray-500">No shifts found.</div>
+  <% else %>
+    <div class="space-y-4">
+      <% @shifts.each do |shift| %>
+        <%= render "shifts/shift_card", shift: shift, program: @program %>
+      <% end %>
+    </div>
+    <%= render "shared/pagination", pagy: @pagy %>
+  <% end %>
+<% end %>

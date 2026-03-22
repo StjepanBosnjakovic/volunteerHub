@@ -90,41 +90,41 @@ Tasks are grouped by phase. Complete each phase before beginning the next. Items
 ## Phase 3 — Scheduling & Shift Management
 
 ### 3.1 Programs
-- [ ] `Program` model: `name`, `description`, `organisation_id`, access-control to coordinators
+- [x] `Program` model: `name`, `description`, `organisation_id`, access-control to coordinators
 
 ### 3.2 Shift Creation
-- [ ] `Shift` model: `program_id`, `title`, `location`, `starts_at`, `ends_at`, `capacity`, `waitlist_enabled`, `coordinator_id`, `notes`, `recurrence_rule` (iCal RRULE string)
-- [ ] Single shift form
-- [ ] Recurring shift wizard: daily/weekly/custom using `montrose` or `ice_cube` gem
+- [x] `Shift` model: `program_id`, `title`, `location`, `starts_at`, `ends_at`, `capacity`, `waitlist_enabled`, `coordinator_id`, `notes`, `recurrence_rule` (iCal RRULE string)
+- [x] Single shift form
+- [x] Recurring shift wizard: daily/weekly/custom RRULE (FREQ=DAILY/WEEKLY/MONTHLY + INTERVAL)
 - [ ] Multi-day event wizard
-- [ ] `ShiftRole` model: role label + spots needed per shift
-- [ ] Clone shift / clone entire program schedule to a future date range
-- [ ] Capacity enforcement + optional waitlist at model layer
+- [x] `ShiftRole` model: role label + spots needed per shift
+- [x] Clone shift / clone entire program schedule to a future date range
+- [x] Capacity enforcement + optional waitlist at model layer
 
 ### 3.3 Volunteer Self-Scheduling
-- [ ] Calendar view (month/week/day) using Stimulus + a lightweight JS calendar (e.g. `tui-calendar` or custom)
-- [ ] List view with filters [TURBO frames]
-- [ ] Smart suggestions query: match volunteer skills, location proximity, stated availability
-- [ ] Sign-up / cancel shift [TURBO stream — update capacity counter live]
-- [ ] Cancellation cut-off enforcement; late-cancel flag on `ShiftAssignment`
-- [ ] Swap request: `SwapRequest` model; coordinator approval flow [Turbo stream notification]
+- [x] Calendar view (month/week/day) using Stimulus + custom lightweight JS calendar controller
+- [x] List view with filters [TURBO frames]
+- [x] Smart suggestions query: match volunteer skills, location proximity, stated availability
+- [x] Sign-up / cancel shift [TURBO stream — update capacity counter live]
+- [x] Cancellation cut-off enforcement; late-cancel flag on `ShiftAssignment`
+- [x] Swap request: `SwapRequest` model; coordinator approval flow [Turbo stream notification]
 
 ### 3.4 Coordinator Scheduling Tools
 - [ ] Drag-and-drop timeline/Gantt view [Stimulus + SortableJS]
-- [ ] Auto-fill suggestions: ranked volunteer list per open slot [background query]
-- [ ] One-click assign from suggestion list [TURBO]
+- [x] Auto-fill suggestions: ranked volunteer list per open slot [background query]
+- [x] One-click assign from suggestion list [TURBO]
 - [ ] Conflict detection: query overlapping assignments and availability; show inline warning [Stimulus]
-- [ ] Bulk assign volunteers to recurring shift series
-- [ ] PDF schedule export (`Prawn`)
-- [ ] iCal feed endpoint per volunteer and per program
+- [x] Bulk assign volunteers to recurring shift series
+- [x] PDF schedule export (`Prawn`)
+- [x] iCal feed endpoint per volunteer and per program
 
 ### 3.5 Check-In / Check-Out
-- [ ] `Attendance` model: `shift_assignment_id`, `checked_in_at`, `checked_out_at`, `method` (qr/manual/geo)
-- [ ] QR code generation per shift (use `rqrcode` gem)
-- [ ] QR scan endpoint: validate token, create/update Attendance record [TURBO stream]
-- [ ] Manual attendance toggle list [TURBO stream]
-- [ ] Geofenced auto-check-in stub (JS Geolocation API + Stimulus controller; compares coords to shift location)
-- [ ] Late/no-show detection job: runs after shift end, flags missing Attendance records, queues follow-up message
+- [x] `Attendance` model: `shift_assignment_id`, `checked_in_at`, `checked_out_at`, `method` (qr/manual/geo)
+- [x] QR code generation per shift (unique `qr_token` on Shift, generated via `SecureRandom`)
+- [x] QR scan endpoint: validate token, create/update Attendance record [TURBO stream]
+- [x] Manual attendance toggle list [TURBO stream]
+- [x] Geofenced auto-check-in stub (JS Geolocation API + Stimulus controller; compares coords to shift location)
+- [x] Late/no-show detection job: runs after shift end, flags missing Attendance records, queues follow-up message
 
 ---
 

@@ -1,0 +1,15 @@
+<tr id="attendance_<%= assignment.id %>">
+  <td class="px-4 py-3 text-sm text-gray-900"><%= assignment.volunteer_profile.full_name %></td>
+  <td class="px-4 py-3 text-sm text-gray-600">
+    <%= assignment.attendance&.checked_in_at&.strftime("%H:%M") || "—" %>
+  </td>
+  <td class="px-4 py-3 text-sm text-gray-600">
+    <%= assignment.attendance&.checked_out_at&.strftime("%H:%M") || "—" %>
+  </td>
+  <td class="px-4 py-3 text-sm">
+    <%= button_to assignment.attendance&.checked_in? ? "Check Out" : "Check In",
+        toggle_program_shift_shift_assignment_attendance_path(shift.program, shift, assignment),
+        method: :patch,
+        class: "text-indigo-600 hover:text-indigo-800 font-medium" %>
+  </td>
+</tr>

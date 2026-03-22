@@ -1,0 +1,15 @@
+<% if shift.capacity.present? %>
+  <% remaining = shift.spots_remaining %>
+  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= remaining == 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' %>">
+    <%= remaining %> / <%= shift.capacity %> spots
+  </span>
+  <% if shift.waitlist_enabled && remaining == 0 %>
+    <span class="ml-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+      Waitlist open
+    </span>
+  <% end %>
+<% else %>
+  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+    <%= shift.confirmed_count %> signed up
+  </span>
+<% end %>
