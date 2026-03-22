@@ -1,0 +1,24 @@
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: white; }
+</style>
+
+<div style="padding: 16px;">
+  <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;"><%= @opportunity.title %></h2>
+
+  <% if @opportunity.location.present? %>
+    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 4px;">📍 <%= @opportunity.location %></p>
+  <% end %>
+
+  <% if @opportunity.starts_at %>
+    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 4px;">📅 <%= @opportunity.starts_at.strftime("%d %B %Y") %></p>
+  <% end %>
+
+  <% if @opportunity.description.present? %>
+    <p style="font-size: 0.875rem; color: #374151; margin-top: 8px;"><%= @opportunity.description.truncate(200) %></p>
+  <% end %>
+
+  <a href="<%= opportunity_url(@opportunity) %>" target="_blank"
+     style="display: inline-block; margin-top: 12px; background: #4f46e5; color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.875rem; text-decoration: none;">
+    Apply Now
+  </a>
+</div>

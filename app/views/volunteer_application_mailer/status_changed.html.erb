@@ -1,0 +1,20 @@
+<h1>Application Update</h1>
+
+<p>Hi <%= @volunteer.first_name %>,</p>
+
+<p>Your application for <strong><%= @opportunity.title %></strong> has been updated.</p>
+
+<p><strong>New status:</strong> <%= @application.status.humanize %></p>
+
+<% case @application.status %>
+<% when "approved" %>
+  <p>Congratulations! You've been approved for this opportunity. We look forward to seeing you.</p>
+<% when "declined" %>
+  <p>Unfortunately your application was not successful this time. Thank you for your interest in volunteering with us.</p>
+<% when "shortlisted" %>
+  <p>Great news — you've been shortlisted! We'll be in touch soon with next steps.</p>
+<% when "waitlisted" %>
+  <p>You've been added to the waitlist. We'll notify you if a spot becomes available.</p>
+<% end %>
+
+<p>Thank you for your continued support!</p>

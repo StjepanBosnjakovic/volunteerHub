@@ -1,0 +1,8 @@
+<div class="mt-3 p-3 rounded-lg <%= passed ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200' %>">
+  <p class="text-sm font-medium <%= passed ? 'text-green-800' : 'text-red-800' %>">
+    Score: <%= score %>% (<%= passed ? "Passed" : "Failed — #{passing_score}% required" %>)
+  </p>
+  <% unless passed %>
+    <p class="text-xs text-red-600 mt-1">Please try again.</p>
+  <% end %>
+</div>

@@ -1,0 +1,93 @@
+<% content_for :title, "Cohort Dashboard — Onboarding" %>
+
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Onboarding Cohort Dashboard</h1>
+
+<% if @checklists.any? %>
+  <div class="space-y-6">
+    <% @checklists.each do |checklist| %>
+      <%= turbo_frame_tag "cohort_#{checklist.id}" do %>
+        <div class="bg-white shadow rounded-lg p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">
+              <%= link_to checklist.title, onboarding_checklist_path(checklist), class: "hover:text-indigo-600" %>
+            </h2>
+            <span class="text-sm text-gray-500"><%= checklist.onboarding_steps.count %> steps</span>
+          </div>
+
+          <% step_ids = checklist.onboarding_steps.pluck(:id) %>
+          <% if step_ids.any? %>
+            <% profile_ids = VolunteerOnboardingProgress
+                 .where(onboarding_step_id: step_ids)
+                 .select(:volunteer_profile_id)
+                 .distinct
+                 .pluck(:volunteer_profile_id) %>
+
+            <% total_enrolled = profile_ids.count %>
+
+            <% completed_all = VolunteerOnboardingProgress
+                 .where(onboarding_step_id: step_ids)
+                 .where.not(completed_at: nil)
+                 .group(:volunteer_profile_id)
+                 .having("COUNT(*) = ?", step_ids.count)
+                 .count.count %>
+
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div class="text-center p-3 bg-gray-50 rounded-lg">
+                <p class="text-2xl font-bold text-gray-900"><%= total_enrolled %></p>
+                <p class="text-xs text-gray-500">Enrolled</p>
+              </div>
+              <div class="text-center p-3 bg-green-50 rounded-lg">
+                <p class="text-2xl font-bold text-green-700"><%= completed_all %></p>
+                <p class="text-xs text-gray-500">Completed</p>
+              </div>
+              <div class="text-center p-3 bg-yellow-50 rounded-lg">
+                <p class="text-2xl font-bold text-yellow-700"><%= total_enrolled - completed_all %></p>
+                <p class="text-xs text-gray-500">In Progress</p>
+              </div>
+            </div>
+
+            <% completion_rate = total_enrolled > 0 ? (completed_all.to_f / total_enrolled * 100).round : 0 %>
+            <div>
+              <div class="flex justify-between text-xs text-gray-500 mb-1">
+                <span>Overall completion rate</span>
+                <span><%= completion_rate %>%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-500 h-2 rounded-full" style="width: <%= completion_rate %>%"></div>
+              </div>
+            </div>
+
+            <!-- Step-by-step breakdown -->
+            <% if checklist.onboarding_steps.any? %>
+              <div class="mt-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">Step Completion</h3>
+                <div class="space-y-2">
+                  <% checklist.onboarding_steps.each do |step| %>
+                    <% step_completions = VolunteerOnboardingProgress
+                         .where(onboarding_step: step)
+                         .where.not(completed_at: nil)
+                         .count %>
+                    <% step_pct = total_enrolled > 0 ? (step_completions.to_f / total_enrolled * 100).round : 0 %>
+                    <div class="flex items-center gap-3">
+                      <span class="text-xs text-gray-600 w-48 truncate"><%= step.title %></span>
+                      <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: <%= step_pct %>%"></div>
+                      </div>
+                      <span class="text-xs text-gray-400 w-8 text-right"><%= step_pct %>%</span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-sm text-gray-400">No steps defined for this checklist.</p>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center py-16 bg-white rounded-lg shadow">
+    <p class="text-gray-500">No checklists found.</p>
+  </div>
+<% end %>

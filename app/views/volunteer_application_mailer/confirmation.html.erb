@@ -1,0 +1,15 @@
+<h1>Application Received</h1>
+
+<p>Hi <%= @volunteer.first_name %>,</p>
+
+<p>Thank you for applying to <strong><%= @opportunity.title %></strong>. Your application has been submitted and our team will review it shortly.</p>
+
+<p><strong>Application status:</strong> <%= @application.status.humanize %></p>
+
+<% if @opportunity.starts_at %>
+  <p><strong>Opportunity date:</strong> <%= @opportunity.starts_at.strftime("%d %B %Y") %></p>
+<% end %>
+
+<p>We'll be in touch with any updates.</p>
+
+<p>Thank you for volunteering!</p>

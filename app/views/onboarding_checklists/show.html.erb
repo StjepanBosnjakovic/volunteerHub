@@ -1,0 +1,125 @@
+<% content_for :title, "#{@checklist.title} — Onboarding" %>
+
+<div class="max-w-3xl mx-auto">
+  <div class="mb-4">
+    <%= link_to "← Onboarding", onboarding_checklists_path, class: "text-sm text-gray-500 hover:text-gray-700" %>
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-8 mb-6">
+    <div class="flex justify-between items-start">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900"><%= @checklist.title %></h1>
+        <% if @checklist.description.present? %>
+          <p class="text-gray-600 mt-2"><%= @checklist.description %></p>
+        <% end %>
+      </div>
+      <% if policy(@checklist).update? %>
+        <%= link_to "Edit", edit_onboarding_checklist_path(@checklist),
+            class: "bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
+      <% end %>
+    </div>
+
+    <!-- Progress Bar (shown to volunteers) -->
+    <% if @progress %>
+      <div id="progress_bar" class="mt-6">
+        <%= render "onboarding_checklists/progress_bar",
+            checklist: @checklist,
+            volunteer_profile: current_user.volunteer_profile %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Steps -->
+  <div class="space-y-4">
+    <% @steps.each_with_index do |step, index| %>
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-start gap-4">
+            <!-- Step number / completion indicator -->
+            <div class="flex-shrink-0">
+              <% if @progress && @progress[step.id]&.completed? %>
+                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                  <span class="text-white text-sm font-bold">✓</span>
+                </div>
+              <% else %>
+                <div class="w-8 h-8 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center">
+                  <span class="text-gray-500 text-sm font-medium"><%= index + 1 %></span>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded uppercase"><%= step.step_type %></span>
+                <h3 class="text-base font-semibold text-gray-900"><%= step.title %></h3>
+              </div>
+
+              <% if step.description.present? %>
+                <p class="text-sm text-gray-600 mb-3"><%= step.description %></p>
+              <% end %>
+
+              <% if step.content_url.present? && step.step_type.in?(%w[video document]) %>
+                <a href="<%= step.content_url %>" target="_blank"
+                   class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                  <%= step.step_type == "video" ? "▶ Watch Video" : "📄 View Document" %>
+                </a>
+              <% end %>
+
+              <!-- Quiz -->
+              <% if step.quiz_step? && step.quiz.present? && @progress %>
+                <div id="quiz_result_<%= step.id %>">
+                  <% existing_answers = QuizAnswer.joins(:quiz_question)
+                       .where(quiz_questions: { quiz_id: step.quiz.id })
+                       .where(volunteer_profile: current_user.volunteer_profile) %>
+                  <% if existing_answers.any? %>
+                    <% score = step.quiz.score_for(current_user.volunteer_profile) %>
+                    <%= render "onboarding_checklists/quiz_result",
+                        score: score,
+                        passed: step.quiz.passed_by?(current_user.volunteer_profile),
+                        passing_score: step.quiz.passing_score %>
+                  <% end %>
+                </div>
+
+                <% unless @progress[step.id]&.completed? %>
+                  <%= form_with url: onboarding_step_onboarding_progresses_path(step),
+                      data: { turbo_stream: true }, class: "mt-4 space-y-4" do |f| %>
+                    <% step.quiz.quiz_questions.each_with_index do |question, qi| %>
+                      <div class="border border-gray-100 rounded-lg p-4">
+                        <p class="text-sm font-medium text-gray-900 mb-2"><%= qi + 1 %>. <%= question.question %></p>
+                        <% if question.options.present? %>
+                          <% choices = question.options.is_a?(Array) ? question.options : question.options.values %>
+                          <div class="space-y-1">
+                            <% choices.each do |choice| %>
+                              <label class="flex items-center gap-2 text-sm text-gray-700">
+                                <input type="radio" name="quiz_answers[<%= question.id %>]" value="<%= choice %>" required>
+                                <%= choice %>
+                              </label>
+                            <% end %>
+                          </div>
+                        <% else %>
+                          <input type="text" name="quiz_answers[<%= question.id %>]"
+                                 class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" required>
+                        <% end %>
+                      </div>
+                    <% end %>
+                    <%= f.submit "Submit Quiz", class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 cursor-pointer" %>
+                  <% end %>
+                <% end %>
+              <% end %>
+
+              <!-- Complete button for non-quiz steps -->
+              <% if @progress && !step.quiz_step? %>
+                <div id="step_<%= step.id %>_status" class="mt-3">
+                  <%= render "onboarding_checklists/step_status",
+                      step: step,
+                      progress: @progress[step.id],
+                      checklist: @checklist %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
