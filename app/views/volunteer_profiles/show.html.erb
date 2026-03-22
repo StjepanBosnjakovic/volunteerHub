@@ -1,0 +1,187 @@
+<% content_for :title, "#{@volunteer_profile.full_name} — VolunteerOS" %>
+
+<div class="mb-6 flex justify-between items-start">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900"><%= @volunteer_profile.full_name %></h1>
+    <p class="text-gray-500"><%= @volunteer_profile.user.email %></p>
+  </div>
+  <div class="flex gap-3">
+    <% if policy(@volunteer_profile).export_pdf? %>
+      <%= link_to "Export PDF", export_pdf_volunteer_profile_path(@volunteer_profile), class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
+    <% end %>
+    <% if policy(@volunteer_profile).update? %>
+      <%= link_to "Edit Profile", edit_volunteer_profile_path(@volunteer_profile), class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+    <% end %>
+    <% if policy(@volunteer_profile).archive? && @volunteer_profile.status_active? %>
+      <%= link_to "Archive", archive_volunteer_profile_path(@volunteer_profile), data: { turbo_method: :patch, turbo_confirm: "Archive this volunteer?" }, class: "bg-red-100 text-red-700 border border-red-200 px-4 py-2 rounded-md text-sm font-medium hover:bg-red-200" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Main Profile Info -->
+  <div class="lg:col-span-2 space-y-6">
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h2>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Preferred Name</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @volunteer_profile.preferred_name.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Pronouns</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @volunteer_profile.pronouns.presence || "—" %></dd>
+        </div>
+        <% unless @volunteer_profile.minor? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Date of Birth</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @volunteer_profile.date_of_birth&.strftime("%d %b %Y") || "—" %></dd>
+          </div>
+        <% end %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Phone</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @volunteer_profile.phone.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Status</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @volunteer_profile.status.capitalize %></dd>
+        </div>
+        <% if @volunteer_profile.minor? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Safeguarding</dt>
+            <dd class="mt-1 text-sm text-orange-600 font-medium">Minor — safeguarding required</dd>
+          </div>
+        <% end %>
+      </dl>
+      <% if @volunteer_profile.bio.present? %>
+        <div class="mt-4">
+          <dt class="text-sm font-medium text-gray-500 mb-1">Bio</dt>
+          <dd class="text-sm text-gray-900"><%= @volunteer_profile.bio %></dd>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Skills -->
+    <div class="bg-white shadow rounded-lg p-6" id="skills">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Skills</h2>
+      <% if @volunteer_profile.skills.any? %>
+        <div class="flex flex-wrap gap-2">
+          <% @volunteer_profile.skills.each do |skill| %>
+            <span class="bg-indigo-100 text-indigo-800 text-sm font-medium px-3 py-1 rounded-full"><%= skill.name %></span>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No skills added yet.</p>
+      <% end %>
+    </div>
+
+    <!-- Credentials -->
+    <div class="bg-white shadow rounded-lg p-6" id="credentials">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Credentials & Documents</h2>
+      <% if @volunteer_profile.credentials.any? %>
+        <ul class="divide-y divide-gray-200">
+          <% @volunteer_profile.credentials.each do |credential| %>
+            <li class="py-3 flex justify-between items-center">
+              <div>
+                <p class="text-sm font-medium text-gray-900"><%= credential.name %></p>
+                <% if credential.expires_at %>
+                  <p class="text-xs <%= credential.expired? ? 'text-red-600' : credential.expiring_soon? ? 'text-orange-600' : 'text-gray-500' %>">
+                    Expires: <%= credential.expires_at.strftime("%d %b %Y") %>
+                    <% if credential.expired? %>(Expired)<% elsif credential.expiring_soon? %>(Expiring soon)<% end %>
+                  </p>
+                <% end %>
+              </div>
+              <% if credential.document.attached? %>
+                <%= link_to "Download", url_for(credential.document), class: "text-indigo-600 text-sm hover:text-indigo-900", target: "_blank" %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-gray-500 text-sm">No credentials uploaded yet.</p>
+      <% end %>
+    </div>
+
+    <!-- Emergency Contacts -->
+    <div class="bg-white shadow rounded-lg p-6" id="emergency_contacts">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Emergency Contacts</h2>
+      <% if @volunteer_profile.emergency_contacts.any? %>
+        <ul class="divide-y divide-gray-200">
+          <% @volunteer_profile.emergency_contacts.each do |contact| %>
+            <li class="py-3">
+              <p class="text-sm font-medium text-gray-900"><%= contact.name %> (<%= contact.relationship %>)</p>
+              <p class="text-sm text-gray-500"><%= contact.phone %></p>
+              <% if contact.email.present? %>
+                <p class="text-sm text-gray-500"><%= contact.email %></p>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-gray-500 text-sm">No emergency contacts added.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="space-y-6">
+    <!-- Avatar -->
+    <div class="bg-white shadow rounded-lg p-6 text-center">
+      <% if @volunteer_profile.avatar.attached? %>
+        <%= image_tag @volunteer_profile.avatar.variant(resize_to_fill: [120, 120]), class: "w-30 h-30 rounded-full mx-auto mb-4" %>
+      <% else %>
+        <div class="w-24 h-24 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-4">
+          <span class="text-3xl text-indigo-600 font-bold"><%= @volunteer_profile.first_name[0] %><%= @volunteer_profile.last_name[0] %></span>
+        </div>
+      <% end %>
+      <p class="font-medium text-gray-900"><%= @volunteer_profile.full_name %></p>
+      <p class="text-sm text-gray-500"><%= @volunteer_profile.user.email %></p>
+      <% if @volunteer_profile.policy_accepted_at %>
+        <p class="text-xs text-green-600 mt-2">Policy accepted <%= @volunteer_profile.policy_accepted_at.strftime("%d %b %Y") %></p>
+      <% end %>
+    </div>
+
+    <!-- Availability -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-sm font-medium text-gray-900 mb-3">Availability</h2>
+      <% if @volunteer_profile.availabilities.any? %>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <% @volunteer_profile.availabilities.each do |availability| %>
+            <li><span class="capitalize"><%= availability.day_name %></span></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-gray-500 text-sm">Not set.</p>
+      <% end %>
+    </div>
+
+    <!-- Interests -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-sm font-medium text-gray-900 mb-3">Interests</h2>
+      <% if @volunteer_profile.interest_categories.any? %>
+        <div class="flex flex-wrap gap-2">
+          <% @volunteer_profile.interest_categories.each do |interest| %>
+            <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded"><%= interest.name %></span>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-sm">No interests selected.</p>
+      <% end %>
+    </div>
+
+    <!-- Hours Capacity -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-sm font-medium text-gray-900 mb-3">Availability Limits</h2>
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Max hrs/week</dt>
+          <dd class="text-gray-900"><%= @volunteer_profile.max_hours_per_week || "—" %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Max hrs/month</dt>
+          <dd class="text-gray-900"><%= @volunteer_profile.max_hours_per_month || "—" %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>

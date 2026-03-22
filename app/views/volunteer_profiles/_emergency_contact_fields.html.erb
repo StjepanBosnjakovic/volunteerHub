@@ -1,0 +1,24 @@
+<div class="border border-gray-200 rounded-md p-4 mt-3" data-nested-form-target="fields">
+  <%= form.hidden_field :_destroy, data: { "nested-form-target": "destroyField" } %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div>
+      <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
+      <%= form.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+    <div>
+      <%= form.label :relationship, class: "block text-sm font-medium text-gray-700" %>
+      <%= form.text_field :relationship, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+    <div>
+      <%= form.label :phone, class: "block text-sm font-medium text-gray-700" %>
+      <%= form.telephone_field :phone, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+    <div>
+      <%= form.label :email, class: "block text-sm font-medium text-gray-700" %>
+      <%= form.email_field :email, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %>
+    </div>
+  </div>
+  <button type="button" data-action="click->nested-form#remove" class="mt-2 text-sm text-red-600 hover:text-red-900">
+    Remove
+  </button>
+</div>
