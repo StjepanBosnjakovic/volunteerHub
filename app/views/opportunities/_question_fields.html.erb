@@ -1,0 +1,27 @@
+<div class="border border-gray-200 rounded-lg p-4 space-y-3" data-nested-form-target="fields">
+  <%= f.hidden_field :id %>
+  <%= f.hidden_field :_destroy, data: { "nested-form-target": "destroy" }, value: false %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div>
+      <%= f.label :label, "Question", class: "block text-xs font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :label, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+    </div>
+    <div>
+      <%= f.label :question_type, "Type", class: "block text-xs font-medium text-gray-700 mb-1" %>
+      <%= f.select :question_type,
+          options_for_select(ApplicationQuestion::QUESTION_TYPES.map { |t| [t.humanize, t] }),
+          {},
+          class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between">
+    <label class="flex items-center gap-2 text-sm text-gray-700">
+      <%= f.check_box :required %>
+      Required
+    </label>
+    <button type="button" data-action="nested-form#remove"
+            class="text-sm text-red-500 hover:text-red-700">Remove</button>
+  </div>
+</div>

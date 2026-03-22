@@ -1,0 +1,58 @@
+<% content_for :title, "Apply — #{@opportunity.title}" %>
+
+<div class="max-w-2xl mx-auto">
+  <div class="mb-4">
+    <%= link_to "← Back to Opportunity", opportunity_path(@opportunity), class: "text-sm text-gray-500 hover:text-gray-700" %>
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">Apply for <%= @opportunity.title %></h1>
+    <% if @opportunity.location.present? %>
+      <p class="text-sm text-gray-500 mb-6">📍 <%= @opportunity.location %></p>
+    <% end %>
+
+    <%= form_with url: opportunity_volunteer_applications_path(@opportunity), method: :post do |f| %>
+      <% if @questions.any? %>
+        <div class="space-y-6 mb-6">
+          <h2 class="text-lg font-medium text-gray-900">Application Questions</h2>
+          <% @questions.each do |question| %>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                <%= question.label %>
+                <% if question.required %>
+                  <span class="text-red-500">*</span>
+                <% end %>
+              </label>
+
+              <% if question.question_type == "multiple_choice" && question.options.present? %>
+                <% choices = question.options.is_a?(Array) ? question.options : question.options.values %>
+                <div class="space-y-2">
+                  <% choices.each do |choice| %>
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                      <input type="radio" name="answers[<%= question.id %>][value]" value="<%= choice %>"
+                             class="text-indigo-600" <%= "required" if question.required %>>
+                      <%= choice %>
+                    </label>
+                  <% end %>
+                </div>
+              <% elsif question.question_type == "file" %>
+                <input type="file" name="answers[<%= question.id %>][file_upload]"
+                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                       <%= "required" if question.required %>>
+              <% else %>
+                <textarea name="answers[<%= question.id %>][value]" rows="3"
+                          class="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          <%= "required" if question.required %>></textarea>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="flex justify-end gap-3">
+        <%= link_to "Cancel", opportunity_path(@opportunity), class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
+        <%= f.submit "Submit Application", class: "bg-indigo-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+</div>

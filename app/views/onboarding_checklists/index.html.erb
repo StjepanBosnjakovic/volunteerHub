@@ -1,0 +1,58 @@
+<% content_for :title, "Onboarding — VolunteerOS" %>
+
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Onboarding Checklists</h1>
+  <div class="flex gap-3">
+    <% if policy(OnboardingChecklist).cohort_dashboard? %>
+      <%= link_to "Cohort Dashboard", cohort_dashboard_onboarding_checklists_path,
+          class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
+    <% end %>
+    <% if policy(OnboardingChecklist).create? %>
+      <%= link_to "New Checklist", new_onboarding_checklist_path,
+          class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+    <% end %>
+  </div>
+</div>
+
+<% if @checklists.any? %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @checklists.each do |checklist| %>
+      <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-lg font-semibold text-gray-900">
+            <%= link_to checklist.title, onboarding_checklist_path(checklist), class: "hover:text-indigo-600" %>
+          </h3>
+          <% unless checklist.active %>
+            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>
+          <% end %>
+        </div>
+
+        <% if checklist.target_role.present? %>
+          <p class="text-xs text-gray-500 mb-2">For: <%= checklist.target_role.humanize %></p>
+        <% end %>
+
+        <% if checklist.description.present? %>
+          <p class="text-sm text-gray-600 mb-3"><%= checklist.description.truncate(100) %></p>
+        <% end %>
+
+        <p class="text-sm text-gray-500"><%= checklist.onboarding_steps.count %> steps</p>
+
+        <div class="mt-4 flex gap-2">
+          <%= link_to "View", onboarding_checklist_path(checklist), class: "text-sm text-indigo-600 hover:text-indigo-800 font-medium" %>
+          <% if policy(checklist).update? %>
+            <%= link_to "Edit", edit_onboarding_checklist_path(checklist), class: "text-sm text-gray-500 hover:text-gray-700" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center py-16 bg-white rounded-lg shadow">
+    <p class="text-gray-500 text-lg">No onboarding checklists yet.</p>
+    <% if policy(OnboardingChecklist).create? %>
+      <p class="mt-2"><%= link_to "Create your first checklist", new_onboarding_checklist_path, class: "text-indigo-600 hover:text-indigo-800" %></p>
+    <% end %>
+  </div>
+<% end %>
+
+<%= pagy_nav(@pagy) if @pagy.pages > 1 %>

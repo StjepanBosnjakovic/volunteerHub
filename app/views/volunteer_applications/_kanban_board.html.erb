@@ -1,0 +1,25 @@
+<% status_colours = {
+  "applied"     => "border-blue-400 bg-blue-50",
+  "shortlisted" => "border-yellow-400 bg-yellow-50",
+  "approved"    => "border-green-400 bg-green-50",
+  "declined"    => "border-red-400 bg-red-50",
+  "waitlisted"  => "border-gray-400 bg-gray-50"
+} %>
+
+<div class="flex gap-4 overflow-x-auto pb-4" data-controller="kanban">
+  <% by_status.each do |status, applications| %>
+    <div class="flex-shrink-0 w-72">
+      <div class="mb-2 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide"><%= status.humanize %></h3>
+        <span class="text-xs text-gray-400 bg-white border border-gray-200 rounded-full px-2 py-0.5"><%= applications.count %></span>
+      </div>
+      <div class="kanban-column space-y-3 min-h-24 p-2 rounded-lg border-2 <%= status_colours[status] || 'border-gray-300 bg-gray-50' %>"
+           data-kanban-target="column"
+           data-status="<%= status %>">
+        <% applications.each do |application| %>
+          <%= render "volunteer_applications/card", application: application %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,21 @@
+<meta name="description" content="<%= opportunity.description&.truncate(160) %>">
+<meta property="og:title" content="<%= opportunity.title %> — VolunteerOS">
+<meta property="og:description" content="<%= opportunity.description&.truncate(200) %>">
+<meta property="og:type" content="website">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VolunteerRole",
+  "name": "<%= opportunity.title.to_json.delete('"') %>",
+  "description": "<%= opportunity.description.to_s.truncate(500).gsub('"', "'") %>",
+  "url": "<%= opportunity_url(opportunity) %>",
+  "availableChannel": {
+    "@type": "ServiceChannel",
+    "serviceUrl": "<%= opportunity_url(opportunity) %>"
+  }
+  <%= opportunity.location.present? ? ",\"jobLocation\": {\"@type\": \"Place\", \"name\": \"#{opportunity.location}\"}" : "" %>
+  <%= opportunity.starts_at.present? ? ",\"validFrom\": \"#{opportunity.starts_at.iso8601}\"" : "" %>
+  <%= opportunity.ends_at.present? ? ",\"validThrough\": \"#{opportunity.ends_at.iso8601}\"" : "" %>
+}
+</script>

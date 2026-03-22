@@ -4,6 +4,8 @@ class Organisation < ApplicationRecord
   has_many :skills, dependent: :destroy
   has_many :interest_categories, dependent: :destroy
   has_many :custom_fields, dependent: :destroy
+  has_many :opportunities, dependent: :destroy
+  has_many :onboarding_checklists, dependent: :destroy
 
   has_one_attached :logo
 

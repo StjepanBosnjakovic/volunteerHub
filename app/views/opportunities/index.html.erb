@@ -1,0 +1,61 @@
+<% content_for :title, "Volunteer Opportunities — VolunteerOS" %>
+
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Volunteer Opportunities</h1>
+  <% if user_signed_in? && policy(Opportunity).create? %>
+    <%= link_to "New Opportunity", new_opportunity_path,
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+  <% end %>
+</div>
+
+<!-- Filters -->
+<div id="filters" data-controller="opportunity-filter">
+  <%= turbo_frame_tag "opportunity_filters" do %>
+    <%= form_with url: opportunities_path, method: :get, data: { turbo_frame: "opportunities_list" }, class: "bg-white shadow rounded-lg p-4 mb-6" do |f| %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Commitment Level</label>
+          <%= f.select :commitment_level,
+              options_for_select(Opportunity::COMMITMENT_LEVELS.map { |l| [l.humanize, l] }, params[:commitment_level]),
+              { include_blank: "Any commitment" },
+              class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
+          <%= f.date_field :from, value: params[:from],
+              class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
+          <%= f.date_field :to, value: params[:to],
+              class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+        </div>
+        <div class="flex items-end">
+          <%= f.submit "Filter", class: "w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 cursor-pointer" %>
+          <%= link_to "Clear", opportunities_path, class: "ml-2 text-sm text-gray-500 hover:text-gray-700" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<%= turbo_frame_tag "opportunities_list" do %>
+  <% if @opportunities.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @opportunities.each do |opportunity| %>
+        <%= render "opportunities/card", opportunity: opportunity %>
+      <% end %>
+    </div>
+    <div class="mt-6">
+      <%= pagy_nav(@pagy) if @pagy.pages > 1 %>
+    </div>
+  <% else %>
+    <div class="text-center py-16 bg-white rounded-lg shadow">
+      <div class="text-4xl mb-4">🙌</div>
+      <p class="text-gray-500 text-lg">No opportunities found.</p>
+      <% if user_signed_in? && policy(Opportunity).create? %>
+        <p class="mt-2"><%= link_to "Create the first opportunity", new_opportunity_path, class: "text-indigo-600 hover:text-indigo-800" %></p>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

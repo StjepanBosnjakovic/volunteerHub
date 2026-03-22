@@ -1,0 +1,9 @@
+<% if progress&.completed? %>
+  <p class="text-xs text-green-600 font-medium">✓ Completed <%= progress.completed_at.strftime("%d %b %Y") %></p>
+<% else %>
+  <%= button_to "Mark as Complete",
+      onboarding_step_onboarding_progresses_path(step),
+      method: :post,
+      data: { turbo_stream: true },
+      class: "text-sm bg-indigo-600 text-white px-4 py-1.5 rounded-md hover:bg-indigo-700 cursor-pointer" %>
+<% end %>

@@ -13,6 +13,10 @@ class VolunteerProfile < ApplicationRecord
   has_many :emergency_contacts, dependent: :destroy
   has_many :custom_field_values, as: :customizable, dependent: :destroy
   has_many :credentials, dependent: :destroy
+  has_many :volunteer_applications, dependent: :destroy
+  has_many :applied_opportunities, through: :volunteer_applications, source: :opportunity
+  has_many :volunteer_onboarding_progresses, dependent: :destroy
+  has_many :quiz_answers, dependent: :destroy
 
   has_one_attached :avatar
 

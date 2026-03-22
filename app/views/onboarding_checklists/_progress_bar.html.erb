@@ -1,0 +1,20 @@
+<% total = checklist.onboarding_steps.count %>
+<% completed = volunteer_profile.volunteer_onboarding_progresses
+     .joins(:onboarding_step)
+     .where(onboarding_steps: { onboarding_checklist_id: checklist.id })
+     .where.not(completed_at: nil)
+     .count %>
+<% percentage = total > 0 ? (completed.to_f / total * 100).round : 0 %>
+
+<div class="mt-2">
+  <div class="flex justify-between text-xs text-gray-500 mb-1">
+    <span>Progress</span>
+    <span><%= completed %>/<%= total %> steps (<%= percentage %>%)</span>
+  </div>
+  <div class="w-full bg-gray-200 rounded-full h-2">
+    <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: <%= percentage %>%"></div>
+  </div>
+  <% if percentage == 100 %>
+    <p class="text-xs text-green-600 font-medium mt-1">🎉 Onboarding complete!</p>
+  <% end %>
+</div>

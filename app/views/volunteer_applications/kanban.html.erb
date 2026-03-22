@@ -1,0 +1,29 @@
+<% content_for :title, "Pipeline — #{@opportunity.title}" %>
+
+<div class="mb-6 flex justify-between items-center">
+  <div>
+    <%= link_to "← #{@opportunity.title}", opportunity_path(@opportunity), class: "text-sm text-gray-500 hover:text-gray-700" %>
+    <h1 class="text-2xl font-bold text-gray-900 mt-1">Application Pipeline</h1>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div data-controller="bulk-action">
+    <div class="flex gap-2 items-center">
+      <select name="bulk_status" id="bulk_status"
+              class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+        <% VolunteerApplication.statuses.keys.each do |status| %>
+          <option value="<%= status %>"><%= status.humanize %></option>
+        <% end %>
+      </select>
+      <%= button_to "Apply to Selected",
+          bulk_update_opportunity_volunteer_applications_path(@opportunity),
+          method: :post,
+          data: { action: "bulk-action#submit" },
+          class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+    </div>
+  </div>
+</div>
+
+<div id="kanban_board">
+  <%= render "volunteer_applications/kanban_board", by_status: @by_status %>
+</div>

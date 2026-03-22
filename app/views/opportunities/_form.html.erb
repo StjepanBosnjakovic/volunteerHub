@@ -1,0 +1,128 @@
+<%= form_with model: opportunity, class: "space-y-6" do |f| %>
+  <% if opportunity.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="text-sm text-red-700 list-disc list-inside">
+        <% opportunity.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white shadow rounded-lg p-6 space-y-4">
+    <h2 class="text-lg font-medium text-gray-900">Basic Information</h2>
+
+    <div>
+      <%= f.label :title, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :title, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <div>
+      <%= f.label :description, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_area :description, rows: 6, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :category, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :category, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      </div>
+      <div>
+        <%= f.label :commitment_level, class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.select :commitment_level,
+            options_for_select(Opportunity::COMMITMENT_LEVELS.map { |l| [l.humanize, l] }, opportunity.commitment_level),
+            { include_blank: "Select commitment level" },
+            class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :status, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :status,
+          options_for_select(Opportunity.statuses.keys.map { |s| [s.humanize, s] }, opportunity.status),
+          {},
+          class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+  </div>
+
+  <div class="bg-white shadow rounded-lg p-6 space-y-4">
+    <h2 class="text-lg font-medium text-gray-900">Date & Location</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :starts_at, "Start Date & Time", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.datetime_local_field :starts_at, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      </div>
+      <div>
+        <%= f.label :ends_at, "End Date & Time", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.datetime_local_field :ends_at, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :location, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.text_field :location, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :lat, "Latitude", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.number_field :lat, step: "any", class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      </div>
+      <div>
+        <%= f.label :lng, "Longitude", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.number_field :lng, step: "any", class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :spots_available, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :spots_available, min: 1, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      <p class="text-xs text-gray-400 mt-1">Leave blank for unlimited spots</p>
+    </div>
+  </div>
+
+  <!-- Required Skills -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-4">Required Skills</h2>
+    <div class="flex flex-wrap gap-3">
+      <% @skills ||= policy_scope(Skill) %>
+      <% @skills.each do |skill| %>
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <%= f.check_box :skill_ids, { multiple: true, checked: opportunity.skill_ids.include?(skill.id) }, skill.id, nil %>
+          <%= skill.name %>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Application Questions -->
+  <div class="bg-white shadow rounded-lg p-6" data-controller="nested-form">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-medium text-gray-900">Application Questions</h2>
+      <button type="button" data-action="nested-form#add"
+              data-nested-form-target="addButton"
+              class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+        + Add Question
+      </button>
+    </div>
+
+    <template data-nested-form-target="template">
+      <%= f.fields_for :application_questions, ApplicationQuestion.new, index: "TEMPLATE_RECORD" do |qf| %>
+        <%= render "opportunities/question_fields", f: qf %>
+      <% end %>
+    </template>
+
+    <div data-nested-form-target="target" class="space-y-4">
+      <%= f.fields_for :application_questions do |qf| %>
+        <%= render "opportunities/question_fields", f: qf %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-3">
+    <%= link_to "Cancel", opportunities_path, class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
+    <%= f.submit opportunity.persisted? ? "Update Opportunity" : "Create Opportunity",
+        class: "bg-indigo-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 cursor-pointer" %>
+  </div>
+<% end %>
