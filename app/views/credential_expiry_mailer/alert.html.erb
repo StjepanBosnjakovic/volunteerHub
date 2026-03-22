@@ -1,0 +1,11 @@
+<h2>Credential Expiry Reminder</h2>
+
+<p>Hi <%= @volunteer.full_name %>,</p>
+
+<p>Your credential <strong><%= @credential.name %></strong> is expiring in <strong><%= @days %> days</strong> on <%= @credential.expires_at.strftime("%d %b %Y") %>.</p>
+
+<p>Please update your credential to ensure continued compliance.</p>
+
+<p>
+  <a href="<%= volunteer_profile_url(@volunteer) %>">View your profile</a>
+</p>

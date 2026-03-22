@@ -1,0 +1,16 @@
+:concurrency: 5
+:queues:
+  - [critical, 3]
+  - [default, 2]
+  - [low, 1]
+  - [mailers, 2]
+
+:schedule:
+  credential_expiry_alerts:
+    cron: "0 8 * * *"  # Daily at 8am
+    class: CredentialExpiryAlertsJob
+    queue: default
+  gdpr_cleanup:
+    cron: "0 2 * * 0"  # Weekly on Sunday at 2am
+    class: GdprCleanupJob
+    queue: low

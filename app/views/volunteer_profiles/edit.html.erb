@@ -1,0 +1,7 @@
+<% content_for :title, "Edit #{@volunteer_profile.full_name} — VolunteerOS" %>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Edit Profile: <%= @volunteer_profile.full_name %></h1>
+</div>
+
+<%= render "form", volunteer_profile: @volunteer_profile %>

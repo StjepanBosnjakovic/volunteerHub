@@ -1,0 +1,42 @@
+<% content_for :title, "Dashboard — VolunteerOS" %>
+
+<div class="mb-8">
+  <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+  <p class="text-gray-500 mt-1"><%= @organisation.name %></p>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Volunteers</div>
+    <div class="mt-2 text-3xl font-bold text-gray-900"><%= @total_volunteers %></div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Active</div>
+    <div class="mt-2 text-3xl font-bold text-green-600"><%= @active_volunteers %></div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Pending</div>
+    <div class="mt-2 text-3xl font-bold text-yellow-600"><%= @pending_volunteers %></div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Expiring Credentials</div>
+    <div class="mt-2 text-3xl font-bold text-red-600"><%= @expiring_credentials %></div>
+  </div>
+</div>
+
+<div class="flex gap-4">
+  <%= link_to "View All Volunteers", volunteer_profiles_path,
+      class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+  <% if current_user.role_volunteer? %>
+    <% if current_user.volunteer_profile %>
+      <%= link_to "My Profile", volunteer_profile_path(current_user.volunteer_profile),
+          class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
+    <% else %>
+      <%= link_to "Create My Profile", new_volunteer_profile_path,
+          class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
+    <% end %>
+  <% end %>
+</div>
