@@ -1,0 +1,20 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+  <div class="flex justify-between items-start">
+    <div>
+      <h3 class="text-lg font-medium text-gray-900">
+        <%= link_to shift.title, program_shift_path(program, shift), class: "hover:text-indigo-600" %>
+      </h3>
+      <p class="text-sm text-gray-500 mt-1">
+        <%= shift.starts_at.strftime("%a, %b %-d %Y, %H:%M") %> – <%= shift.ends_at.strftime("%H:%M") %>
+      </p>
+      <% if shift.location.present? %>
+        <p class="text-sm text-gray-400 mt-0.5">📍 <%= shift.location %></p>
+      <% end %>
+    </div>
+    <div class="text-right">
+      <span id="shift_capacity_<%= shift.id %>">
+        <%= render "shifts/capacity", shift: shift %>
+      </span>
+    </div>
+  </div>
+</div>

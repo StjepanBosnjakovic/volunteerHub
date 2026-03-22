@@ -1,0 +1,32 @@
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Programs</h1>
+  <% if policy(Program).create? %>
+    <%= link_to "New Program", new_program_path, class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+  <% end %>
+</div>
+
+<% if @programs.empty? %>
+  <div class="text-center py-12 text-gray-500">No programs yet.</div>
+<% else %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @programs.each do |program| %>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-2">
+          <%= link_to program.name, program_path(program), class: "hover:text-indigo-600" %>
+        </h2>
+        <p class="text-sm text-gray-600 mb-4 line-clamp-2"><%= program.description %></p>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-400"><%= pluralize(program.shifts.count, "shift") %></span>
+          <div class="flex gap-2">
+            <% if policy(program).update? %>
+              <%= link_to "Edit", edit_program_path(program), class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+            <% end %>
+            <% if policy(program).destroy? %>
+              <%= link_to "Delete", program_path(program), data: { turbo_method: :delete, turbo_confirm: "Delete this program?" }, class: "text-sm text-red-600 hover:text-red-800" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

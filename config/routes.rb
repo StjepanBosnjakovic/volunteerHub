@@ -53,5 +53,38 @@ Rails.application.routes.draw do
     resources :onboarding_progresses, only: [:create]
   end
 
+  # Phase 3: Scheduling & Shift Management
+  resources :programs do
+    resources :shifts do
+      member do
+        post :clone
+        get :checkin
+        get :export_pdf
+        get :ical
+      end
+      resources :shift_assignments, only: [:create, :destroy] do
+        collection do
+          post :bulk_assign
+        end
+        resource :attendance, only: [] do
+          patch :toggle
+        end
+      end
+    end
+  end
+
+  resources :swap_requests, only: [:index, :show, :create] do
+    member do
+      patch :approve
+      patch :decline
+    end
+  end
+
+  # QR code check-in endpoint (public — auth handled in controller)
+  get "checkin/:qr_token", to: "attendances#qr_checkin", as: :qr_checkin
+
+  # iCal feeds
+  get "volunteers/:id/schedule.ics", to: "volunteer_profiles#ical", as: :volunteer_ical
+
   get "dashboard", to: "dashboard#index", as: :dashboard
 end
