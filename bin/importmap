@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
-require "rubygems"
-require "bundler/setup"
+require_relative "../config/application"
 
-require "importmap"
 require "importmap/commands"
 Importmap::Commands.start(ARGV)
