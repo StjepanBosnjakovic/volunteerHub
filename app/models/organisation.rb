@@ -9,6 +9,14 @@ class Organisation < ApplicationRecord
   has_many :milestones, dependent: :destroy
   has_many :hour_logs, dependent: :destroy
 
+  # Phase 5 — Communications
+  has_many :conversations,            dependent: :destroy
+  has_many :notifications,            dependent: :destroy
+  has_many :email_templates,          dependent: :destroy
+  has_many :email_campaigns,          dependent: :destroy
+  has_many :announcements,            dependent: :destroy
+  has_many :broadcast_messages,       dependent: :destroy
+
   has_one_attached :logo
 
   validates :name, presence: true

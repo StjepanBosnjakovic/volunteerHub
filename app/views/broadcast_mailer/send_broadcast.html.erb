@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f8f8; margin: 0; padding: 0; }
+    .wrapper { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { background: #4f46e5; padding: 24px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 20px; }
+    .body { padding: 32px; }
+    .footer { padding: 16px 32px; background: #f3f4f6; font-size: 12px; color: #9ca3af; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1><%= @organisation.name %></h1>
+    </div>
+    <div class="body">
+      <p>Hi <%= @user.display_name %>,</p>
+      <%= @body_html.html_safe %>
+    </div>
+    <div class="footer">
+      <p>You received this email as a volunteer with <%= @organisation.name %>.</p>
+      <p>&copy; <%= Date.current.year %> <%= @organisation.name %>.</p>
+    </div>
+  </div>
+</body>
+</html>

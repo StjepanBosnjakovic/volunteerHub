@@ -1,0 +1,73 @@
+<div class="flex justify-between items-start mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900"><%= @broadcast.subject %></h1>
+    <p class="text-sm text-gray-500 mt-1">
+      By <%= @broadcast.sender.display_name %> ·
+      Created <%= time_ago_in_words(@broadcast.created_at) %> ago
+    </p>
+  </div>
+  <div class="flex gap-3">
+    <% if policy(@broadcast).edit? %>
+      <%= link_to "Edit", edit_broadcast_message_path(@broadcast),
+          class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+    <% end %>
+    <% if policy(@broadcast).send_broadcast? %>
+      <%= button_to "Send Now", send_broadcast_broadcast_message_path(@broadcast), method: :patch,
+          data: { turbo_confirm: "Send this broadcast to all segment recipients?" },
+          class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+      <h2 class="text-sm font-semibold text-gray-700 mb-4">Message</h2>
+      <div class="bg-gray-50 border border-gray-100 rounded p-4 text-sm text-gray-700 whitespace-pre-wrap">
+        <%= @broadcast.body %>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <div class="bg-white border border-gray-200 rounded-lg p-4">
+      <h2 class="text-sm font-semibold text-gray-700 mb-3">Details</h2>
+      <dl class="space-y-2 text-sm">
+        <div>
+          <dt class="text-gray-500">Status</dt>
+          <dd class="font-medium text-gray-900">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                 <%= { 'draft' => 'bg-gray-100 text-gray-600', 'sending' => 'bg-yellow-100 text-yellow-700',
+                       'sent' => 'bg-green-100 text-green-700', 'failed' => 'bg-red-100 text-red-600' }[@broadcast.status] %>">
+              <%= @broadcast.status.humanize %>
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Channel</dt>
+          <dd class="font-medium text-gray-900"><%= @broadcast.channel.humanize %></dd>
+        </div>
+        <div>
+          <dt class="text-gray-500">Recipients Sent</dt>
+          <dd class="font-medium text-gray-900"><%= @broadcast.recipient_count %></dd>
+        </div>
+        <% if @broadcast.sent_at %>
+          <div>
+            <dt class="text-gray-500">Sent At</dt>
+            <dd class="font-medium text-gray-900"><%= @broadcast.sent_at.strftime("%d %b %Y at %H:%M") %></dd>
+          </div>
+        <% end %>
+        <% if @broadcast.segment_filters.any? %>
+          <div>
+            <dt class="text-gray-500">Segment Filters</dt>
+            <dd class="font-medium text-gray-900">
+              <% @broadcast.segment_filters.each do |k, v| %>
+                <span class="block"><%= k.humanize %>: <%= v %></span>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+</div>

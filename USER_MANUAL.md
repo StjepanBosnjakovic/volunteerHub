@@ -504,6 +504,160 @@ If your organisation has configured SSO (SAML 2.0 or OpenID Connect), click **Lo
 
 ---
 
+## Phase 5 — Communications
+
+### In-App Messaging
+
+#### Starting a Conversation
+1. Click **Messages** in the top navigation bar.
+2. Click **New Conversation**.
+3. To send a **direct message**, choose a recipient from the dropdown and click **Start Conversation**.
+4. To create a **group conversation**, enter a group name, tick the participants you want to include, and click **Create Group**.
+
+#### Sending a Message
+1. Open a conversation from the Messages list.
+2. Type your message in the composer at the bottom of the screen.
+3. Press **Ctrl+Enter** (or **Cmd+Enter** on Mac) to send, or click the send button.
+4. Messages are delivered in real time — the recipient sees your message appear without refreshing.
+
+#### Read Receipts
+- A **Read** label appears under your message once the recipient has seen it.
+- Conversations show an unread count badge in the list view.
+
+---
+
+### Notifications
+
+#### Notification Bell
+- The bell icon (🔔) in the top-right corner shows your unread notification count.
+- Click the bell to view your most recent unread notifications.
+- Click **View all** to open the full notifications page.
+- Click **Mark all read** to clear all unread notifications at once.
+
+#### Types of Notifications
+You may receive notifications for:
+- Upcoming **shift reminders** (48h and 2h before your shift)
+- **Hour log approvals or rejections**
+- **Milestone achievements**
+- **Onboarding reminders** (if you have incomplete steps)
+- **Credential expiry alerts**
+- **Broadcast messages** from coordinators
+- New **announcements** from your organisation
+- New **direct messages**
+- **Inactivity nudges** if you haven't volunteered in 60+ days
+
+#### Notification Preferences
+Coordinators can manage per-user notification preferences by editing a user's profile. Volunteers can request preference changes through their coordinator.
+
+---
+
+### Announcements
+
+#### Viewing Announcements
+1. Click **Announcements** in the top navigation bar.
+2. Published announcements appear in reverse-chronological order.
+3. Click any announcement title to read the full content.
+4. New announcements appear in real time at the top of the feed (no page refresh needed).
+
+#### Creating an Announcement (Coordinators)
+1. Click **Announcements** → **New Announcement**.
+2. Enter a **Title** and write the **body** using the rich-text editor (bold, lists, links are supported).
+3. Choose a **Status**:
+   - **Draft** — saves without publishing
+   - **Published** — immediately visible to all volunteers
+4. To **schedule** an announcement for a future time, enter a date/time in the "Schedule for later" field.
+5. Click **Save Announcement**.
+
+#### Publishing / Scheduling (Coordinators)
+- From the announcements list, click **Publish** next to any draft to publish immediately.
+- Scheduled announcements automatically publish at the scheduled time and notify all active volunteers.
+
+---
+
+### Broadcast Messages (Coordinators)
+
+Broadcast messages let you send targeted communications to a filtered segment of volunteers.
+
+#### Creating a Broadcast
+1. Click **Broadcasts** in the navigation (visible to coordinators only).
+2. Click **New Broadcast**.
+3. Enter a **Subject** and the **Message Body**.
+4. Select the **Channel**:
+   - **In-App Notification** — delivered as a notification bell alert
+   - **Email** — sent to each recipient's email address
+   - **SMS / WhatsApp** — feature-flagged; will be enabled in a future release
+5. Use the **Target Audience** filters to narrow recipients by role, program, or volunteer status.
+   - The **Estimated recipients** count updates live as you change filters.
+6. Click **Save Broadcast** to save as a draft.
+
+#### Sending a Broadcast
+- From the broadcasts list or the broadcast detail page, click **Send Now**.
+- Confirm the dialog. The broadcast is sent asynchronously via Sidekiq.
+- The status changes to **Sent** once all messages are delivered.
+
+---
+
+### Email Templates (Coordinators / Admins)
+
+Email templates allow you to customise the automated emails sent by VolunteerOS with your organisation's tone and branding.
+
+#### Viewing Templates
+1. Go to **Organisation** → **Email Templates** (or navigate via the admin menu).
+2. A list of all custom templates is displayed. Event types without a custom template use the built-in defaults.
+
+#### Creating a Custom Template
+1. Click **Create Template**.
+2. Select the **Event Type** (e.g. "Hour Approved", "Shift Reminder").
+3. Write the **Subject Line** — use personalisation tokens like `{{volunteer_name}}` and `{{org_name}}`.
+4. Write the **Body HTML** with full HTML and personalisation tokens.
+5. Tick **Active** to enable the template immediately.
+6. Click **Create Template**.
+
+#### Personalisation Tokens
+Insert these tokens in your subject or body — they are replaced with real values when the email is sent:
+
+| Token | Replaced with |
+|-------|--------------|
+| `{{volunteer_name}}` | Volunteer's full name |
+| `{{org_name}}` | Organisation name |
+| `{{shift_title}}` | Shift title |
+| `{{shift_date}}` | Shift start date/time |
+| `{{program_name}}` | Program name |
+| `{{hours}}` | Number of hours |
+| `{{milestone_label}}` | Milestone label |
+| `{{credential_name}}` | Credential name |
+| `{{days_until_expiry}}` | Days until credential expires |
+| `{{dashboard_link}}` | Link to volunteer dashboard |
+
+#### Previewing a Template
+Click **Preview** next to any template to see a rendered preview with sample values substituted for all tokens.
+
+---
+
+### Email Campaigns (Coordinators / Admins)
+
+Email campaigns allow you to send targeted bulk emails with optional A/B subject line testing.
+
+#### Creating a Campaign
+1. Go to **Broadcasts** → **Email Campaigns** → **New Campaign**.
+2. Enter a **Campaign Name** (internal reference only).
+3. Build your **Audience Segment** using the role, program, and status filters.
+4. Enter **Subject Line A** (required). Optionally enter **Subject Line B** for an A/B test.
+   - When both subjects are set, half the recipients receive A and half receive B.
+5. Write the **Email Body** in HTML.
+6. Choose **Email** as the channel.
+7. Click **Save as Draft**.
+
+#### Sending a Campaign
+- From the campaign list or detail page, click **Send Campaign** and confirm.
+- The campaign is sent asynchronously. The **recipient count** updates once complete.
+
+#### A/B Test Results
+- After sending, the detail page shows **Open Rate A** and **Open Rate B** alongside the **Winning Variant**.
+- Open tracking is recorded via a tracking pixel (full implementation in Phase 8).
+
+---
+
 ## Getting Help
 
 - **In-app help:** Click the **?** icon in the bottom-right corner to access contextual help articles.

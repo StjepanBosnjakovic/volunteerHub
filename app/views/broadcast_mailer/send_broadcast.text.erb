@@ -1,0 +1,6 @@
+Hi <%= @user.display_name %>,
+
+<%= ActionView::Base.full_sanitizer.sanitize(@body_html) %>
+
+—
+<%= @organisation.name %>

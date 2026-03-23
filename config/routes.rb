@@ -102,4 +102,49 @@ Rails.application.routes.draw do
   resources :milestones
 
   get "dashboard", to: "dashboard#index", as: :dashboard
+
+  # Phase 5: Communications
+  resources :conversations, only: %i[index show new create] do
+    resources :messages, only: %i[create]
+  end
+
+  resources :notifications, only: %i[index] do
+    member do
+      patch :mark_read
+    end
+    collection do
+      patch :mark_all_read
+    end
+  end
+
+  resources :email_templates do
+    member do
+      get :preview
+    end
+  end
+
+  resources :email_campaigns do
+    member do
+      post :send_campaign
+    end
+    collection do
+      get :preview_segment
+    end
+  end
+
+  resources :announcements do
+    member do
+      patch :publish
+      post  :schedule_send
+    end
+  end
+
+  resources :broadcast_messages do
+    member do
+      patch :send_broadcast
+    end
+    collection do
+      get :preview_segment
+    end
+  end
 end

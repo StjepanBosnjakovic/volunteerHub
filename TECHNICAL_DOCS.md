@@ -697,6 +697,144 @@ Rails provides a built-in health endpoint at `GET /up` that returns `200 OK` whe
 
 ---
 
+---
+
+## Phase 5 — Communications Architecture
+
+### 5.1 In-App Messaging
+
+#### Models
+| Model | Purpose |
+|-------|---------|
+| `Conversation` | Container for messages; `conversation_type` enum: `direct(0)`, `group(1)` |
+| `ConversationParticipant` | Join table — user ↔ conversation; stores `last_read_at` for unread counts |
+| `Message` | Individual message; rich-text `body` via ActionText; `message_type` enum: `text(0)`, `system(1)` |
+| `MessageRead` | Delivery receipt — tracks when a user has read a specific message |
+
+#### Real-Time Delivery
+Messages broadcast via `Turbo::StreamsChannel` immediately on `after_create_commit`. The conversation show page subscribes via `<%= turbo_stream_from "conversation_#{@conversation.id}" %>`. The `MessagesChannel` Action Cable channel supports bi-directional WebSocket communication.
+
+#### Routes
+```
+conversations         GET  /conversations
+                      POST /conversations
+conversation          GET  /conversations/:id
+conversation_messages POST /conversations/:conversation_id/messages
+```
+
+---
+
+### 5.2 Broadcast Messaging
+
+#### Model
+`BroadcastMessage` stores a `segment_filters` JSONB column with keys `role`, `program_id`, and `volunteer_status`. The `#resolve_recipients` method translates filters into an ActiveRecord scope.
+
+#### Channels
+| Enum value | Status |
+|-----------|--------|
+| `in_app(0)` | Fully implemented — creates `Notification` |
+| `email(1)` | Fully implemented — queues `BroadcastMailer` |
+| `sms(2)` | Feature-flagged — logs intent |
+| `whatsapp(3)` | Feature-flagged — logs intent |
+
+#### `BroadcastMessageJob`
+Queued on `mailers` queue. Iterates recipients via `find_each` for memory safety. Updates `recipient_count` and `sent_at` on completion.
+
+---
+
+### 5.3 Notifications
+
+#### Model
+```ruby
+Notification
+  recipient_id      bigint FK → users
+  organisation_id   bigint FK → organisations
+  notification_type string (see TYPES constant)
+  read_at           datetime (nil = unread)
+  data              jsonb (type-specific payload)
+  notifiable_type   string (polymorphic)
+  notifiable_id     bigint (polymorphic)
+```
+
+#### Notification Types
+Defined in `Notification::TYPES`:
+`shift_reminder`, `hour_approved`, `hour_rejected`, `milestone_reached`, `onboarding_stall`, `credential_expiry`, `swap_request`, `broadcast`, `announcement`, `message_received`, `inactivity_nudge`
+
+#### Bell UI
+- `shared/_notification_bell.html.erb` — dropdown partial rendered in nav
+- Subscribes to `"notifications_#{current_user.id}"` Turbo Stream
+- `notification_bell_count` DOM ID is replaced via `Turbo::StreamsChannel.broadcast_replace_to` on every new notification
+- Stimulus `notification-bell` controller manages dropdown open/close and outside-click dismissal
+
+#### Preferences
+`NotificationPreference` allows per-user opt-in/out per type for `in_app` and `email` channels. `Notification.create_for(recipient:, type:, data:)` respects preferences before creating or emailing.
+
+---
+
+### 5.4 Email Templates
+
+#### Model
+```ruby
+EmailTemplate
+  organisation_id  bigint FK
+  event_type       string (one of EVENT_TYPES)
+  subject          string (with personalisation tokens)
+  body_html        text (HTML with tokens)
+  active           boolean
+```
+
+#### Personalisation Tokens
+Defined in `EmailTemplate::PERSONALISATION_TOKENS`. The `#interpolate(context)` method performs string substitution. `DefaultEmailTemplates` service provides fallback templates when no org-specific template exists.
+
+#### A/B Testing
+`EmailCampaign` stores `subject_a` and `subject_b`. During `BroadcastMessageJob#send_email_campaign`, recipients are split 50/50. `open_count_a`/`open_count_b` are updated via pixel tracking (tracking pixel endpoint is a Phase 8 item). `#winning_variant` compares open rates.
+
+---
+
+### 5.5 Announcements
+
+#### Model
+```ruby
+Announcement
+  organisation_id  bigint FK
+  author_id        bigint FK → users
+  title            string
+  body             ActionText rich text
+  status           enum: draft(0), published(1), scheduled(2), archived(3)
+  published_at     datetime
+  scheduled_for    datetime
+```
+
+#### Scheduling
+`AnnouncementPublishJob` is enqueued with `set(wait_until: scheduled_for)` when an announcement is scheduled. On execution it calls `#publish!` and creates notifications for all active volunteers.
+
+#### Live Feed
+The announcement index subscribes to `"announcements_feed_#{organisation_id}"`. When a draft is published, `after_update_commit` broadcasts a `turbo_stream.prepend` to insert the card at the top of the feed in real-time.
+
+---
+
+### New Stimulus Controllers (Phase 5)
+
+| Controller | File | Purpose |
+|-----------|------|---------|
+| `notification-bell` | `notification_bell_controller.js` | Toggle bell dropdown, outside-click dismiss |
+| `message-composer` | `message_composer_controller.js` | Ctrl+Enter submit, clear on success, auto-scroll |
+| `segment-builder` | `segment_builder_controller.js` | Live recipient count preview via JSON fetch |
+| `sortable` | `sortable_controller.js` | HTML5 drag-drop block ordering with PATCH persistence |
+
+---
+
+### New Background Jobs (Phase 5)
+
+| Job | Queue | Trigger |
+|-----|-------|---------|
+| `BroadcastMessageJob` | `mailers` | Manual send or campaign dispatch |
+| `NotificationDeliveryJob` | `mailers` | `after_create` on Notification when email pref is on |
+| `AnnouncementPublishJob` | `default` | `set(wait_until:)` when announcement scheduled |
+| `InactivityNudgeJob` | `default` | Weekly Sidekiq cron; nudges volunteers inactive >60 days |
+
+---
+
 ## Adding a New Feature
 
 1. **Branch** from `main` using the naming convention `feature/<short-description>`.

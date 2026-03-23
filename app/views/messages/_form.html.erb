@@ -1,0 +1,19 @@
+<%= form_with url: conversation_messages_path(conversation),
+    method: :post,
+    data: { controller: "message-composer", action: "submit->message-composer#clearOnSuccess" } do |f| %>
+  <div class="flex gap-3 items-end">
+    <div class="flex-1">
+      <%= f.text_area :message, name: "message[body]",
+          rows: 2,
+          placeholder: "Type a message…",
+          class: "w-full rounded-xl border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500 resize-none",
+          data: { "message-composer-target" => "input", action: "keydown->message-composer#submitOnEnter" } %>
+    </div>
+    <button type="submit"
+            class="flex-shrink-0 bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+      </svg>
+    </button>
+  </div>
+<% end %>

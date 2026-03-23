@@ -151,39 +151,39 @@ Tasks are grouped by phase. Complete each phase before beginning the next. Items
 
 ---
 
-## Phase 5 — Communications
+## Phase 5 — Communications ✅ COMPLETE
 
 ### 5.1 In-App Messaging
-- [ ] `Conversation` + `Message` models; `ConversationParticipant` join
-- [ ] 1-to-1 and group conversations
-- [ ] Real-time message delivery [Action Cable + Turbo Streams]
-- [ ] Rich-text composer using Trix (built into Rails) with file attachments via Active Storage
-- [ ] Read receipts: `MessageRead` model, updated on scroll/focus [Stimulus]
-- [ ] Delivery receipts for email/SMS channels
+- [x] `Conversation` + `Message` models; `ConversationParticipant` join
+- [x] 1-to-1 and group conversations
+- [x] Real-time message delivery [Action Cable + Turbo Streams]
+- [x] Rich-text composer using Trix (built into Rails) with file attachments via Active Storage
+- [x] Read receipts: `MessageRead` model, updated on scroll/focus [Stimulus]
+- [x] Delivery receipts for email/SMS channels
 
 ### 5.2 Broadcast Messaging
-- [ ] Segment builder: filter by role, program, shift, custom field values [Stimulus live preview]
-- [ ] Broadcast job: iterate segment, queue individual messages / emails [Sidekiq batch]
-- [ ] Channel selector: in-app / email / SMS / WhatsApp (feature-flagged)
+- [x] Segment builder: filter by role, program, shift, custom field values [Stimulus live preview]
+- [x] Broadcast job: iterate segment, queue individual messages / emails [Sidekiq batch]
+- [x] Channel selector: in-app / email / SMS / WhatsApp (feature-flagged)
 
 ### 5.3 Notifications
-- [ ] `Notification` model: `recipient_id`, `type`, `read_at`, `data` (JSON)
-- [ ] Notification bell with unread count [Turbo stream push on creation]
-- [ ] Notification preferences per user (which triggers, which channels)
-- [ ] Sidekiq scheduled jobs for: shift reminders (48h, 2h), credential expiry, inactivity nudge
-- [ ] After-action jobs for: hour approval, milestone reached, onboarding stall
+- [x] `Notification` model: `recipient_id`, `type`, `read_at`, `data` (JSON)
+- [x] Notification bell with unread count [Turbo stream push on creation]
+- [x] Notification preferences per user (which triggers, which channels)
+- [x] Sidekiq scheduled jobs for: shift reminders (48h, 2h), credential expiry, inactivity nudge
+- [x] After-action jobs for: hour approval, milestone reached, onboarding stall
 
 ### 5.4 Email Templates & Branding
-- [ ] `EmailTemplate` model: `event_type`, `subject`, `body_html`, `org_id`
-- [ ] ActionMailer layout with org branding tokens
-- [ ] Template preview in coordinator UI [TURBO frame iframe preview]
-- [ ] Personalisation token interpolation service
-- [ ] A/B subject line test: `EmailCampaign` model with variant A/B; track opens via pixel
+- [x] `EmailTemplate` model: `event_type`, `subject`, `body_html`, `org_id`
+- [x] ActionMailer layout with org branding tokens
+- [x] Template preview in coordinator UI [TURBO frame iframe preview]
+- [x] Personalisation token interpolation service
+- [x] A/B subject line test: `EmailCampaign` model with variant A/B; track opens via pixel
 
 ### 5.5 Announcements & Newsletters
-- [ ] `Announcement` model: `title`, `body` (rich text), `published_at`, `scheduled_for`
-- [ ] Volunteer app feed showing latest announcements [Turbo stream]
-- [ ] Newsletter builder: drag content blocks (Stimulus sortable); preview; schedule send
+- [x] `Announcement` model: `title`, `body` (rich text), `published_at`, `scheduled_for`
+- [x] Volunteer app feed showing latest announcements [Turbo stream]
+- [x] Newsletter builder: drag content blocks (Stimulus sortable); preview; schedule send
 
 ---
 

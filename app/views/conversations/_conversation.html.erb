@@ -1,0 +1,42 @@
+<% unread = conversation.unread_count_for(current_user) %>
+<%= link_to conversation_path(conversation),
+    class: "block px-6 py-4 hover:bg-gray-50 transition-colors" do %>
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+        <span class="text-indigo-600 font-semibold text-sm">
+          <%= conversation.display_title(current_user).first(2).upcase %>
+        </span>
+      </div>
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <p class="text-sm font-medium text-gray-900 truncate">
+            <%= conversation.display_title(current_user) %>
+          </p>
+          <% if conversation.group? %>
+            <span class="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">Group</span>
+          <% end %>
+        </div>
+        <% last_msg = conversation.messages.ordered.last %>
+        <% if last_msg %>
+          <p class="text-xs text-gray-500 truncate mt-0.5">
+            <%= last_msg.sender == current_user ? "You" : last_msg.sender.display_name %>:
+            <%= last_msg.body.to_plain_text.truncate(60) %>
+          </p>
+        <% end %>
+      </div>
+    </div>
+    <div class="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
+      <% if conversation.messages.any? %>
+        <span class="text-xs text-gray-400">
+          <%= time_ago_in_words(conversation.updated_at) %> ago
+        </span>
+      <% end %>
+      <% if unread > 0 %>
+        <span class="inline-flex items-center justify-center h-5 w-5 text-xs font-bold text-white bg-indigo-600 rounded-full">
+          <%= unread %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+<% end %>
