@@ -3,6 +3,7 @@ class Program < ApplicationRecord
 
   belongs_to :organisation
   has_many :shifts, dependent: :destroy
+  has_many :hour_logs, dependent: :destroy
   has_many :coordinator_programs, foreign_key: :programme_id, dependent: :destroy
   has_many :coordinators, through: :coordinator_programs, source: :user
 

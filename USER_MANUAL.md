@@ -195,21 +195,41 @@ When you arrive within the venue radius, your phone prompts you to check in auto
 
 ### Logging Hours
 
-**Shifts:** Hours are logged automatically when you check out. If there is a discrepancy, click **Dispute Hours** on the shift record.
+**Shifts:** Hours are logged automatically when you check out. If there is a discrepancy, click **Dispute Hours** on the shift record, add a short note explaining the issue, and submit. Your coordinator receives an in-app notification and will review the discrepancy.
 
 **Ad-hoc activities:**
 1. Go to **My Hours** → **Log Hours**.
 2. Select the program, enter the date, number of hours, and a short description.
 3. Click **Submit**. The hours appear as **Pending** until a coordinator approves them.
 
+**Hour log statuses:**
+
+| Status | Meaning |
+|--------|---------|
+| Pending | Awaiting coordinator review |
+| Approved | Counted towards your cumulative total |
+| Rejected | Not accepted; you will receive a notification with the reason |
+| Disputed | You have flagged an auto-logged entry for coordinator review |
+
 ---
 
 ### Viewing Your Hours & Milestones
 
-- **My Hours** shows a breakdown by program and date range.
-- Cumulative totals are shown on your dashboard.
+- **My Hours** shows a breakdown by program and date range, with a cumulative total at the top.
+- Cumulative totals are shown on your personal dashboard and update in real time as hours are approved.
 - When you reach a milestone (e.g. 10, 50, 100 hours) you receive an in-app notification and email, and any associated badge is awarded automatically.
 - Export your hours as CSV from **My Hours** → **Export**.
+
+**Milestone thresholds** (configured per organisation):
+
+| Milestone | Default Threshold |
+|-----------|-----------------|
+| Getting Started | 10 hours |
+| Active Volunteer | 50 hours |
+| Dedicated Volunteer | 100 hours |
+| Champion | 500 hours |
+
+Your coordinator can set custom thresholds and attach a badge to each milestone.
 
 ---
 
@@ -336,10 +356,22 @@ Navigate to **Volunteers** to access the full roster.
 ### Approving Hours
 
 1. Go to **Hours** → **Pending Approval**.
-2. Review each submission (volunteer, date, hours, description).
+2. Review each submission (volunteer, date, hours, description, and source: auto / self-logged / bulk import).
 3. Click **Approve**, **Reject**, or **Edit & Approve**.
+   - **Edit & Approve** lets you correct the hours or description before approving.
+   - When rejecting, enter a short reason — the volunteer is notified automatically.
 4. For bulk actions, select multiple rows → **Bulk Approve**.
 5. To skip manual approval for a program, go to **Program Settings** → enable **Auto-Approve Hours**.
+
+**Disputed hours:**
+Disputed entries (auto-logged hours flagged by a volunteer) appear in a separate **Disputed** tab. Review the volunteer's note, then approve the corrected total or keep the original and reject the dispute.
+
+**Bulk CSV upload:**
+1. Go to **Hours** → **Bulk Import**.
+2. Download the CSV template.
+3. Fill in columns: `volunteer_email`, `program_slug`, `shift_id` (optional), `date` (YYYY-MM-DD), `hours`, `description`.
+4. Upload the file. A background job processes each row and creates `HourLog` records with source `bulk`.
+5. Results (successes and errors) are emailed to you when processing completes.
 
 ---
 

@@ -1,0 +1,28 @@
+<div class="max-w-xl">
+  <nav class="text-sm text-gray-500 mb-4">
+    <%= link_to "Hours", hour_logs_path, class: "hover:underline" %> / Bulk Import
+  </nav>
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">Bulk Import Hours</h1>
+  <p class="text-sm text-gray-500 mb-6">
+    Upload a CSV to create multiple hour logs at once. All rows are created with
+    <strong>Pending</strong> status and will appear in the approval queue.
+  </p>
+
+  <div class="bg-blue-50 border border-blue-100 rounded-md p-4 mb-6 text-sm text-blue-800">
+    <p class="font-medium mb-1">Required CSV columns:</p>
+    <code class="text-xs">volunteer_email, program_name, shift_id (optional), date (YYYY-MM-DD), hours, description</code>
+  </div>
+
+  <%= form_with url: bulk_import_hour_logs_path, method: :post, multipart: true do |f| %>
+    <div class="mb-4">
+      <%= f.label :csv_file, "CSV File", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.file_field :csv_file, accept: ".csv",
+          class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" %>
+    </div>
+    <div class="flex gap-3">
+      <%= f.submit "Upload & Import",
+          class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+      <%= link_to "Cancel", hour_logs_path, class: "text-sm text-gray-500 hover:underline self-center" %>
+    </div>
+  <% end %>
+</div>

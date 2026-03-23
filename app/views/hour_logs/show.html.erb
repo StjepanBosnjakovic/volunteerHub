@@ -1,0 +1,78 @@
+<div class="max-w-xl">
+  <nav class="text-sm text-gray-500 mb-4">
+    <%= link_to "Hours", hour_logs_path, class: "hover:underline" %> / Detail
+  </nav>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Hour Log</h1>
+
+  <div class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+    <div class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <p class="text-gray-500 font-medium">Volunteer</p>
+        <p class="text-gray-900"><%= @hour_log.volunteer_profile.full_name %></p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-medium">Program</p>
+        <p class="text-gray-900"><%= @hour_log.program.name %></p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-medium">Date</p>
+        <p class="text-gray-900"><%= @hour_log.date.strftime("%B %-d, %Y") %></p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-medium">Hours</p>
+        <p class="text-gray-900 font-semibold"><%= @hour_log.hours %>h</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-medium">Source</p>
+        <p class="text-gray-900 capitalize"><%= @hour_log.source.to_s.humanize %></p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-medium">Status</p>
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+          <%= @hour_log.approved? ? 'bg-green-100 text-green-800' :
+              @hour_log.rejected? ? 'bg-red-100 text-red-800' :
+              'bg-yellow-100 text-yellow-800' %>">
+          <%= @hour_log.disputed? ? 'Disputed' : @hour_log.status.capitalize %>
+        </span>
+      </div>
+    </div>
+
+    <% if @hour_log.description.present? %>
+      <div class="text-sm">
+        <p class="text-gray-500 font-medium mb-1">Description</p>
+        <p class="text-gray-900"><%= @hour_log.description %></p>
+      </div>
+    <% end %>
+
+    <% if @hour_log.rejection_reason.present? %>
+      <div class="bg-red-50 border border-red-100 rounded p-3 text-sm">
+        <p class="font-medium text-red-800">Rejection reason:</p>
+        <p class="text-red-700"><%= @hour_log.rejection_reason %></p>
+      </div>
+    <% end %>
+
+    <% if @hour_log.dispute_note.present? %>
+      <div class="bg-yellow-50 border border-yellow-100 rounded p-3 text-sm">
+        <p class="font-medium text-yellow-800">Dispute note:</p>
+        <p class="text-yellow-700"><%= @hour_log.dispute_note %></p>
+      </div>
+    <% end %>
+
+    <% if @hour_log.approved_by.present? %>
+      <p class="text-xs text-gray-400">
+        <%= @hour_log.status.capitalize %> by <%= @hour_log.approved_by.display_name %>
+        at <%= @hour_log.approved_at.strftime("%b %-d, %Y %H:%M") %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="mt-4 flex gap-3">
+    <% if policy(@hour_log).approve? && @hour_log.pending? %>
+      <%= button_to "Approve", approve_hour_log_path(@hour_log), method: :patch,
+          class: "bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700" %>
+      <%= button_to "Reject", reject_hour_log_path(@hour_log), method: :patch,
+          class: "bg-red-50 text-red-700 border border-red-300 px-4 py-2 rounded-md text-sm hover:bg-red-100" %>
+    <% end %>
+    <%= link_to "Back", hour_logs_path, class: "text-sm text-gray-500 hover:underline self-center" %>
+  </div>
+</div>

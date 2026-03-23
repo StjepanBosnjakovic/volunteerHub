@@ -285,6 +285,16 @@ In production, use Rails encrypted credentials (`bin/rails credentials:edit`) or
 | `status` | integer | enum: `pending(0)`, `approved(1)`, `rejected(2)` |
 | `source` | integer | enum: `auto(0)`, `self(1)`, `bulk(2)` |
 
+#### `milestones`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | bigint PK | |
+| `organisation_id` | bigint FK | `organisations` |
+| `threshold_hours` | decimal | cumulative hours that trigger the milestone |
+| `label` | string | e.g. `"50 Hours"` |
+| `message` | text | congratulations message body |
+| `badge_id` | bigint FK | optional badge awarded on reaching threshold |
+
 #### `notifications`
 | Column | Type | Notes |
 |--------|------|-------|
@@ -301,7 +311,9 @@ Organisation ──< User
 Organisation ──< VolunteerProfile
 Organisation ──< Opportunity ──< Application >── VolunteerProfile
 Organisation ──< Program ──< Shift ──< ShiftAssignment >── VolunteerProfile
-                                  ShiftAssignment ──< Attendance
+                                  ShiftAssignment ──< Attendance ──> HourLog
+Programme ──< HourLog >── VolunteerProfile
+Organisation ──< Milestone ──> Badge
 Program ──< OnboardingChecklist ──< OnboardingStep
 VolunteerProfile ──< HourLog
 VolunteerProfile ──< Credential
@@ -390,6 +402,9 @@ Configured in `config/sidekiq.yml`:
 | `OnboardingStallReminderJob` | Daily 09:00 | Remind volunteers stalled in onboarding |
 | `ShiftReminderJob` | Every hour | Send 48h and 2h shift reminders |
 | `NoShowDetectionJob` | Every 15 min | Flag missing attendance after shift end |
+| `HourLogAutoCreateJob` | Event-driven | Create HourLog record on Attendance check-out |
+| `HourBulkImportJob` | Event-driven | Process coordinator-uploaded CSV; creates HourLog rows |
+| `MilestoneCheckJob` | Event-driven | After HourLog approval, compare cumulative hours against Milestone thresholds; award badge and send notification |
 | `InactivityNudgeJob` | Weekly | Email volunteers inactive for X days |
 | `ReportScheduleJob` | Daily 06:00 | Generate and email scheduled reports |
 
@@ -559,6 +574,9 @@ Webhook deliveries are handled by `WebhookDeliveryJob` with exponential backoff 
 | `shift.booked` | shift assignment object |
 | `shift.cancelled` | shift assignment object |
 | `hour_log.approved` | hour log object |
+| `hour_log.rejected` | hour log object with rejection reason |
+| `hour_log.disputed` | hour log object with dispute note |
+| `milestone.reached` | volunteer profile + milestone object |
 | `application.status_changed` | application with old/new status |
 
 **Signature verification:** Each delivery includes an `X-VolunteerOS-Signature` header (HMAC-SHA256 of the raw body using your webhook secret). Always verify this before processing.

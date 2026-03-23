@@ -26,5 +26,6 @@ class Attendance < ApplicationRecord
 
   def check_out!
     update!(checked_out_at: Time.current)
+    HourLogAutoCreateJob.perform_later(id) if duration_hours&.positive?
   end
 end
