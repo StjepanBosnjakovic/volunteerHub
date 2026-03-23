@@ -1,5 +1,5 @@
 class OpportunitiesController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
 
   # Allow public access to index/show/embed
   skip_before_action :authenticate_user!, only: %i[index show embed]
