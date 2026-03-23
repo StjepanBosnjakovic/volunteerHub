@@ -2,5 +2,6 @@
 require "rubygems"
 require "bundler/setup"
 
+require "importmap"
 require "importmap/commands"
 Importmap::Commands.start(ARGV)
