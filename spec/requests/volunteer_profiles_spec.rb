@@ -1,32 +1,41 @@
 require 'rails_helper'
 
 RSpec.describe "VolunteerProfiles", type: :request do
-  describe "GET /index" do
+  describe "GET /volunteer_profiles" do
     it "returns http success" do
-      get "/volunteer_profiles/index"
+      user = create(:user, :coordinator)
+      sign_in user
+      get "/volunteer_profiles"
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /show" do
+  describe "GET /volunteer_profiles/:id" do
     it "returns http success" do
-      get "/volunteer_profiles/show"
+      user = create(:user, :coordinator)
+      sign_in user
+      profile = create(:volunteer_profile, organisation: user.organisation, user: user)
+      get "/volunteer_profiles/#{profile.id}"
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /new" do
+  describe "GET /volunteer_profiles/new" do
     it "returns http success" do
+      user = create(:user, :coordinator)
+      sign_in user
       get "/volunteer_profiles/new"
       expect(response).to have_http_status(:success)
     end
   end
 
-  describe "GET /edit" do
+  describe "GET /volunteer_profiles/:id/edit" do
     it "returns http success" do
-      get "/volunteer_profiles/edit"
+      user = create(:user, :coordinator)
+      sign_in user
+      profile = create(:volunteer_profile, organisation: user.organisation, user: user)
+      get "/volunteer_profiles/#{profile.id}/edit"
       expect(response).to have_http_status(:success)
     end
   end
-
 end

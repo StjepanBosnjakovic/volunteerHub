@@ -1,5 +1,5 @@
 class VolunteerApplicationsController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
 
   skip_before_action :authenticate_user!, only: %i[new create]
 

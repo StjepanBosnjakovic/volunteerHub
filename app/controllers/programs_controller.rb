@@ -57,5 +57,5 @@ class ProgramsController < ApplicationController
     params.require(:program).permit(:name, :description)
   end
 
-  include Pagy::Backend
+  include Pagy::Method
 end
