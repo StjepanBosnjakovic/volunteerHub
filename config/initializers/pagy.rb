@@ -1,1 +1,3 @@
-# Pagy configuration - use the Pagy initializer approach for v43+
+# Pagy configuration
+require "pagy/backend"
+require "pagy/frontend"
