@@ -1,0 +1,8 @@
+<div class="max-w-xl">
+  <nav class="text-sm text-gray-500 mb-4">
+    <%= link_to "Hours", hour_logs_path, class: "hover:underline" %> / Log Hours
+  </nav>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Log Hours</h1>
+  <%= render "form", hour_log: @hour_log, url: hour_logs_path,
+      programs: @programs, submit_label: "Submit Hours" %>
+</div>

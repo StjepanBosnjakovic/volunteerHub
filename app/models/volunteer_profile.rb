@@ -23,6 +23,12 @@ class VolunteerProfile < ApplicationRecord
   has_many :confirmed_shifts, -> { merge(ShiftAssignment.confirmed) }, through: :shift_assignments, source: :shift
   has_many :waitlisted_shifts, -> { merge(ShiftAssignment.waitlisted) }, through: :shift_assignments, source: :shift
 
+  # Phase 4: Hour Tracking
+  has_many :hour_logs, dependent: :destroy
+  has_many :approved_hour_logs, -> { HourLog.approved }, class_name: "HourLog"
+  has_many :volunteer_milestones, dependent: :destroy
+  has_many :milestones, through: :volunteer_milestones
+
   has_one_attached :avatar
 
   enum :status, { pending: 0, active: 1, inactive: 2 }, prefix: true
@@ -51,6 +57,17 @@ class VolunteerProfile < ApplicationRecord
 
   def minor?
     is_minor
+  end
+
+  def total_approved_hours
+    hour_logs.approved.sum(:hours)
+  end
+
+  def approved_hours_by_program
+    hour_logs.approved
+             .joins(:program)
+             .group("programs.name")
+             .sum(:hours)
   end
 
   def anonymize!

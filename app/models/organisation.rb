@@ -6,6 +6,8 @@ class Organisation < ApplicationRecord
   has_many :custom_fields, dependent: :destroy
   has_many :opportunities, dependent: :destroy
   has_many :onboarding_checklists, dependent: :destroy
+  has_many :milestones, dependent: :destroy
+  has_many :hour_logs, dependent: :destroy
 
   has_one_attached :logo
 

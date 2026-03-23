@@ -1,0 +1,90 @@
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Hours</h1>
+    <% if current_user.admin? %>
+      <p class="text-sm text-gray-500 mt-1">Review and approve volunteer hour submissions.</p>
+    <% else %>
+      <p class="text-sm text-gray-500 mt-1">Your volunteering hour log.</p>
+    <% end %>
+  </div>
+  <div class="flex gap-2">
+    <% if current_user.role_volunteer? %>
+      <%= link_to "Log Hours", new_hour_log_path,
+          class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700" %>
+    <% end %>
+    <% if policy(HourLog).bulk_import? %>
+      <%= link_to "Bulk Import", bulk_import_hour_logs_path,
+          class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+    <% end %>
+    <%= link_to "Export CSV", hour_logs_path(format: :csv, tab: @tab,
+        program_id: params[:program_id], from: params[:from], to: params[:to]),
+        class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+  </div>
+</div>
+
+<%# Filters %>
+<div class="bg-white border border-gray-200 rounded-md p-4 mb-4">
+  <%= form_with url: hour_logs_path, method: :get, data: { turbo_frame: "_top" } do |f| %>
+    <div class="flex flex-wrap gap-3 items-end">
+      <div>
+        <%= f.label :program_id, "Program", class: "block text-xs font-medium text-gray-600 mb-1" %>
+        <%= f.select :program_id,
+            @programs.map { |p| [p.name, p.id] },
+            { include_blank: "All programs" },
+            class: "rounded-md border-gray-300 text-sm shadow-sm" %>
+      </div>
+      <div>
+        <%= f.label :from, "From", class: "block text-xs font-medium text-gray-600 mb-1" %>
+        <%= f.date_field :from, value: params[:from], class: "rounded-md border-gray-300 text-sm shadow-sm" %>
+      </div>
+      <div>
+        <%= f.label :to, "To", class: "block text-xs font-medium text-gray-600 mb-1" %>
+        <%= f.date_field :to, value: params[:to], class: "rounded-md border-gray-300 text-sm shadow-sm" %>
+      </div>
+      <%= f.hidden_field :tab, value: @tab %>
+      <%= f.submit "Filter", class: "bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-200 cursor-pointer" %>
+      <%= link_to "Clear", hour_logs_path, class: "text-sm text-gray-500 hover:underline" %>
+    </div>
+  <% end %>
+</div>
+
+<%# Tabs %>
+<div class="border-b border-gray-200 mb-4">
+  <nav class="flex gap-6">
+    <% tabs = current_user.admin? ? [["pending", "Pending"], ["approved", "Approved"], ["rejected", "Rejected"], ["disputed", "Disputed"]] : [["mine", "My Hours"], ["approved", "Approved"], ["pending", "Pending"]] %>
+    <% tabs.each do |key, label| %>
+      <%= link_to label, hour_logs_path(tab: key, program_id: params[:program_id], from: params[:from], to: params[:to]),
+          class: "py-3 text-sm font-medium border-b-2 -mb-px #{@tab == key ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" %>
+    <% end %>
+  </nav>
+</div>
+
+<turbo-frame id="hour_logs_list">
+  <% if @hour_logs.empty? %>
+    <div class="text-center py-12 text-gray-400">
+      <p class="text-sm">No hour logs found.</p>
+    </div>
+  <% else %>
+    <div class="overflow-hidden border border-gray-200 rounded-md">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Volunteer</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Program</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hours</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% @hour_logs.each do |hour_log| %>
+            <%= render "hour_logs/row", hour_log: hour_log %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+  <% end %>
+</turbo-frame>

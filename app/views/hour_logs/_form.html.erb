@@ -1,0 +1,54 @@
+<%= form_with model: hour_log, url: url, class: "space-y-5" do |f| %>
+  <% if hour_log.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% hour_log.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if current_user.admin? %>
+    <div>
+      <%= f.label :volunteer_profile_id, "Volunteer", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :volunteer_profile_id,
+          VolunteerProfile.where(organisation: current_user.organisation).status_active.map { |vp| [vp.full_name, vp.id] },
+          { include_blank: "Select volunteer..." },
+          class: "w-full rounded-md border-gray-300 shadow-sm text-sm" %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :program_id, "Program", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.select :program_id,
+        programs.map { |p| [p.name, p.id] },
+        { include_blank: "Select program..." },
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm" %>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <%= f.label :date, "Date", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.date_field :date, class: "w-full rounded-md border-gray-300 shadow-sm text-sm" %>
+    </div>
+    <div>
+      <%= f.label :hours, "Hours", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :hours, step: 0.25, min: 0.25, max: 24,
+          class: "w-full rounded-md border-gray-300 shadow-sm text-sm",
+          placeholder: "e.g. 2.5" %>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :description, rows: 3,
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm",
+        placeholder: "Brief description of the activity" %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit submit_label, class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <%= link_to "Cancel", hour_logs_path, class: "text-sm text-gray-500 hover:underline self-center" %>
+  </div>
+<% end %>

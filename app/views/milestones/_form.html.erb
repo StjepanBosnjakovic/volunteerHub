@@ -1,0 +1,37 @@
+<%= form_with model: milestone, class: "space-y-5" do |f| %>
+  <% if milestone.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% milestone.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :label, "Label", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_field :label, class: "w-full rounded-md border-gray-300 shadow-sm text-sm",
+        placeholder: "e.g. Dedicated Volunteer" %>
+  </div>
+
+  <div>
+    <%= f.label :threshold_hours, "Threshold Hours", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.number_field :threshold_hours, step: 1, min: 1,
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm",
+        placeholder: "e.g. 100" %>
+    <p class="text-xs text-gray-400 mt-1">Awarded when a volunteer's cumulative approved hours reach this total.</p>
+  </div>
+
+  <div>
+    <%= f.label :message, "Congratulations Message", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :message, rows: 3, class: "w-full rounded-md border-gray-300 shadow-sm text-sm",
+        placeholder: "e.g. Congratulations on reaching 100 hours of volunteering!" %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit milestone.new_record? ? "Create Milestone" : "Save Changes",
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <%= link_to "Cancel", milestones_path, class: "text-sm text-gray-500 hover:underline self-center" %>
+  </div>
+<% end %>

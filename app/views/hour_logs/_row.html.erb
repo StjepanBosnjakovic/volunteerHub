@@ -1,0 +1,43 @@
+<tr id="hour_log_<%= hour_log.id %>" class="<%= hour_log.disputed? ? 'bg-yellow-50' : '' %>">
+  <td class="px-4 py-3 text-sm text-gray-900">
+    <% if current_user.admin? %>
+      <%= link_to hour_log.volunteer_profile.full_name,
+          volunteer_profile_path(hour_log.volunteer_profile),
+          class: "text-indigo-600 hover:underline" %>
+    <% else %>
+      <%= hour_log.volunteer_profile.full_name %>
+    <% end %>
+  </td>
+  <td class="px-4 py-3 text-sm text-gray-700"><%= hour_log.program.name %></td>
+  <td class="px-4 py-3 text-sm text-gray-700">
+    <%= hour_log.date.strftime("%b %-d, %Y") %>
+  </td>
+  <td class="px-4 py-3 text-sm text-gray-900 font-medium"><%= hour_log.hours %>h</td>
+  <td class="px-4 py-3 text-sm text-gray-500 max-w-xs truncate"><%= hour_log.description %></td>
+  <td class="px-4 py-3">
+    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+      <%= hour_log.approved? ? 'bg-green-100 text-green-800' :
+          hour_log.rejected? ? 'bg-red-100 text-red-800' :
+          'bg-yellow-100 text-yellow-800' %>">
+      <%= hour_log.disputed? ? 'Disputed' : hour_log.status.capitalize %>
+    </span>
+    <span class="ml-1 text-xs text-gray-400 capitalize">(<%= hour_log.source.to_s.humanize %>)</span>
+  </td>
+  <td class="px-4 py-3 text-sm">
+    <% if policy(hour_log).approve? && hour_log.pending? %>
+      <%= button_to "Approve", approve_hour_log_path(hour_log),
+          method: :patch,
+          class: "text-green-700 hover:text-green-900 mr-2" %>
+      <%= button_to "Reject", reject_hour_log_path(hour_log),
+          method: :patch,
+          params: { rejection_reason: "Not approved." },
+          class: "text-red-600 hover:text-red-800" %>
+    <% end %>
+    <% if policy(hour_log).dispute? && hour_log.auto? && !hour_log.disputed? %>
+      <%= button_to "Dispute", dispute_hour_log_path(hour_log),
+          method: :patch,
+          params: { dispute_note: "Hours are incorrect." },
+          class: "text-yellow-600 hover:text-yellow-800 text-xs" %>
+    <% end %>
+  </td>
+</tr>

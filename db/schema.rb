@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_22_300006) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_23_400003) do
   enable_extension "pg_catalog.plpgsql"
 
   create_table "application_answers", force: :cascade do |t|
@@ -119,6 +119,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_300006) do
     t.index ["volunteer_profile_id"], name: "index_emergency_contacts_on_volunteer_profile_id"
   end
 
+  create_table "hour_logs", force: :cascade do |t|
+    t.bigint "volunteer_profile_id", null: false
+    t.bigint "program_id", null: false
+    t.bigint "shift_id"
+    t.bigint "attendance_id"
+    t.date "date", null: false
+    t.decimal "hours", precision: 6, scale: 2, null: false
+    t.text "description"
+    t.integer "status", default: 0, null: false
+    t.integer "source", default: 1, null: false
+    t.bigint "approved_by_id"
+    t.datetime "approved_at"
+    t.string "rejection_reason"
+    t.boolean "disputed", default: false, null: false
+    t.text "dispute_note"
+    t.bigint "organisation_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["volunteer_profile_id", "date"], name: "index_hour_logs_on_volunteer_profile_id_and_date"
+    t.index ["program_id", "status"], name: "index_hour_logs_on_program_id_and_status"
+    t.index ["attendance_id"], name: "index_hour_logs_on_attendance_id", unique: true
+    t.index ["organisation_id"], name: "index_hour_logs_on_organisation_id"
+  end
+
   create_table "interest_categories", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -180,6 +204,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_300006) do
     t.index ["opportunity_id", "skill_id"], name: "index_opportunity_skills_on_opportunity_id_and_skill_id", unique: true
   end
 
+  create_table "milestones", force: :cascade do |t|
+    t.bigint "organisation_id", null: false
+    t.decimal "threshold_hours", precision: 8, scale: 2, null: false
+    t.string "label", null: false
+    t.text "message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organisation_id", "threshold_hours"], name: "index_milestones_on_organisation_id_and_threshold_hours", unique: true
+  end
+
   create_table "organisations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_sender_address"
@@ -189,6 +223,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_300006) do
     t.string "primary_colour"
     t.string "slug"
     t.string "timezone"
+    t.boolean "auto_approve_hours", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_organisations_on_slug", unique: true
   end
@@ -318,6 +353,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_300006) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "volunteer_milestones", force: :cascade do |t|
+    t.bigint "volunteer_profile_id", null: false
+    t.bigint "milestone_id", null: false
+    t.datetime "reached_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["volunteer_profile_id", "milestone_id"], name: "index_volunteer_milestones_unique", unique: true
+  end
+
   create_table "volunteer_applications", force: :cascade do |t|
     t.bigint "volunteer_profile_id", null: false
     t.bigint "opportunity_id", null: false
@@ -379,6 +423,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_300006) do
     t.index ["volunteer_profile_id"], name: "index_volunteer_profiles_on_volunteer_skill_id"
   end
 
+  add_foreign_key "hour_logs", "attendances"
+  add_foreign_key "hour_logs", "organisations"
+  add_foreign_key "hour_logs", "programs"
+  add_foreign_key "hour_logs", "shifts"
+  add_foreign_key "hour_logs", "users", column: "approved_by_id"
+  add_foreign_key "hour_logs", "volunteer_profiles"
+  add_foreign_key "milestones", "organisations"
+  add_foreign_key "volunteer_milestones", "milestones"
+  add_foreign_key "volunteer_milestones", "volunteer_profiles"
   add_foreign_key "application_answers", "volunteer_applications"
   add_foreign_key "application_answers", "application_questions"
   add_foreign_key "application_questions", "opportunities"

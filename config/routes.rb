@@ -86,5 +86,20 @@ Rails.application.routes.draw do
   # iCal feeds
   get "volunteers/:id/schedule.ics", to: "volunteer_profiles#ical", as: :volunteer_ical
 
+  # Phase 4: Hour Tracking & Verification
+  resources :hour_logs, only: %i[index show new create edit update destroy] do
+    member do
+      patch :approve
+      patch :reject
+      patch :dispute
+    end
+    collection do
+      get  :bulk_import
+      post :bulk_import
+    end
+  end
+
+  resources :milestones
+
   get "dashboard", to: "dashboard#index", as: :dashboard
 end

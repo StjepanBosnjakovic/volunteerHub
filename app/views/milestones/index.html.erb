@@ -1,0 +1,45 @@
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Milestones</h1>
+    <p class="text-sm text-gray-500 mt-1">Configure hour thresholds that trigger volunteer recognition.</p>
+  </div>
+  <% if policy(Milestone).create? %>
+    <%= link_to "New Milestone", new_milestone_path,
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700" %>
+  <% end %>
+</div>
+
+<% if @milestones.empty? %>
+  <div class="text-center py-12 text-gray-400">
+    <p class="text-sm">No milestones configured yet.</p>
+    <% if policy(Milestone).create? %>
+      <%= link_to "Create your first milestone", new_milestone_path,
+          class: "mt-2 inline-block text-indigo-600 hover:underline text-sm" %>
+    <% end %>
+  </div>
+<% else %>
+  <div class="space-y-3">
+    <% @milestones.each do |milestone| %>
+      <div class="bg-white border border-gray-200 rounded-lg p-5 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="text-center bg-indigo-50 rounded-md px-4 py-2">
+            <p class="text-xl font-bold text-indigo-700"><%= milestone.threshold_hours.to_i %>h</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900"><%= milestone.label %></h3>
+            <p class="text-sm text-gray-500"><%= milestone.message %></p>
+          </div>
+        </div>
+        <% if policy(milestone).update? %>
+          <div class="flex gap-2">
+            <%= link_to "Edit", edit_milestone_path(milestone),
+                class: "text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-md hover:text-indigo-800" %>
+            <%= button_to "Delete", milestone_path(milestone), method: :delete,
+                data: { turbo_confirm: "Delete this milestone?" },
+                class: "text-sm text-red-600 border border-red-300 px-3 py-1.5 rounded-md hover:bg-red-50" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
