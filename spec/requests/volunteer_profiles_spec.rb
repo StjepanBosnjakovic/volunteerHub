@@ -14,7 +14,7 @@ RSpec.describe "VolunteerProfiles", type: :request do
     it "returns http success" do
       user = create(:user, :coordinator)
       sign_in user
-      profile = create(:volunteer_profile, organisation: user.organisation)
+      profile = create(:volunteer_profile, organisation: user.organisation, user: user)
       get "/volunteer_profiles/#{profile.id}"
       expect(response).to have_http_status(:success)
     end
@@ -33,7 +33,7 @@ RSpec.describe "VolunteerProfiles", type: :request do
     it "returns http success" do
       user = create(:user, :coordinator)
       sign_in user
-      profile = create(:volunteer_profile, organisation: user.organisation)
+      profile = create(:volunteer_profile, organisation: user.organisation, user: user)
       get "/volunteer_profiles/#{profile.id}/edit"
       expect(response).to have_http_status(:success)
     end
