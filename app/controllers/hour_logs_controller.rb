@@ -1,5 +1,5 @@
 class HourLogsController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
 
   before_action :set_hour_log, only: %i[show edit update destroy approve reject dispute]
 
