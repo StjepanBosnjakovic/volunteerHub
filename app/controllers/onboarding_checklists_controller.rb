@@ -1,5 +1,5 @@
 class OnboardingChecklistsController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
 
   before_action :set_checklist, only: %i[show edit update destroy]
 

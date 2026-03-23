@@ -1,5 +1,5 @@
 class VolunteerProfilesController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
 
   before_action :set_volunteer_profile, only: [:show, :edit, :update, :destroy, :archive]
 
