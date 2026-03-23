@@ -10,12 +10,12 @@ class HourLogsController < ApplicationController
     logs = policy_scope(HourLog).includes(:volunteer_profile, :program, :shift).ordered
 
     logs = case @tab
-           when "pending"   then logs.pending
-           when "approved"  then logs.approved
-           when "rejected"  then logs.rejected
-           when "disputed"  then logs.disputed
-           else                  logs
-           end
+    when "pending"  then logs.pending
+    when "approved" then logs.approved
+    when "rejected" then logs.rejected
+    when "disputed" then logs.disputed
+    else logs
+    end
 
     if params[:program_id].present?
       logs = logs.where(program_id: params[:program_id])
