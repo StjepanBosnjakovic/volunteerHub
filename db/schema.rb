@@ -10,9 +10,42 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_22_123234) do
-  # These are extensions that must be enabled in order to support this database
+ActiveRecord::Schema[8.1].define(version: 2026_03_22_300006) do
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "application_answers", force: :cascade do |t|
+    t.bigint "volunteer_application_id", null: false
+    t.bigint "application_question_id", null: false
+    t.text "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["volunteer_application_id"], name: "index_application_answers_on_volunteer_application_id"
+    t.index ["application_question_id"], name: "index_application_answers_on_application_question_id"
+  end
+
+  create_table "application_questions", force: :cascade do |t|
+    t.bigint "opportunity_id", null: false
+    t.string "question_type", null: false
+    t.string "label", null: false
+    t.jsonb "options"
+    t.integer "position", default: 0
+    t.boolean "required", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["opportunity_id"], name: "index_application_questions_on_opportunity_id"
+  end
+
+  create_table "attendances", force: :cascade do |t|
+    t.bigint "shift_assignment_id", null: false
+    t.datetime "checked_in_at"
+    t.datetime "checked_out_at"
+    t.integer "method", default: 0, null: false
+    t.boolean "no_show", default: false, null: false
+    t.boolean "late", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shift_assignment_id"], name: "index_attendances_on_shift_assignment_id", unique: true
+  end
 
   create_table "availabilities", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -94,6 +127,59 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_123234) do
     t.index ["organisation_id"], name: "index_interest_categories_on_organisation_id"
   end
 
+  create_table "onboarding_checklists", force: :cascade do |t|
+    t.bigint "organisation_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.string "target_role"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organisation_id"], name: "index_onboarding_checklists_on_organisation_id"
+  end
+
+  create_table "onboarding_steps", force: :cascade do |t|
+    t.bigint "onboarding_checklist_id", null: false
+    t.string "step_type", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.string "content_url"
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["onboarding_checklist_id", "position"], name: "index_onboarding_steps_on_checklist_id_and_position"
+  end
+
+  create_table "opportunities", force: :cascade do |t|
+    t.bigint "organisation_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.string "location"
+    t.decimal "lat", precision: 10, scale: 7
+    t.decimal "lng", precision: 10, scale: 7
+    t.datetime "starts_at"
+    t.datetime "ends_at"
+    t.integer "spots_available"
+    t.string "commitment_level"
+    t.integer "status", default: 0, null: false
+    t.string "slug", null: false
+    t.string "category"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organisation_id", "status"], name: "index_opportunities_on_organisation_id_and_status"
+    t.index ["slug"], name: "index_opportunities_on_slug", unique: true
+    t.index ["starts_at"], name: "index_opportunities_on_starts_at"
+    t.index ["status"], name: "index_opportunities_on_status"
+  end
+
+  create_table "opportunity_skills", force: :cascade do |t|
+    t.bigint "opportunity_id", null: false
+    t.bigint "skill_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["opportunity_id", "skill_id"], name: "index_opportunity_skills_on_opportunity_id_and_skill_id", unique: true
+  end
+
   create_table "organisations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_sender_address"
@@ -107,12 +193,107 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_123234) do
     t.index ["slug"], name: "index_organisations_on_slug", unique: true
   end
 
+  create_table "programs", force: :cascade do |t|
+    t.bigint "organisation_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organisation_id", "name"], name: "index_programs_on_organisation_id_and_name", unique: true
+  end
+
+  create_table "quiz_answers", force: :cascade do |t|
+    t.bigint "volunteer_profile_id", null: false
+    t.bigint "quiz_question_id", null: false
+    t.string "answer"
+    t.boolean "correct", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["volunteer_profile_id", "quiz_question_id"], name: "index_quiz_answers_on_profile_and_question", unique: true
+  end
+
+  create_table "quiz_questions", force: :cascade do |t|
+    t.bigint "quiz_id", null: false
+    t.text "question", null: false
+    t.jsonb "options"
+    t.string "correct_answer", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["quiz_id"], name: "index_quiz_questions_on_quiz_id"
+  end
+
+  create_table "quizzes", force: :cascade do |t|
+    t.bigint "onboarding_step_id", null: false
+    t.integer "passing_score", default: 70
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["onboarding_step_id"], name: "index_quizzes_on_onboarding_step_id"
+  end
+
+  create_table "shift_assignments", force: :cascade do |t|
+    t.bigint "shift_id", null: false
+    t.bigint "volunteer_profile_id", null: false
+    t.bigint "shift_role_id"
+    t.integer "status", default: 0, null: false
+    t.boolean "late_cancel", default: false, null: false
+    t.datetime "cancelled_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shift_id", "volunteer_profile_id"], name: "index_shift_assignments_on_shift_and_volunteer", unique: true
+  end
+
+  create_table "shift_roles", force: :cascade do |t|
+    t.bigint "shift_id", null: false
+    t.string "label", null: false
+    t.integer "spots", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shift_id"], name: "index_shift_roles_on_shift_id"
+  end
+
+  create_table "shifts", force: :cascade do |t|
+    t.bigint "program_id", null: false
+    t.bigint "coordinator_id"
+    t.string "title", null: false
+    t.string "location"
+    t.decimal "lat", precision: 10, scale: 7
+    t.decimal "lng", precision: 10, scale: 7
+    t.datetime "starts_at", null: false
+    t.datetime "ends_at", null: false
+    t.integer "capacity"
+    t.boolean "waitlist_enabled", default: false, null: false
+    t.text "notes"
+    t.string "recurrence_rule"
+    t.string "qr_token"
+    t.integer "cancellation_cutoff_hours", default: 24
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["program_id"], name: "index_shifts_on_program_id"
+    t.index ["coordinator_id"], name: "index_shifts_on_coordinator_id"
+    t.index ["qr_token"], name: "index_shifts_on_qr_token", unique: true
+    t.index ["starts_at"], name: "index_shifts_on_starts_at"
+  end
+
   create_table "skills", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
     t.bigint "organisation_id", null: false
     t.datetime "updated_at", null: false
     t.index ["organisation_id"], name: "index_skills_on_organisation_id"
+  end
+
+  create_table "swap_requests", force: :cascade do |t|
+    t.bigint "from_assignment_id", null: false
+    t.bigint "to_assignment_id"
+    t.bigint "requested_by_id", null: false
+    t.bigint "reviewed_by_id"
+    t.integer "status", default: 0, null: false
+    t.text "notes"
+    t.datetime "reviewed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["from_assignment_id"], name: "index_swap_requests_on_from_assignment_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -137,6 +318,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_123234) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "volunteer_applications", force: :cascade do |t|
+    t.bigint "volunteer_profile_id", null: false
+    t.bigint "opportunity_id", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "position"
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["volunteer_profile_id", "opportunity_id"], name: "index_volunteer_applications_unique", unique: true
+    t.index ["status"], name: "index_volunteer_applications_on_status"
+  end
+
   create_table "volunteer_interests", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "interest_category_id", null: false
@@ -144,6 +337,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_123234) do
     t.bigint "volunteer_profile_id", null: false
     t.index ["interest_category_id"], name: "index_volunteer_interests_on_interest_category_id"
     t.index ["volunteer_profile_id"], name: "index_volunteer_interests_on_volunteer_profile_id"
+  end
+
+  create_table "volunteer_onboarding_progresses", force: :cascade do |t|
+    t.bigint "volunteer_profile_id", null: false
+    t.bigint "onboarding_step_id", null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["volunteer_profile_id", "onboarding_step_id"], name: "index_vop_on_profile_and_step", unique: true
   end
 
   create_table "volunteer_profiles", force: :cascade do |t|
@@ -174,9 +376,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_123234) do
     t.datetime "updated_at", null: false
     t.bigint "volunteer_profile_id", null: false
     t.index ["skill_id"], name: "index_volunteer_skills_on_skill_id"
-    t.index ["volunteer_profile_id"], name: "index_volunteer_skills_on_volunteer_profile_id"
+    t.index ["volunteer_profile_id"], name: "index_volunteer_profiles_on_volunteer_skill_id"
   end
 
+  add_foreign_key "application_answers", "volunteer_applications"
+  add_foreign_key "application_answers", "application_questions"
+  add_foreign_key "application_questions", "opportunities"
+  add_foreign_key "attendances", "shift_assignments"
   add_foreign_key "availabilities", "volunteer_profiles"
   add_foreign_key "blackout_dates", "volunteer_profiles"
   add_foreign_key "coordinator_programs", "users"
@@ -185,10 +391,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_123234) do
   add_foreign_key "custom_fields", "organisations"
   add_foreign_key "emergency_contacts", "volunteer_profiles"
   add_foreign_key "interest_categories", "organisations"
+  add_foreign_key "onboarding_checklists", "organisations"
+  add_foreign_key "onboarding_steps", "onboarding_checklists"
+  add_foreign_key "opportunities", "organisations"
+  add_foreign_key "opportunity_skills", "opportunities"
+  add_foreign_key "opportunity_skills", "skills"
+  add_foreign_key "programs", "organisations"
+  add_foreign_key "quiz_answers", "volunteer_profiles"
+  add_foreign_key "quiz_answers", "quiz_questions"
+  add_foreign_key "quiz_questions", "quizzes"
+  add_foreign_key "quizzes", "onboarding_steps"
+  add_foreign_key "shift_assignments", "shifts"
+  add_foreign_key "shift_assignments", "shift_roles"
+  add_foreign_key "shift_assignments", "volunteer_profiles"
+  add_foreign_key "shift_roles", "shifts"
+  add_foreign_key "shifts", "programs"
+  add_foreign_key "shifts", "users", column: "coordinator_id"
   add_foreign_key "skills", "organisations"
+  add_foreign_key "swap_requests", "shift_assignments", column: "from_assignment_id"
+  add_foreign_key "swap_requests", "shift_assignments", column: "to_assignment_id"
+  add_foreign_key "swap_requests", "users", column: "requested_by_id"
+  add_foreign_key "swap_requests", "users", column: "reviewed_by_id"
   add_foreign_key "users", "organisations"
+  add_foreign_key "volunteer_applications", "opportunities"
+  add_foreign_key "volunteer_applications", "volunteer_profiles"
   add_foreign_key "volunteer_interests", "interest_categories"
   add_foreign_key "volunteer_interests", "volunteer_profiles"
+  add_foreign_key "volunteer_onboarding_progresses", "onboarding_steps"
+  add_foreign_key "volunteer_onboarding_progresses", "volunteer_profiles"
   add_foreign_key "volunteer_profiles", "organisations"
   add_foreign_key "volunteer_profiles", "users"
   add_foreign_key "volunteer_skills", "skills"

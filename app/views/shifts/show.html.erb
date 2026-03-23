@@ -1,0 +1,175 @@
+<div class="flex justify-between items-start mb-6">
+  <div>
+    <nav class="text-sm text-gray-500 mb-2">
+      <%= link_to "Programs", programs_path, class: "hover:underline" %> /
+      <%= link_to @program.name, program_path(@program), class: "hover:underline" %> /
+      Shift
+    </nav>
+    <h1 class="text-2xl font-bold text-gray-900"><%= @shift.title %></h1>
+    <p class="text-gray-500 mt-1">
+      <%= @shift.starts_at.strftime("%A, %B %-d %Y, %H:%M") %> – <%= @shift.ends_at.strftime("%H:%M") %>
+      (<%= @shift.duration_hours %>h)
+    </p>
+    <% if @shift.location.present? %>
+      <p class="text-sm text-gray-400 mt-0.5">📍 <%= @shift.location %></p>
+    <% end %>
+  </div>
+  <div class="flex flex-col gap-2 items-end">
+    <span id="shift_capacity_<%= @shift.id %>">
+      <%= render "shifts/capacity", shift: @shift %>
+    </span>
+    <div class="flex gap-2">
+      <% if policy(@shift).update? %>
+        <%= link_to "Edit", edit_program_shift_path(@program, @shift), class: "text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-md hover:text-indigo-800" %>
+        <%= link_to "Clone", clone_program_shift_path(@program, @shift), data: { turbo_method: :post }, class: "text-sm text-gray-600 border border-gray-300 px-3 py-1.5 rounded-md hover:text-gray-800" %>
+      <% end %>
+      <%= link_to "iCal", ical_program_shift_path(@program, @shift, format: :ics), class: "text-sm text-gray-600 border border-gray-300 px-3 py-1.5 rounded-md hover:text-gray-800" %>
+      <% if policy(@shift).export_pdf? %>
+        <%= link_to "PDF", export_pdf_program_shift_path(@program, @shift), class: "text-sm text-gray-600 border border-gray-300 px-3 py-1.5 rounded-md hover:text-gray-800" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% if @shift.notes.present? %>
+  <div class="bg-blue-50 border border-blue-100 rounded-md p-4 mb-6">
+    <p class="text-sm text-blue-800"><%= @shift.notes %></p>
+  </div>
+<% end %>
+
+<% if @shift.shift_roles.any? %>
+  <div class="mb-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3">Roles</h2>
+    <div class="flex flex-wrap gap-3">
+      <% @shift.shift_roles.each do |role| %>
+        <div class="bg-gray-50 border border-gray-200 rounded-md px-4 py-2">
+          <span class="font-medium text-sm text-gray-800"><%= role.label %></span>
+          <span class="text-xs text-gray-500 ml-2"><%= role.assigned_count %>/<%= role.spots %> filled</span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3">
+      Volunteers
+      <span class="text-sm font-normal text-gray-500">(<%= @assignments.count %>)</span>
+    </h2>
+
+    <% if @assignments.empty? %>
+      <p class="text-gray-500 text-sm">No volunteers assigned yet.</p>
+    <% else %>
+      <div class="overflow-hidden border border-gray-200 rounded-md">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Volunteer</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Check-in</th>
+              <% if current_user.admin? %>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @assignments.each do |assignment| %>
+              <tr>
+                <td class="px-4 py-3 text-sm text-gray-900"><%= assignment.volunteer_profile.full_name %></td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                    <%= assignment.confirmed? ? 'bg-green-100 text-green-800' :
+                        assignment.waitlisted? ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800' %>">
+                    <%= assignment.status.capitalize %>
+                    <%= " (late)" if assignment.late_cancel? %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-500">
+                  <% att = assignment.attendance %>
+                  <% if att&.checked_in? %>
+                    <span class="text-green-600">In: <%= att.checked_in_at.strftime("%H:%M") %></span>
+                    <% if att.checked_out? %>
+                      | <span class="text-gray-600">Out: <%= att.checked_out_at.strftime("%H:%M") %></span>
+                    <% end %>
+                  <% else %>
+                    <span class="text-gray-400">—</span>
+                  <% end %>
+                </td>
+                <% if current_user.admin? %>
+                  <td class="px-4 py-3 text-sm">
+                    <%= link_to assignment.confirmed? ? "Remove" : "Confirm",
+                        assignment.confirmed? ?
+                          program_shift_shift_assignment_path(@program, @shift, assignment) :
+                          program_shift_shift_assignments_path(@program, @shift),
+                        data: { turbo_method: assignment.confirmed? ? :delete : :post },
+                        class: "text-indigo-600 hover:text-indigo-800" %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+
+    <% if current_user.admin? %>
+      <div class="mt-4">
+        <h3 class="text-sm font-medium text-gray-700 mb-2">Assign Volunteer</h3>
+        <%= form_with url: program_shift_shift_assignments_path(@program, @shift), method: :post do |f| %>
+          <div class="flex gap-2">
+            <%= f.select "shift_assignment[volunteer_profile_id]",
+                @suggestions.map { |vp| [vp.full_name, vp.id] },
+                { include_blank: "Select volunteer..." },
+                class: "flex-1 rounded-md border-gray-300 shadow-sm text-sm" %>
+            <%= f.submit "Assign", class: "bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div>
+    <%# Sign-up / cancel for volunteers %>
+    <% if current_user.role_volunteer? && current_user.volunteer_profile %>
+      <div class="bg-white border border-gray-200 rounded-lg p-5">
+        <h3 class="font-semibold text-gray-800 mb-3">Your Status</h3>
+        <% if @my_assignment %>
+          <p class="text-sm text-gray-600 mb-3">
+            You are <strong class="capitalize"><%= @my_assignment.status %></strong> for this shift.
+          </p>
+          <%= button_to "Cancel Signup",
+              program_shift_shift_assignment_path(@program, @shift, @my_assignment),
+              method: :delete,
+              class: "w-full bg-red-50 text-red-700 border border-red-300 px-4 py-2 rounded-md text-sm hover:bg-red-100" %>
+          <% if @my_assignment.confirmed? %>
+            <%= button_to "Request Swap",
+                swap_requests_path(from_assignment_id: @my_assignment.id),
+                method: :post,
+                class: "mt-2 w-full bg-yellow-50 text-yellow-700 border border-yellow-300 px-4 py-2 rounded-md text-sm hover:bg-yellow-100" %>
+          <% end %>
+        <% elsif @shift.signup_open_for?(current_user.volunteer_profile) %>
+          <%= button_to "Sign Up",
+              program_shift_shift_assignments_path(@program, @shift),
+              method: :post,
+              class: "w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700" %>
+        <% elsif @shift.full? && !@shift.waitlist_enabled %>
+          <p class="text-sm text-gray-500">This shift is full.</p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# QR Check-in %>
+    <% if policy(@shift).checkin? %>
+      <div class="bg-white border border-gray-200 rounded-lg p-5 mt-4">
+        <h3 class="font-semibold text-gray-800 mb-3">Check-in</h3>
+        <div class="text-center">
+          <div class="font-mono text-xs text-gray-500 mb-2 break-all"><%= @shift.qr_token %></div>
+          <%= link_to "Attendance List", checkin_program_shift_path(@program, @shift),
+              class: "inline-block mt-2 text-sm text-indigo-600 border border-indigo-300 px-3 py-1.5 rounded-md hover:text-indigo-800" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

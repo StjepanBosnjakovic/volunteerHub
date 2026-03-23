@@ -1,0 +1,10 @@
+<% if local_assigns[:notice] %>
+  <div class="bg-green-50 border border-green-200 text-green-800 rounded-md p-4 mb-4">
+    <%= notice %>
+  </div>
+<% end %>
+<% if local_assigns[:alert] %>
+  <div class="bg-red-50 border border-red-200 text-red-800 rounded-md p-4 mb-4">
+    <%= alert %>
+  </div>
+<% end %>

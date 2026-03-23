@@ -18,6 +18,11 @@ class VolunteerProfile < ApplicationRecord
   has_many :volunteer_onboarding_progresses, dependent: :destroy
   has_many :quiz_answers, dependent: :destroy
 
+  # Phase 3: Scheduling
+  has_many :shift_assignments, dependent: :destroy
+  has_many :confirmed_shifts, -> { merge(ShiftAssignment.confirmed) }, through: :shift_assignments, source: :shift
+  has_many :waitlisted_shifts, -> { merge(ShiftAssignment.waitlisted) }, through: :shift_assignments, source: :shift
+
   has_one_attached :avatar
 
   enum :status, { pending: 0, active: 1, inactive: 2 }, prefix: true

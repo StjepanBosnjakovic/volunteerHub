@@ -1,0 +1,8 @@
+<div class="flex items-center gap-3 mb-2">
+  <%= f.text_field :label, placeholder: "Role label (e.g. Team Lead)", class: "flex-1 rounded-md border-gray-300 shadow-sm text-sm" %>
+  <%= f.number_field :spots, min: 1, placeholder: "Spots", class: "w-20 rounded-md border-gray-300 shadow-sm text-sm" %>
+  <% unless f.object.new_record? %>
+    <%= f.check_box :_destroy, class: "h-4 w-4 text-red-600 border-gray-300 rounded" %>
+    <label class="text-xs text-red-600">Remove</label>
+  <% end %>
+</div>

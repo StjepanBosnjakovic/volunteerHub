@@ -6,125 +6,125 @@ Tasks are grouped by phase. Complete each phase before beginning the next. Items
 
 ---
 
-## Phase 1 — Foundation
+## Phase 1 — Foundation ✅ COMPLETE
 
 ### 1.1 Project Setup
-- [ ] `rails new volunteer_os --database=postgresql --asset-pipeline=propshaft` (or esbuild)
-- [ ] Add gems: `devise`, `pundit`, `image_processing`, `active_storage`, `pagy`, `pg`, `sidekiq`, `redis`
-- [ ] Add JS: `@hotwired/turbo-rails`, `@hotwired/stimulus`, `tailwindcss-rails`
-- [ ] Configure Tailwind with a custom design system (colours, fonts, spacing)
-- [ ] Set up Sidekiq + Redis for background jobs
-- [ ] Set up Action Mailer with a transactional email provider (e.g. Postmark / SendGrid)
-- [ ] Configure Active Storage (local dev → S3/GCS in production)
-- [ ] Set up RSpec, FactoryBot, Shoulda Matchers, and Capybara for testing
-- [ ] Set up Brakeman (security), Rubocop, and a CI pipeline (GitHub Actions)
+- [x] `rails new volunteer_os --database=postgresql --asset-pipeline=propshaft` (or esbuild)
+- [x] Add gems: `devise`, `pundit`, `image_processing`, `active_storage`, `pagy`, `pg`, `sidekiq`, `redis`
+- [x] Add JS: `@hotwired/turbo-rails`, `@hotwired/stimulus`, `tailwindcss-rails`
+- [x] Configure Tailwind with a custom design system (colours, fonts, spacing)
+- [x] Set up Sidekiq + Redis for background jobs
+- [x] Set up Action Mailer with a transactional email provider (e.g. Postmark / SendGrid)
+- [x] Configure Active Storage (local dev → S3/GCS in production)
+- [x] Set up RSpec, FactoryBot, Shoulda Matchers, and Capybara for testing
+- [x] Set up Brakeman (security), Rubocop, and a CI pipeline (GitHub Actions)
 
 ### 1.2 Multi-Tenancy — Organisation Model
-- [ ] Generate `Organisation` model: `name`, `slug`, `logo`, `primary_colour`, `timezone`, `locale`, `email_sender_name`, `email_sender_address`
-- [ ] Implement subdomain-based or path-based multi-tenancy (e.g. `acts_as_tenant` gem)
-- [ ] Seed default organisation for development
-- [ ] Organisation settings page [TURBO frames for section updates]
+- [x] Generate `Organisation` model: `name`, `slug`, `logo`, `primary_colour`, `timezone`, `locale`, `email_sender_name`, `email_sender_address`
+- [x] Implement subdomain-based or path-based multi-tenancy (e.g. `acts_as_tenant` gem)
+- [x] Seed default organisation for development
+- [x] Organisation settings page [TURBO frames for section updates]
 
 ### 1.3 Authentication & Roles
-- [ ] Devise setup: email/password, confirmable, lockable, recoverable
-- [ ] `User` model with role enum: `super_admin`, `coordinator`, `read_only_staff`, `volunteer`
-- [ ] Pundit policies for each role (base policy + per-resource policies)
-- [ ] Program-scoped coordinator access (`CoordinatorProgram` join table)
-- [ ] Session management: remember me, session timeout
-- [ ] SSO stub (SAML/OIDC) — architecture placeholder for Phase 8
+- [x] Devise setup: email/password, confirmable, lockable, recoverable
+- [x] `User` model with role enum: `super_admin`, `coordinator`, `read_only_staff`, `volunteer`
+- [x] Pundit policies for each role (base policy + per-resource policies)
+- [x] Program-scoped coordinator access (`CoordinatorProgram` join table)
+- [x] Session management: remember me, session timeout
+- [x] SSO stub (SAML/OIDC) — architecture placeholder for Phase 8
 
 ### 1.4 Volunteer Profiles
-- [ ] `VolunteerProfile` model: `first_name`, `last_name`, `preferred_name`, `pronouns`, `date_of_birth`, `phone`, `bio`, `status` (active/inactive/pending)
-- [ ] Avatar upload via Active Storage + image variants
-- [ ] Skills tagging: `Skill` model + `VolunteerSkill` join; autocomplete with Stimulus + Turbo
-- [ ] Interest categories: `InterestCategory` model with many-to-many
-- [ ] Availability grid: `Availability` model (day_of_week + time_block JSON column) [STIMULUS]
-- [ ] Blackout date ranges: `BlackoutDate` model
-- [ ] Max hours per week/month fields on profile
-- [ ] Emergency contacts: `EmergencyContact` model (nested form with Stimulus)
-- [ ] Custom org fields: `CustomField` model (field_type, label, options JSON); `CustomFieldValue` polymorphic
-- [ ] Minor safeguarding flag: auto-set when DOB < 18 years; gated content
-- [ ] Volunteer self-service: create / edit / deactivate own profile [TURBO]
-- [ ] Coordinator: edit any profile, archive leavers
-- [ ] Duplicate merge tool for coordinators
-- [ ] Bulk CSV/Excel import with field-mapping wizard [Stimulus multi-step form]
-- [ ] Export single profile as PDF (use `Prawn` or `WickedPdf`)
-- [ ] Export full roster as CSV (`csv` stdlib) / Excel (`caxlsx`)
-- [ ] GDPR erasure: anonymise PII, retain aggregate stats [background job]
-- [ ] Credential / document uploads: `Credential` model with expiry date; Active Storage attachment
-- [ ] Credential expiry alerts at 30/14/7 days [Sidekiq scheduled job]
-- [ ] E-signature for policy acceptance (inline checkbox + timestamp, or DocuSign stub)
+- [x] `VolunteerProfile` model: `first_name`, `last_name`, `preferred_name`, `pronouns`, `date_of_birth`, `phone`, `bio`, `status` (active/inactive/pending)
+- [x] Avatar upload via Active Storage + image variants
+- [x] Skills tagging: `Skill` model + `VolunteerSkill` join; autocomplete with Stimulus + Turbo
+- [x] Interest categories: `InterestCategory` model with many-to-many
+- [x] Availability grid: `Availability` model (day_of_week + time_block JSON column) [STIMULUS]
+- [x] Blackout date ranges: `BlackoutDate` model
+- [x] Max hours per week/month fields on profile
+- [x] Emergency contacts: `EmergencyContact` model (nested form with Stimulus)
+- [x] Custom org fields: `CustomField` model (field_type, label, options JSON); `CustomFieldValue` polymorphic
+- [x] Minor safeguarding flag: auto-set when DOB < 18 years; gated content
+- [x] Volunteer self-service: create / edit / deactivate own profile [TURBO]
+- [x] Coordinator: edit any profile, archive leavers
+- [x] Duplicate merge tool for coordinators
+- [x] Bulk CSV/Excel import with field-mapping wizard [Stimulus multi-step form]
+- [x] Export single profile as PDF (use `Prawn` or `WickedPdf`)
+- [x] Export full roster as CSV (`csv` stdlib) / Excel (`caxlsx`)
+- [x] GDPR erasure: anonymise PII, retain aggregate stats [background job]
+- [x] Credential / document uploads: `Credential` model with expiry date; Active Storage attachment
+- [x] Credential expiry alerts at 30/14/7 days [Sidekiq scheduled job]
+- [x] E-signature for policy acceptance (inline checkbox + timestamp, or DocuSign stub)
 
 ---
 
-## Phase 2 — Recruitment & Onboarding
+## Phase 2 — Recruitment & Onboarding ✅ COMPLETE
 
 ### 2.1 Opportunity Listings
-- [ ] `Opportunity` model: `title`, `description`, `location`, `lat`, `lng`, `starts_at`, `ends_at`, `spots_available`, `commitment_level`, `status` (draft/published/closed)
-- [ ] `OpportunitySkill` join for required skills
-- [ ] Public listing index: filter by category, location, date, commitment level [TURBO frames]
-- [ ] Map view using Mapbox or Leaflet + Stimulus controller
-- [ ] SEO: meta tags, schema.org/VolunteerRole JSON-LD per listing page
-- [ ] Auto-generate shareable public URL (slug)
-- [ ] Embeddable iFrame widget endpoint (no-layout render)
+- [x] `Opportunity` model: `title`, `description`, `location`, `lat`, `lng`, `starts_at`, `ends_at`, `spots_available`, `commitment_level`, `status` (draft/published/closed)
+- [x] `OpportunitySkill` join for required skills
+- [x] Public listing index: filter by category, location, date, commitment level [TURBO frames]
+- [x] Map view using Mapbox or Leaflet + Stimulus controller
+- [x] SEO: meta tags, schema.org/VolunteerRole JSON-LD per listing page
+- [x] Auto-generate shareable public URL (slug)
+- [x] Embeddable iFrame widget endpoint (no-layout render)
 
 ### 2.2 Application Pipeline
-- [ ] `Application` model: `volunteer_id`, `opportunity_id`, `status` (applied/shortlisted/approved/declined/waitlisted), `position` (for ordering)
-- [ ] Short sign-up form for new volunteers; one-click for returning [TURBO]
-- [ ] Custom application questions: `ApplicationQuestion` (type: text/multiple_choice/file) + `ApplicationAnswer`
-- [ ] Kanban pipeline view [Stimulus drag-and-drop, Turbo streams for real-time updates]
-- [ ] Bulk approve/decline with templated messaging [Turbo stream + background mail job]
-- [ ] Waitlist: auto-promote next waitlisted applicant when a spot opens [callback + job]
+- [x] `Application` model: `volunteer_id`, `opportunity_id`, `status` (applied/shortlisted/approved/declined/waitlisted), `position` (for ordering)
+- [x] Short sign-up form for new volunteers; one-click for returning [TURBO]
+- [x] Custom application questions: `ApplicationQuestion` (type: text/multiple_choice/file) + `ApplicationAnswer`
+- [x] Kanban pipeline view [Stimulus drag-and-drop, Turbo streams for real-time updates]
+- [x] Bulk approve/decline with templated messaging [Turbo stream + background mail job]
+- [x] Waitlist: auto-promote next waitlisted applicant when a spot opens [callback + job]
 
 ### 2.3 Onboarding Workflows
-- [ ] `OnboardingChecklist` model per role/program
-- [ ] `OnboardingStep` model: `step_type` (video/document/quiz/upload/sign/induction), `title`, `content_url`, `position`
-- [ ] `VolunteerOnboardingProgress` join: `completed_at`, per step per volunteer
-- [ ] Progress bar UI [Turbo frame, updated on each step completion]
-- [ ] Quiz builder: `Quiz`, `QuizQuestion`, `QuizAnswer` models; inline grading
-- [ ] Automated stall reminders: if no progress for N days, send reminder email [Sidekiq job]
-- [ ] Coordinator dashboard: cohort completion rates [Turbo frame with live counts]
+- [x] `OnboardingChecklist` model per role/program
+- [x] `OnboardingStep` model: `step_type` (video/document/quiz/upload/sign/induction), `title`, `content_url`, `position`
+- [x] `VolunteerOnboardingProgress` join: `completed_at`, per step per volunteer
+- [x] Progress bar UI [Turbo frame, updated on each step completion]
+- [x] Quiz builder: `Quiz`, `QuizQuestion`, `QuizAnswer` models; inline grading
+- [x] Automated stall reminders: if no progress for N days, send reminder email [Sidekiq job]
+- [x] Coordinator dashboard: cohort completion rates [Turbo frame with live counts]
 
 ---
 
 ## Phase 3 — Scheduling & Shift Management
 
 ### 3.1 Programs
-- [ ] `Program` model: `name`, `description`, `organisation_id`, access-control to coordinators
+- [x] `Program` model: `name`, `description`, `organisation_id`, access-control to coordinators
 
 ### 3.2 Shift Creation
-- [ ] `Shift` model: `program_id`, `title`, `location`, `starts_at`, `ends_at`, `capacity`, `waitlist_enabled`, `coordinator_id`, `notes`, `recurrence_rule` (iCal RRULE string)
-- [ ] Single shift form
-- [ ] Recurring shift wizard: daily/weekly/custom using `montrose` or `ice_cube` gem
+- [x] `Shift` model: `program_id`, `title`, `location`, `starts_at`, `ends_at`, `capacity`, `waitlist_enabled`, `coordinator_id`, `notes`, `recurrence_rule` (iCal RRULE string)
+- [x] Single shift form
+- [x] Recurring shift wizard: daily/weekly/custom RRULE (FREQ=DAILY/WEEKLY/MONTHLY + INTERVAL)
 - [ ] Multi-day event wizard
-- [ ] `ShiftRole` model: role label + spots needed per shift
-- [ ] Clone shift / clone entire program schedule to a future date range
-- [ ] Capacity enforcement + optional waitlist at model layer
+- [x] `ShiftRole` model: role label + spots needed per shift
+- [x] Clone shift / clone entire program schedule to a future date range
+- [x] Capacity enforcement + optional waitlist at model layer
 
 ### 3.3 Volunteer Self-Scheduling
-- [ ] Calendar view (month/week/day) using Stimulus + a lightweight JS calendar (e.g. `tui-calendar` or custom)
-- [ ] List view with filters [TURBO frames]
-- [ ] Smart suggestions query: match volunteer skills, location proximity, stated availability
-- [ ] Sign-up / cancel shift [TURBO stream — update capacity counter live]
-- [ ] Cancellation cut-off enforcement; late-cancel flag on `ShiftAssignment`
-- [ ] Swap request: `SwapRequest` model; coordinator approval flow [Turbo stream notification]
+- [x] Calendar view (month/week/day) using Stimulus + custom lightweight JS calendar controller
+- [x] List view with filters [TURBO frames]
+- [x] Smart suggestions query: match volunteer skills, location proximity, stated availability
+- [x] Sign-up / cancel shift [TURBO stream — update capacity counter live]
+- [x] Cancellation cut-off enforcement; late-cancel flag on `ShiftAssignment`
+- [x] Swap request: `SwapRequest` model; coordinator approval flow [Turbo stream notification]
 
 ### 3.4 Coordinator Scheduling Tools
 - [ ] Drag-and-drop timeline/Gantt view [Stimulus + SortableJS]
-- [ ] Auto-fill suggestions: ranked volunteer list per open slot [background query]
-- [ ] One-click assign from suggestion list [TURBO]
+- [x] Auto-fill suggestions: ranked volunteer list per open slot [background query]
+- [x] One-click assign from suggestion list [TURBO]
 - [ ] Conflict detection: query overlapping assignments and availability; show inline warning [Stimulus]
-- [ ] Bulk assign volunteers to recurring shift series
-- [ ] PDF schedule export (`Prawn`)
-- [ ] iCal feed endpoint per volunteer and per program
+- [x] Bulk assign volunteers to recurring shift series
+- [x] PDF schedule export (`Prawn`)
+- [x] iCal feed endpoint per volunteer and per program
 
 ### 3.5 Check-In / Check-Out
-- [ ] `Attendance` model: `shift_assignment_id`, `checked_in_at`, `checked_out_at`, `method` (qr/manual/geo)
-- [ ] QR code generation per shift (use `rqrcode` gem)
-- [ ] QR scan endpoint: validate token, create/update Attendance record [TURBO stream]
-- [ ] Manual attendance toggle list [TURBO stream]
-- [ ] Geofenced auto-check-in stub (JS Geolocation API + Stimulus controller; compares coords to shift location)
-- [ ] Late/no-show detection job: runs after shift end, flags missing Attendance records, queues follow-up message
+- [x] `Attendance` model: `shift_assignment_id`, `checked_in_at`, `checked_out_at`, `method` (qr/manual/geo)
+- [x] QR code generation per shift (unique `qr_token` on Shift, generated via `SecureRandom`)
+- [x] QR scan endpoint: validate token, create/update Attendance record [TURBO stream]
+- [x] Manual attendance toggle list [TURBO stream]
+- [x] Geofenced auto-check-in stub (JS Geolocation API + Stimulus controller; compares coords to shift location)
+- [x] Late/no-show detection job: runs after shift end, flags missing Attendance records, queues follow-up message
 
 ---
 

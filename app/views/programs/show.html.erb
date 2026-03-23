@@ -1,0 +1,29 @@
+<div class="flex justify-between items-start mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900"><%= @program.name %></h1>
+    <p class="mt-1 text-gray-600"><%= @program.description %></p>
+  </div>
+  <div class="flex gap-3">
+    <% if policy(@program).update? %>
+      <%= link_to "Edit", edit_program_path(@program), class: "text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-300 px-3 py-1.5 rounded-md" %>
+    <% end %>
+    <% if policy(Shift).create? %>
+      <%= link_to "New Shift", new_program_shift_path(@program), class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+    <% end %>
+  </div>
+</div>
+
+<div id="shifts_list">
+  <%= turbo_frame_tag "shifts_list" do %>
+    <% if @shifts.empty? %>
+      <div class="text-center py-12 text-gray-500">No upcoming shifts.</div>
+    <% else %>
+      <div class="space-y-4">
+        <% @shifts.each do |shift| %>
+          <%= render "shifts/shift_card", shift: shift, program: @program %>
+        <% end %>
+      </div>
+      <%= render "shared/pagination", pagy: @pagy %>
+    <% end %>
+  <% end %>
+</div>

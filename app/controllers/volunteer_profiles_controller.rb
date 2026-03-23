@@ -1,7 +1,7 @@
 class VolunteerProfilesController < ApplicationController
   include Pagy::Method
 
-  before_action :set_volunteer_profile, only: [:show, :edit, :update, :destroy, :archive]
+  before_action :set_volunteer_profile, only: [:show, :edit, :update, :destroy, :archive, :ical]
 
   def index
     authorize VolunteerProfile
@@ -63,6 +63,13 @@ class VolunteerProfilesController < ApplicationController
     redirect_to @volunteer_profile, notice: "Profile archived."
   end
 
+  def ical
+    authorize @volunteer_profile, :show?
+    shifts = @volunteer_profile.confirmed_shifts.upcoming.order(:starts_at)
+    cal = build_volunteer_ical(shifts, @volunteer_profile)
+    send_data cal, filename: "my-schedule.ics", type: "text/calendar"
+  end
+
   def export_csv
     authorize VolunteerProfile, :export_csv?
     @volunteer_profiles = policy_scope(VolunteerProfile).includes(:user, :skills)
@@ -92,6 +99,28 @@ class VolunteerProfilesController < ApplicationController
       emergency_contacts_attributes: [:id, :name, :relationship, :phone, :email, :_destroy],
       availabilities_attributes: [:id, :day_of_week, :time_blocks, :_destroy]
     )
+  end
+
+  def build_volunteer_ical(shifts, profile)
+    events = shifts.map do |shift|
+      uid = "shift-#{shift.id}-vp-#{profile.id}@volunteerOS"
+      dtstamp = Time.current.utc.strftime("%Y%m%dT%H%M%SZ")
+      dtstart = shift.starts_at.utc.strftime("%Y%m%dT%H%M%SZ")
+      dtend = shift.ends_at.utc.strftime("%Y%m%dT%H%M%SZ")
+      summary = shift.title.gsub(",", "\\,")
+      location = shift.location.to_s.gsub(",", "\\,")
+      <<~EVENT
+        BEGIN:VEVENT
+        UID:#{uid}
+        DTSTAMP:#{dtstamp}
+        DTSTART:#{dtstart}
+        DTEND:#{dtend}
+        SUMMARY:#{summary}
+        LOCATION:#{location}
+        END:VEVENT
+      EVENT
+    end
+    "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//VolunteerOS//Schedule//EN\n#{events.join}\nEND:VCALENDAR\n"
   end
 
   def generate_csv(profiles)
