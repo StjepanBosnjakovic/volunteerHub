@@ -1,5 +1,5 @@
 class ShiftsController < ApplicationController
-  include Pagy::Backend
+  include Pagy::Method
 
   before_action :set_program
   before_action :set_shift, only: %i[show edit update destroy clone checkin export_pdf ical]
