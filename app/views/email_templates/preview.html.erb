@@ -29,7 +29,7 @@
       <strong>Subject:</strong> <%= @preview[:subject] %>
     </div>
     <div class="body">
-      <%= @preview[:body].html_safe %>
+      <%= sanitize @preview[:body] %>
     </div>
     <div class="footer">
       &copy; <%= Date.current.year %> <%= current_user.organisation.name %>
