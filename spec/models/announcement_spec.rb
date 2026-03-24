@@ -4,6 +4,8 @@ RSpec.describe Announcement, type: :model do
   let(:organisation) { create(:organisation) }
   let(:author)       { create(:user, organisation: organisation) }
 
+  before { allow_any_instance_of(Announcement).to receive(:broadcast_feed_update) }
+
   describe "associations" do
     subject { build(:announcement, organisation: organisation, author: author) }
     it { is_expected.to belong_to(:organisation) }

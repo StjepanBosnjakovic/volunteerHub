@@ -5,6 +5,8 @@ RSpec.describe Conversation, type: :model do
   let(:user_a)       { create(:user, organisation: organisation) }
   let(:user_b)       { create(:user, organisation: organisation) }
 
+  before { allow_any_instance_of(Message).to receive(:broadcast_to_conversation) }
+
   describe "associations" do
     subject { build(:conversation, organisation: organisation) }
     it { is_expected.to belong_to(:organisation) }
