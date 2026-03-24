@@ -24,7 +24,7 @@
   <div class="bg-white border border-gray-200 rounded-lg p-6">
     <h2 class="text-sm font-semibold text-gray-700 mb-4">Group Conversation</h2>
     <%= form_with url: conversations_path, method: :post, model: Conversation.new do |f| %>
-      <%= f.hidden_field :conversation_type, value: "group" %>
+      <%= f.hidden_field :conversation_type, value: "group_chat" %>
       <div class="mb-4">
         <%= f.label :title, "Group Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= f.text_field :title,

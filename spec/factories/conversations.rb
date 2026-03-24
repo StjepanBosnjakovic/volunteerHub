@@ -4,8 +4,8 @@ FactoryBot.define do
     conversation_type { :direct }
     title { nil }
 
-    trait :group do
-      conversation_type { :group }
+    trait :group_chat do
+      conversation_type { :group_chat }
       title { Faker::Lorem.words(number: 3).join(" ") }
     end
   end

@@ -1,7 +1,7 @@
 class Conversation < ApplicationRecord
   acts_as_tenant :organisation
 
-  enum :conversation_type, { direct: 0, group: 1 }
+  enum :conversation_type, { direct: 0, group_chat: 1 }
 
   belongs_to :organisation
   has_many :conversation_participants, dependent: :destroy
@@ -9,7 +9,7 @@ class Conversation < ApplicationRecord
   has_many :messages, dependent: :destroy
 
   validates :conversation_type, presence: true
-  validates :title, presence: true, if: :group?
+  validates :title, presence: true, if: :group_chat?
 
   scope :ordered, -> { order(updated_at: :desc) }
   scope :for_user, ->(user) {
@@ -18,7 +18,7 @@ class Conversation < ApplicationRecord
   }
 
   def display_title(current_user)
-    return title if group?
+    return title if group_chat?
 
     other = participants.where.not(id: current_user.id).first
     other&.display_name || "Direct Message"

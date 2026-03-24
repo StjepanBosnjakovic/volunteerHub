@@ -14,12 +14,12 @@ RSpec.describe Conversation, type: :model do
   end
 
   describe "enums" do
-    it { is_expected.to define_enum_for(:conversation_type).with_values(direct: 0, group: 1) }
+    it { is_expected.to define_enum_for(:conversation_type).with_values(direct: 0, group_chat: 1) }
   end
 
   describe "validations" do
     context "group conversation" do
-      subject { build(:conversation, :group, organisation: organisation) }
+      subject { build(:conversation, :group_chat, organisation: organisation) }
       it { is_expected.to validate_presence_of(:title) }
     end
 
@@ -73,7 +73,7 @@ RSpec.describe Conversation, type: :model do
 
     it "returns the title for group conversations" do
       ActsAsTenant.with_tenant(organisation) do
-        conv = create(:conversation, :group, organisation: organisation)
+        conv = create(:conversation, :group_chat, organisation: organisation)
         expect(conv.display_title(user_a)).to eq(conv.title)
       end
     end
