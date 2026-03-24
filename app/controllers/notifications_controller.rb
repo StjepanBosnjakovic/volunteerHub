@@ -1,5 +1,5 @@
 class NotificationsController < ApplicationController
-  include Pagy::Methods
+  include Pagy::Method
 
   before_action :set_notification, only: %i[mark_read]
 

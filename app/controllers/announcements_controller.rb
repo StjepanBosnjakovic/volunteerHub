@@ -1,5 +1,5 @@
 class AnnouncementsController < ApplicationController
-  include Pagy::Methods
+  include Pagy::Method
 
   before_action :set_announcement, only: %i[show edit update destroy publish schedule_send]
 
