@@ -1,0 +1,26 @@
+<div id="badge_<%= badge.id %>" class="bg-white border border-gray-200 rounded-xl p-5 flex flex-col items-center text-center shadow-sm hover:shadow-md transition">
+  <% if badge.artwork.attached? %>
+    <%= image_tag badge.artwork.variant(resize_to_fill: [80, 80]), class: "w-20 h-20 rounded-full object-cover mb-3" %>
+  <% else %>
+    <div class="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mb-3">
+      <svg class="h-10 w-10 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+      </svg>
+    </div>
+  <% end %>
+
+  <h3 class="font-semibold text-gray-900 text-sm"><%= badge.name %></h3>
+  <p class="text-xs text-gray-500 mt-1 line-clamp-2"><%= badge.description %></p>
+
+  <span class="mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+    <%= badge.criteria_type == 'manual' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+    <%= badge.criteria_type.humanize %>
+  </span>
+
+  <% if current_user.admin? %>
+    <div class="flex gap-2 mt-3">
+      <%= link_to "Edit", edit_badge_path(badge), class: "text-xs text-indigo-600 hover:underline" %>
+      <%= link_to "Delete", badge_path(badge), data: { turbo_method: :delete, turbo_confirm: "Delete this badge?" }, class: "text-xs text-red-500 hover:underline" %>
+    </div>
+  <% end %>
+</div>

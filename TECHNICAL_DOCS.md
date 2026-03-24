@@ -313,13 +313,84 @@ Organisation ──< Opportunity ──< Application >── VolunteerProfile
 Organisation ──< Program ──< Shift ──< ShiftAssignment >── VolunteerProfile
                                   ShiftAssignment ──< Attendance ──> HourLog
 Programme ──< HourLog >── VolunteerProfile
-Organisation ──< Milestone ──> Badge
+Organisation ──< Milestone
 Program ──< OnboardingChecklist ──< OnboardingStep
 VolunteerProfile ──< HourLog
 VolunteerProfile ──< Credential
-VolunteerProfile ──< VolunteerBadge >── Badge
 User ──< Notification
+
+# Phase 6 — Recognition & Engagement
+Organisation ──< Badge
+VolunteerProfile ──< VolunteerBadge >── Badge
+VolunteerProfile ──< Reference >── User (coordinator)
+VolunteerProfile ──< Testimonial
+Organisation ──< Survey ──< SurveyResponse >── VolunteerProfile
+SurveyResponse ──> Shift (optional)
 ```
+
+### Phase 6 Models
+
+#### `badges`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | bigint PK | |
+| `organisation_id` | bigint FK | nullable — nil = system-wide badge |
+| `name` | string | required |
+| `description` | text | |
+| `criteria_type` | string | `hours_reached` / `milestone` / `consecutive_months` / `manual` |
+| `criteria_value` | decimal(8,2) | threshold for auto-award criteria |
+
+#### `volunteer_badges`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | bigint PK | |
+| `volunteer_profile_id` | bigint FK | required |
+| `badge_id` | bigint FK | required |
+| `awarded_by_id` | bigint FK | users.id — nil = auto-awarded |
+| `awarded_at` | datetime | required |
+
+#### `references`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | bigint PK | |
+| `volunteer_profile_id` | bigint FK | required |
+| `coordinator_id` | bigint FK | users.id |
+| `stats_snapshot` | jsonb | hours/shifts/badges frozen at issue time |
+| `status` | integer enum | `requested` / `issued` / `declined` |
+| `notes` | text | |
+| `issued_at` | datetime | |
+
+#### `testimonials`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | bigint PK | |
+| `volunteer_profile_id` | bigint FK | required |
+| `organisation_id` | bigint FK | required |
+| `quote` | text | required |
+| `published` | boolean | default false |
+| `consent_given` | boolean | must be true before publishing |
+| `published_at` | datetime | |
+
+#### `surveys`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | bigint PK | |
+| `organisation_id` | bigint FK | required |
+| `title` | string | required |
+| `trigger` | integer enum | `post_shift` / `post_program` / `pulse` / `manual` |
+| `questions` | jsonb | array of `{type, label, options}` objects |
+| `active` | boolean | default true |
+| `grace_period_hours` | integer | hours after shift end before sending |
+
+#### `survey_responses`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | bigint PK | |
+| `survey_id` | bigint FK | required |
+| `volunteer_profile_id` | bigint FK | required |
+| `shift_id` | bigint FK | nullable |
+| `answers` | jsonb | `{ "0" => "answer", "1" => "answer" }` keyed by question index |
+| `nps_score` | integer | extracted from NPS question on save |
 
 ---
 
@@ -404,9 +475,11 @@ Configured in `config/sidekiq.yml`:
 | `NoShowDetectionJob` | Every 15 min | Flag missing attendance after shift end |
 | `HourLogAutoCreateJob` | Event-driven | Create HourLog record on Attendance check-out |
 | `HourBulkImportJob` | Event-driven | Process coordinator-uploaded CSV; creates HourLog rows |
-| `MilestoneCheckJob` | Event-driven | After HourLog approval, compare cumulative hours against Milestone thresholds; award badge and send notification |
+| `MilestoneCheckJob` | Event-driven | After HourLog approval, compare cumulative hours against Milestone thresholds |
 | `InactivityNudgeJob` | Weekly | Email volunteers inactive for X days |
 | `ReportScheduleJob` | Daily 06:00 | Generate and email scheduled reports |
+| `BadgeAwardJob` | Event-driven | Evaluate auto-awardable badges (hours_reached, consecutive_months, milestone) for a volunteer after HourLog approval |
+| `PostShiftSurveyJob` | Event-driven | Send post-shift survey emails after shift ends + grace period |
 
 ### Writing a New Job
 

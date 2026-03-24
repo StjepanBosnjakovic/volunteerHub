@@ -21,6 +21,15 @@ Rails.application.routes.draw do
       get :import
       post :import_create
     end
+    # Phase 6 nested resources
+    resources :volunteer_badges, only: %i[create destroy]
+    resources :references, only: %i[index show new create] do
+      member do
+        patch :issue
+        patch :decline
+        get   :export_pdf
+      end
+    end
   end
 
   resources :skills, only: [:index, :create, :destroy]
@@ -146,5 +155,23 @@ Rails.application.routes.draw do
     collection do
       get :preview_segment
     end
+  end
+
+  # Phase 6: Recognition & Engagement
+  resources :badges
+  resources :leaderboard, only: [:index]
+
+  resources :testimonials do
+    member do
+      patch :publish
+      patch :unpublish
+    end
+  end
+
+  resources :surveys do
+    member do
+      get :dashboard
+    end
+    resources :survey_responses, only: %i[new create]
   end
 end

@@ -29,6 +29,13 @@ class VolunteerProfile < ApplicationRecord
   has_many :volunteer_milestones, dependent: :destroy
   has_many :milestones, through: :volunteer_milestones
 
+  # Phase 6: Recognition & Engagement
+  has_many :volunteer_badges, dependent: :destroy
+  has_many :badges, through: :volunteer_badges
+  has_many :references, dependent: :destroy
+  has_many :testimonials, dependent: :destroy
+  has_many :survey_responses, dependent: :destroy
+
   has_one_attached :avatar
 
   enum :status, { pending: 0, active: 1, inactive: 2 }, prefix: true

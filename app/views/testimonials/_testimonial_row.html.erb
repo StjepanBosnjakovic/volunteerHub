@@ -1,0 +1,7 @@
+<div id="testimonial_<%= testimonial.id %>" class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+  <p class="text-gray-700 text-sm italic">"<%= testimonial.quote %>"</p>
+  <p class="text-sm font-semibold text-gray-900 mt-2"><%= testimonial.volunteer_profile.full_name %></p>
+  <% if testimonial.published? %>
+    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700 mt-1">Published</span>
+  <% end %>
+</div>

@@ -1,0 +1,31 @@
+<div class="max-w-2xl mx-auto">
+  <%= link_to "← Testimonials", testimonials_path, class: "text-sm text-indigo-600 hover:underline mb-4 block" %>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+    <svg class="h-8 w-8 text-indigo-200 mb-3" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+    </svg>
+    <p class="text-gray-800 text-lg italic leading-relaxed mb-4">"<%= @testimonial.quote %>"</p>
+    <p class="text-sm font-semibold text-gray-900"><%= @testimonial.volunteer_profile.full_name %></p>
+
+    <div class="flex gap-2 mt-4">
+      <% if @testimonial.published? %>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-700">Published</span>
+      <% else %>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-600">Unpublished</span>
+      <% end %>
+      <% if @testimonial.consent_given? %>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700">Consent given</span>
+      <% end %>
+    </div>
+
+    <% if current_user.admin? %>
+      <div class="flex gap-3 mt-6 border-t border-gray-100 pt-4">
+        <%= link_to "Edit", edit_testimonial_path(@testimonial), class: "border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50" %>
+        <%= link_to "Delete", testimonial_path(@testimonial),
+            data: { turbo_method: :delete, turbo_confirm: "Delete this testimonial?" },
+            class: "border border-red-200 text-red-600 px-3 py-1.5 rounded-md text-sm hover:bg-red-50" %>
+      </div>
+    <% end %>
+  </div>
+</div>

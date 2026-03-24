@@ -1,0 +1,34 @@
+<div id="volunteer_badge_<%= volunteer_badge.id %>" class="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
+  <% if volunteer_badge.badge.artwork.attached? %>
+    <%= image_tag volunteer_badge.badge.artwork.variant(resize_to_fill: [48, 48]), class: "w-12 h-12 rounded-full object-cover flex-shrink-0" %>
+  <% else %>
+    <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+      <svg class="h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+  <% end %>
+
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-semibold text-gray-900 truncate"><%= volunteer_badge.badge.name %></p>
+    <p class="text-xs text-gray-500">
+      Awarded <%= volunteer_badge.awarded_at.strftime("%d %b %Y") %>
+      <% if volunteer_badge.awarded_by %>
+        by <%= volunteer_badge.awarded_by.email %>
+      <% else %>
+        automatically
+      <% end %>
+    </p>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <a href="<%= volunteer_badge.linkedin_share_url %>" target="_blank" rel="noopener noreferrer"
+       class="text-xs text-blue-600 hover:underline" title="Share on LinkedIn">Share</a>
+    <% if current_user.admin? %>
+      <%= link_to "Remove",
+          volunteer_profile_volunteer_badge_path(volunteer_badge.volunteer_profile, volunteer_badge),
+          data: { turbo_method: :delete, turbo_confirm: "Remove this badge?" },
+          class: "text-xs text-red-500 hover:underline" %>
+    <% end %>
+  </div>
+</div>

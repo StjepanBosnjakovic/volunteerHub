@@ -1,0 +1,15 @@
+<h2>Hi <%= @volunteer_profile.full_name %>,</h2>
+
+<p>Thank you for volunteering at <strong><%= @shift.title %></strong>
+   on <%= @shift.starts_at.strftime("%d %B %Y") %>.</p>
+
+<p>We'd love to hear your feedback. It only takes 2 minutes!</p>
+
+<p>
+  <%= link_to "Complete Survey", @survey_url,
+      style: "background:#4f46e5;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;" %>
+</p>
+
+<p style="color:#888;font-size:12px;">
+  If you're happy for us to share your feedback as a testimonial, please tick the consent box in the survey.
+</p>

@@ -44,6 +44,10 @@ gem "caxlsx_rails"
 # Audit logging
 gem "paper_trail"
 
+# Charts for survey dashboards (Phase 6)
+gem "chartkick"
+gem "groupdate"
+
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "bundler-audit", require: false
