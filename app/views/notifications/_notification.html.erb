@@ -1,0 +1,27 @@
+<div id="notification_<%= notification.id %>"
+     class="flex items-start gap-4 px-6 py-4 <%= notification.unread? ? 'bg-indigo-50' : 'bg-white' %>">
+  <div class="flex-shrink-0 mt-0.5">
+    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full
+         <%= notification_icon_color(notification.notification_type) %>">
+      <%= notification_icon(notification.notification_type) %>
+    </span>
+  </div>
+
+  <div class="flex-1 min-w-0">
+    <p class="text-sm text-gray-900 <%= notification.unread? ? 'font-medium' : '' %>">
+      <%= notification_message(notification) %>
+    </p>
+    <p class="text-xs text-gray-400 mt-0.5">
+      <%= time_ago_in_words(notification.created_at) %> ago
+    </p>
+  </div>
+
+  <% if notification.unread? %>
+    <div class="flex-shrink-0">
+      <%= button_to "Mark read",
+          mark_read_notification_path(notification),
+          method: :patch,
+          class: "text-xs text-indigo-600 hover:underline bg-transparent border-0 p-0 cursor-pointer" %>
+    </div>
+  <% end %>
+</div>

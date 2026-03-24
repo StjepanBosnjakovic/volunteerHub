@@ -1,0 +1,74 @@
+<%= form_with model: broadcast, class: "space-y-6" do |f| %>
+  <% if broadcast.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% broadcast.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :subject, "Subject", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_field :subject,
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div>
+    <%= f.label :channel, "Channel", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.select :channel,
+        [["In-App Notification", "in_app"], ["Email", "email"],
+         ["SMS (feature flagged)", "sms"], ["WhatsApp (feature flagged)", "whatsapp"]],
+        {},
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <%# Segment Builder %>
+  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4"
+       data-controller="segment-builder"
+       data-segment-builder-preview-url-value="<%= preview_segment_broadcast_messages_path %>">
+    <h3 class="text-sm font-semibold text-gray-700 mb-3">Target Audience</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <%= f.label "segment_filters[role]", "Role", class: "block text-xs font-medium text-gray-600 mb-1" %>
+        <%= f.select "segment_filters[role]",
+            [["All roles", ""], ["Volunteer", "volunteer"], ["Coordinator", "coordinator"]],
+            {},
+            class: "w-full rounded-md border-gray-300 text-sm shadow-sm",
+            data: { action: "change->segment-builder#preview" } %>
+      </div>
+      <div>
+        <%= f.label "segment_filters[program_id]", "Program", class: "block text-xs font-medium text-gray-600 mb-1" %>
+        <%= f.select "segment_filters[program_id]",
+            programs.map { |p| [p.name, p.id] },
+            { include_blank: "All programs" },
+            class: "w-full rounded-md border-gray-300 text-sm shadow-sm",
+            data: { action: "change->segment-builder#preview" } %>
+      </div>
+      <div>
+        <%= f.label "segment_filters[volunteer_status]", "Volunteer Status", class: "block text-xs font-medium text-gray-600 mb-1" %>
+        <%= f.select "segment_filters[volunteer_status]",
+            [["All", ""], ["Active", "active"], ["Inactive", "inactive"], ["Pending", "pending"]],
+            {},
+            class: "w-full rounded-md border-gray-300 text-sm shadow-sm",
+            data: { action: "change->segment-builder#preview" } %>
+      </div>
+    </div>
+    <p class="mt-3 text-xs text-gray-500">
+      Estimated recipients: <strong data-segment-builder-target="count">–</strong>
+    </p>
+  </div>
+
+  <div>
+    <%= f.label :body, "Message Body", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :body, rows: 8,
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit broadcast.persisted? ? "Update Broadcast" : "Save Broadcast",
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <%= link_to "Cancel", broadcast_messages_path, class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+  </div>
+<% end %>

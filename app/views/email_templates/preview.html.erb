@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #f8f8f8; margin: 0; padding: 24px; }
+    .preview-banner { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px;
+                      padding: 8px 16px; margin-bottom: 16px; font-size: 12px; color: #92400e; }
+    .wrapper { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px;
+               box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: hidden; }
+    .header { background: #4f46e5; padding: 24px; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 20px; }
+    .subject { padding: 12px 32px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+    .subject strong { font-size: 13px; color: #374151; }
+    .body { padding: 32px; }
+    .footer { padding: 16px 32px; background: #f3f4f6; font-size: 12px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="preview-banner">
+    Preview mode — personalisation tokens replaced with sample values
+  </div>
+
+  <div class="wrapper">
+    <div class="header">
+      <h1><%= current_user.organisation.name %></h1>
+    </div>
+    <div class="subject">
+      <strong>Subject:</strong> <%= @preview[:subject] %>
+    </div>
+    <div class="body">
+      <%= sanitize @preview[:body] %>
+    </div>
+    <div class="footer">
+      &copy; <%= Date.current.year %> <%= current_user.organisation.name %>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<%= form_with model: email_template, class: "space-y-6" do |f| %>
+  <% if email_template.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% email_template.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :event_type, "Event Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.select :event_type,
+        event_types.map { |t| [t.humanize, t] },
+        { include_blank: "Select event type..." },
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500",
+        disabled: email_template.persisted? %>
+  </div>
+
+  <div>
+    <%= f.label :subject, "Subject Line", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <p class="text-xs text-gray-400 mb-1">Use personalisation tokens like <code class="font-mono text-indigo-600">{{volunteer_name}}</code></p>
+    <%= f.text_field :subject,
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div>
+    <%= f.label :body_html, "Body HTML", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <p class="text-xs text-gray-400 mb-1">Full HTML body with personalisation tokens.</p>
+    <%= f.text_area :body_html, rows: 16,
+        class: "w-full font-mono text-sm rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <%= f.check_box :active, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+    <%= f.label :active, "Active (use this template for outgoing emails)", class: "text-sm text-gray-700" %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit email_template.persisted? ? "Update Template" : "Create Template",
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <%= link_to "Cancel", email_templates_path, class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+  </div>
+<% end %>

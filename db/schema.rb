@@ -10,8 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_23_400003) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_23_500005) do
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "action_text_rich_texts", force: :cascade do |t|
+    t.string   "name",        null: false
+    t.text     "body"
+    t.string   "record_type", null: false
+    t.bigint   "record_id",   null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -452,6 +462,132 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_23_400003) do
     t.index ["volunteer_profile_id"], name: "index_volunteer_profiles_on_volunteer_skill_id"
   end
 
+  create_table "announcements", force: :cascade do |t|
+    t.bigint   "organisation_id", null: false
+    t.bigint   "author_id",       null: false
+    t.string   "title",           null: false
+    t.integer  "status",          default: 0, null: false
+    t.datetime "published_at"
+    t.datetime "scheduled_for"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.index ["author_id"],        name: "index_announcements_on_author_id"
+    t.index ["organisation_id"],  name: "index_announcements_on_organisation_id"
+    t.index ["scheduled_for"],    name: "index_announcements_on_scheduled_for"
+    t.index ["status"],           name: "index_announcements_on_status"
+  end
+
+  create_table "broadcast_messages", force: :cascade do |t|
+    t.bigint  "organisation_id",              null: false
+    t.bigint  "sender_id",                    null: false
+    t.string  "subject",                      null: false
+    t.text    "body",                         null: false
+    t.integer "channel",         default: 0,  null: false
+    t.jsonb   "segment_filters", default: {}
+    t.integer "status",          default: 0,  null: false
+    t.integer "recipient_count", default: 0
+    t.datetime "sent_at"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["organisation_id"], name: "index_broadcast_messages_on_organisation_id"
+    t.index ["sender_id"],       name: "index_broadcast_messages_on_sender_id"
+  end
+
+  create_table "conversation_participants", force: :cascade do |t|
+    t.bigint   "conversation_id", null: false
+    t.bigint   "user_id",         null: false
+    t.datetime "last_read_at"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.index ["conversation_id", "user_id"], name: "idx_conversation_participants_unique", unique: true
+  end
+
+  create_table "conversations", force: :cascade do |t|
+    t.bigint  "organisation_id",                null: false
+    t.string  "title"
+    t.integer "conversation_type", default: 0,  null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["organisation_id"], name: "index_conversations_on_organisation_id"
+  end
+
+  create_table "email_campaigns", force: :cascade do |t|
+    t.bigint  "organisation_id",              null: false
+    t.bigint  "sender_id",                    null: false
+    t.string  "name",                         null: false
+    t.string  "subject_a",                    null: false
+    t.string  "subject_b"
+    t.text    "body_html",                    null: false
+    t.jsonb   "segment_filters", default: {}
+    t.string  "channel",         default: "email", null: false
+    t.integer "status",          default: 0,  null: false
+    t.integer "recipient_count", default: 0
+    t.integer "open_count_a",    default: 0
+    t.integer "open_count_b",    default: 0
+    t.datetime "scheduled_at"
+    t.datetime "sent_at"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["organisation_id"], name: "index_email_campaigns_on_organisation_id"
+    t.index ["sender_id"],       name: "index_email_campaigns_on_sender_id"
+  end
+
+  create_table "email_templates", force: :cascade do |t|
+    t.bigint  "organisation_id", null: false
+    t.string  "event_type",      null: false
+    t.string  "subject",         null: false
+    t.text    "body_html",       null: false
+    t.boolean "active",          default: true, null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.index ["organisation_id", "event_type"], name: "idx_email_templates_org_event", unique: true
+  end
+
+  create_table "message_reads", force: :cascade do |t|
+    t.bigint   "message_id", null: false
+    t.bigint   "user_id",    null: false
+    t.datetime "read_at",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id", "user_id"], name: "idx_message_reads_unique", unique: true
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.bigint  "conversation_id",             null: false
+    t.bigint  "sender_id",                   null: false
+    t.integer "message_type",    default: 0, null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["sender_id"],       name: "index_messages_on_sender_id"
+  end
+
+  create_table "notification_preferences", force: :cascade do |t|
+    t.bigint  "user_id",           null: false
+    t.string  "notification_type", null: false
+    t.boolean "in_app",            default: true, null: false
+    t.boolean "email",             default: true, null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["user_id", "notification_type"], name: "idx_notification_prefs_unique", unique: true
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint   "recipient_id",                   null: false
+    t.bigint   "organisation_id",                null: false
+    t.string   "notification_type",              null: false
+    t.datetime "read_at"
+    t.jsonb    "data",              default: {}
+    t.string   "notifiable_type"
+    t.bigint   "notifiable_id"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.index ["notifiable_type", "notifiable_id"], name: "idx_notifications_notifiable"
+    t.index ["organisation_id"],                  name: "index_notifications_on_organisation_id"
+    t.index ["recipient_id"],                     name: "index_notifications_on_recipient_id"
+    t.index ["recipient_id", "read_at"],          name: "idx_notifications_recipient_read"
+  end
+
   add_foreign_key "hour_logs", "attendances"
   add_foreign_key "hour_logs", "organisations"
   add_foreign_key "hour_logs", "programs"
@@ -507,4 +643,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_23_400003) do
   add_foreign_key "volunteer_profiles", "users"
   add_foreign_key "volunteer_skills", "skills"
   add_foreign_key "volunteer_skills", "volunteer_profiles"
+
+  # Phase 5 — Communications
+  add_foreign_key "announcements",            "organisations"
+  add_foreign_key "announcements",            "users", column: "author_id"
+  add_foreign_key "broadcast_messages",       "organisations"
+  add_foreign_key "broadcast_messages",       "users", column: "sender_id"
+  add_foreign_key "conversation_participants", "conversations"
+  add_foreign_key "conversation_participants", "users"
+  add_foreign_key "conversations",            "organisations"
+  add_foreign_key "email_campaigns",          "organisations"
+  add_foreign_key "email_campaigns",          "users", column: "sender_id"
+  add_foreign_key "email_templates",          "organisations"
+  add_foreign_key "message_reads",            "messages"
+  add_foreign_key "message_reads",            "users"
+  add_foreign_key "messages",                 "conversations"
+  add_foreign_key "messages",                 "users", column: "sender_id"
+  add_foreign_key "notification_preferences", "users"
+  add_foreign_key "notifications",            "organisations"
+  add_foreign_key "notifications",            "users", column: "recipient_id"
 end

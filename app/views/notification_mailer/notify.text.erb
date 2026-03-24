@@ -1,0 +1,29 @@
+Hi <%= @user.display_name %>,
+
+<% case @notification.notification_type %>
+<% when "shift_reminder" %>
+Reminder: Your upcoming shift "<%= @data["shift_title"] %>" on <%= @data["shift_date"] %>.
+<% when "hour_approved" %>
+Your <%= @data["hours"] %> hours for <%= @data["program_name"] %> have been approved.
+<% when "hour_rejected" %>
+Your hours submission requires attention. Please log in to review.
+<% when "milestone_reached" %>
+Congratulations on reaching the "<%= @data["milestone_label"] %>" milestone!
+<% when "credential_expiry" %>
+Your credential "<%= @data["credential_name"] %>" expires in <%= @data["days_until_expiry"] %> days.
+<% when "broadcast" %>
+<%= @data["subject"] %>
+
+<%= @data["body"] %>
+<% when "announcement" %>
+New announcement: <%= @data["title"] %>
+Log in to read it.
+<% when "inactivity_nudge" %>
+We miss you! It's been a while since your last volunteer session.
+Check out upcoming opportunities at <%= root_url %>.
+<% else %>
+You have a new notification. Log in to your dashboard: <%= root_url %>
+<% end %>
+
+—
+<%= @organisation.name %>
