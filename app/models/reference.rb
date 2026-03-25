@@ -1,6 +1,4 @@
 class Reference < ApplicationRecord
-  acts_as_tenant :organisation, through: :volunteer_profile
-
   belongs_to :volunteer_profile
   belongs_to :coordinator, class_name: "User"
   has_one_attached :pdf_document

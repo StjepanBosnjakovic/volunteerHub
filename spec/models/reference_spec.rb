@@ -26,13 +26,11 @@ RSpec.describe Reference, type: :model do
 
   describe "#issue!" do
     it "sets status to issued and records issued_at" do
-      ActsAsTenant.with_tenant(organisation) do
-        reference = create(:reference, volunteer_profile: volunteer_profile, coordinator: coordinator)
-        reference.issue!(coordinator: coordinator)
-        reference.reload
-        expect(reference).to be_issued
-        expect(reference.issued_at).to be_within(2.seconds).of(Time.current)
-      end
+      reference = create(:reference, volunteer_profile: volunteer_profile, coordinator: coordinator)
+      reference.issue!(coordinator: coordinator)
+      reference.reload
+      expect(reference).to be_issued
+      expect(reference.issued_at).to be_within(2.seconds).of(Time.current)
     end
   end
 end

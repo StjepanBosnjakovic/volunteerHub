@@ -28,12 +28,14 @@ RSpec.describe Badge, type: :model do
     end
 
     it ".system_badges returns badges with no organisation" do
-      ActsAsTenant.with_tenant(organisation) do
-        system = create(:badge, :system_badge)
-        org    = create(:badge, organisation: organisation)
-        expect(Badge.system_badges).to include(system)
-        expect(Badge.system_badges).not_to include(org)
-      end
+      # System badges must be created without a tenant — acts_as_tenant would
+      # force organisation_id to the current tenant even with optional: true.
+      system = ActsAsTenant.without_tenant { create(:badge, :system_badge) }
+      org    = ActsAsTenant.with_tenant(organisation) { create(:badge, organisation: organisation) }
+
+      all_badges = ActsAsTenant.without_tenant { Badge.system_badges.to_a }
+      expect(all_badges).to include(system)
+      expect(all_badges).not_to include(org)
     end
   end
 
