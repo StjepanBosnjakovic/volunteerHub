@@ -212,7 +212,7 @@ Tasks are grouped by phase. Complete each phase before beginning the next. Items
 - [x] `SurveyResponse` model: `volunteer_id`, `survey_id`, `shift_id`, `answers` (JSON)
 - [x] Auto-send post-shift survey job (runs after shift end + grace period)
 - [x] NPS score calculation + open text aggregation
-- [x] Feedback dashboard: trend charts using `chartkick` + `groupdate` [Turbo frame]
+- [x] Feedback dashboard: trend charts using custom HTML bar charts [Turbo frame]
 
 ---
 
