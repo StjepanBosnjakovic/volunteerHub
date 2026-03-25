@@ -1,0 +1,47 @@
+<div class="max-w-2xl mx-auto">
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <%= link_to "← Badges", badges_path, class: "text-sm text-indigo-600 hover:underline mb-2 block" %>
+      <h1 class="text-2xl font-bold text-gray-900"><%= @badge.name %></h1>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1
+        <%= @badge.criteria_type == 'manual' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' %>">
+        <%= @badge.criteria_type.humanize %>
+      </span>
+    </div>
+    <% if current_user.admin? %>
+      <div class="flex gap-2">
+        <%= link_to "Edit", edit_badge_path(@badge), class: "border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50" %>
+        <%= link_to "Delete", badge_path(@badge), data: { turbo_method: :delete, turbo_confirm: "Delete this badge?" }, class: "border border-red-200 text-red-600 px-3 py-1.5 rounded-md text-sm hover:bg-red-50" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+    <% if @badge.artwork.attached? %>
+      <%= image_tag @badge.artwork.variant(resize_to_fill: [120, 120]), class: "w-28 h-28 rounded-full object-cover mx-auto mb-4" %>
+    <% end %>
+
+    <p class="text-gray-700 text-sm mb-4"><%= @badge.description.presence || "No description." %></p>
+
+    <dl class="grid grid-cols-2 gap-4 text-sm">
+      <div>
+        <dt class="text-xs font-medium text-gray-500 uppercase">Criteria</dt>
+        <dd class="text-gray-900"><%= @badge.criteria_type.humanize %></dd>
+      </div>
+      <% if @badge.criteria_value %>
+        <div>
+          <dt class="text-xs font-medium text-gray-500 uppercase">Threshold</dt>
+          <dd class="text-gray-900"><%= @badge.criteria_value %></dd>
+        </div>
+      <% end %>
+      <div>
+        <dt class="text-xs font-medium text-gray-500 uppercase">Awarded To</dt>
+        <dd class="text-gray-900"><%= @badge.volunteer_badges.count %> volunteer(s)</dd>
+      </div>
+      <div>
+        <dt class="text-xs font-medium text-gray-500 uppercase">Scope</dt>
+        <dd class="text-gray-900"><%= @badge.system_badge? ? "System-wide" : "Organisation" %></dd>
+      </div>
+    </dl>
+  </div>
+</div>

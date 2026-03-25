@@ -1,0 +1,37 @@
+<%= form_with model: testimonial, class: "space-y-6" do |f| %>
+  <% if testimonial.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% testimonial.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :volunteer_profile_id, "Volunteer", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.collection_select :volunteer_profile_id,
+        VolunteerProfile.active.order(:first_name), :id, :full_name,
+        { prompt: "Select a volunteer" },
+        class: "w-full rounded-md border-gray-300 text-sm shadow-sm" %>
+  </div>
+
+  <div>
+    <%= f.label :quote, "Quote", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :quote, rows: 4, placeholder: "Volunteer's words in their own voice…",
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <%= f.check_box :consent_given, class: "h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+    <%= f.label :consent_given, "Volunteer has given consent for this testimonial to be published",
+        class: "text-sm text-gray-700" %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit testimonial.persisted? ? "Update Testimonial" : "Save Testimonial",
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <%= link_to "Cancel", testimonials_path, class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+  </div>
+<% end %>

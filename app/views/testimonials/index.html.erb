@@ -1,0 +1,55 @@
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Testimonials</h1>
+    <p class="text-sm text-gray-500 mt-1">Volunteer quotes and success stories.</p>
+  </div>
+  <% if current_user.admin? %>
+    <%= link_to "New Testimonial", new_testimonial_path,
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700" %>
+  <% end %>
+</div>
+
+<% if @testimonials.empty? %>
+  <div class="text-center py-16">
+    <p class="text-gray-500 text-sm">No testimonials yet.</p>
+  </div>
+<% else %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <% @testimonials.each do |testimonial| %>
+      <div id="testimonial_<%= testimonial.id %>" class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+        <div>
+          <svg class="h-6 w-6 text-indigo-300 mb-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+          </svg>
+          <p class="text-gray-700 text-sm italic leading-relaxed">"<%= testimonial.quote %>"</p>
+        </div>
+        <div class="mt-4 flex justify-between items-center">
+          <div>
+            <p class="text-sm font-semibold text-gray-900"><%= testimonial.volunteer_profile.full_name %></p>
+            <% unless testimonial.published? %>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-600">Unpublished</span>
+            <% end %>
+          </div>
+          <% if current_user.admin? %>
+            <div class="flex gap-2">
+              <% unless testimonial.published? %>
+                <% if policy(testimonial).publish? %>
+                  <%= button_to "Publish", publish_testimonial_path(testimonial), method: :patch,
+                      class: "text-xs text-green-600 border border-green-200 px-2 py-1 rounded hover:bg-green-50" %>
+                <% end %>
+              <% else %>
+                <%= button_to "Unpublish", unpublish_testimonial_path(testimonial), method: :patch,
+                    class: "text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded hover:bg-gray-50" %>
+              <% end %>
+              <%= link_to "Edit", edit_testimonial_path(testimonial), class: "text-xs text-indigo-600 hover:underline" %>
+              <%= link_to "Delete", testimonial_path(testimonial),
+                  data: { turbo_method: :delete, turbo_confirm: "Delete this testimonial?" },
+                  class: "text-xs text-red-500 hover:underline" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+<% end %>

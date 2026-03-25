@@ -1,0 +1,78 @@
+<div class="max-w-2xl mx-auto">
+  <%= link_to "← References", volunteer_profile_references_path(@volunteer_profile), class: "text-sm text-indigo-600 hover:underline mb-4 block" %>
+
+  <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h1 class="text-xl font-bold text-gray-900">Reference #<%= @reference.id %></h1>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1
+          <%= @reference.issued? ? 'bg-green-100 text-green-800' : @reference.declined? ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %>">
+          <%= @reference.status.humanize %>
+        </span>
+      </div>
+      <div class="flex gap-2">
+        <% if policy(@reference).issue? %>
+          <%= button_to "Issue Reference", issue_volunteer_profile_reference_path(@volunteer_profile, @reference),
+              method: :patch, class: "bg-green-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-green-700" %>
+        <% end %>
+        <% if policy(@reference).decline? %>
+          <%= button_to "Decline", decline_volunteer_profile_reference_path(@volunteer_profile, @reference),
+              method: :patch,
+              data: { turbo_confirm: "Decline this reference request?" },
+              class: "border border-red-200 text-red-600 px-3 py-1.5 rounded-md text-sm hover:bg-red-50" %>
+        <% end %>
+        <% if @reference.issued? %>
+          <%= link_to "Download PDF", export_pdf_volunteer_profile_reference_path(@volunteer_profile, @reference),
+              class: "border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50" %>
+        <% end %>
+      </div>
+    </div>
+
+    <dl class="grid grid-cols-2 gap-4 text-sm mb-4">
+      <div>
+        <dt class="text-xs font-medium text-gray-500 uppercase">Volunteer</dt>
+        <dd class="text-gray-900"><%= @reference.volunteer_profile.full_name %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-medium text-gray-500 uppercase">Requested</dt>
+        <dd class="text-gray-900"><%= @reference.created_at.strftime("%d %b %Y") %></dd>
+      </div>
+      <% if @reference.issued_at %>
+        <div>
+          <dt class="text-xs font-medium text-gray-500 uppercase">Issued</dt>
+          <dd class="text-gray-900"><%= @reference.issued_at.strftime("%d %b %Y") %></dd>
+        </div>
+      <% end %>
+      <% if @reference.notes.present? %>
+        <div class="col-span-2">
+          <dt class="text-xs font-medium text-gray-500 uppercase">Notes</dt>
+          <dd class="text-gray-900"><%= @reference.notes %></dd>
+        </div>
+      <% end %>
+    </dl>
+
+    <% if @reference.stats_snapshot.present? %>
+      <div class="border-t border-gray-100 pt-4">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Verified Stats at Time of Issue</h3>
+        <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div class="bg-indigo-50 rounded-lg p-3 text-center">
+            <dt class="text-xs text-gray-500">Total Hours</dt>
+            <dd class="text-xl font-bold text-indigo-700"><%= @reference.stats_snapshot["total_hours"] %></dd>
+          </div>
+          <div class="bg-indigo-50 rounded-lg p-3 text-center">
+            <dt class="text-xs text-gray-500">Shifts</dt>
+            <dd class="text-xl font-bold text-indigo-700"><%= @reference.stats_snapshot["shifts_attended"] %></dd>
+          </div>
+          <div class="bg-indigo-50 rounded-lg p-3 text-center">
+            <dt class="text-xs text-gray-500">Badges</dt>
+            <dd class="text-xl font-bold text-indigo-700"><%= @reference.stats_snapshot["badges_earned"] %></dd>
+          </div>
+          <div class="bg-indigo-50 rounded-lg p-3 text-center">
+            <dt class="text-xs text-gray-500">Programs</dt>
+            <dd class="text-sm font-semibold text-indigo-700"><%= Array(@reference.stats_snapshot["programs"]).join(", ").presence || "—" %></dd>
+          </div>
+        </dl>
+      </div>
+    <% end %>
+  </div>
+</div>

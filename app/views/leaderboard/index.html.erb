@@ -1,0 +1,109 @@
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Leaderboard</h1>
+    <p class="text-sm text-gray-500 mt-1">Top volunteers ranked by contribution.</p>
+  </div>
+</div>
+
+<%# Filters %>
+<div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+  <%= form_with url: leaderboard_index_path, method: :get, data: { turbo_frame: "leaderboard_frame" } do |f| %>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Period</label>
+        <%= f.select :period,
+            [["This Week", "week"], ["This Month", "month"], ["This Quarter", "quarter"],
+             ["This Year", "year"], ["All Time", "all"]],
+            { selected: @period },
+            class: "w-full rounded-md border-gray-300 text-sm shadow-sm" %>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Rank By</label>
+        <%= f.select :metric,
+            [["Hours", "hours"], ["Shifts", "shifts"], ["Badges", "badges"]],
+            { selected: @metric },
+            class: "w-full rounded-md border-gray-300 text-sm shadow-sm" %>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Program</label>
+        <%= f.select :program_id,
+            [["All Programs", ""]] + @programs.map { |p| [p.name, p.id] },
+            { selected: @program&.id },
+            class: "w-full rounded-md border-gray-300 text-sm shadow-sm" %>
+      </div>
+      <div class="flex items-end">
+        <%= f.submit "Apply", class: "w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<turbo-frame id="leaderboard_frame">
+  <% if @entries.empty? %>
+    <div class="text-center py-16">
+      <p class="text-gray-500 text-sm">No opt-in volunteers found for the selected filters.</p>
+    </div>
+  <% else %>
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase w-12">Rank</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Volunteer</th>
+            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+              <%= @metric == "hours" ? "Hours" : @metric == "shifts" ? "Shifts" : "Badges" %>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% @entries.each_with_index do |profile, idx| %>
+            <tr class="<%= idx < 3 ? 'bg-indigo-50' : 'hover:bg-gray-50' %> transition">
+              <td class="px-4 py-3 text-sm font-bold text-gray-900">
+                <% case @pagy.offset + idx + 1
+                   when 1 then %>
+                  <span class="text-yellow-500 text-lg">🥇</span>
+                <% when 2 then %>
+                  <span class="text-gray-400 text-lg">🥈</span>
+                <% when 3 then %>
+                  <span class="text-orange-400 text-lg">🥉</span>
+                <% else %>
+                  <span class="text-gray-600">#<%= @pagy.offset + idx + 1 %></span>
+                <% end %>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <% if profile.avatar.attached? %>
+                    <%= image_tag profile.avatar.variant(resize_to_fill: [36, 36]), class: "w-9 h-9 rounded-full object-cover" %>
+                  <% else %>
+                    <div class="w-9 h-9 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 text-xs font-semibold">
+                      <%= profile.full_name.split.map(&:first).first(2).join %>
+                    </div>
+                  <% end %>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900"><%= profile.full_name %></p>
+                    <div class="flex gap-1 mt-0.5">
+                      <% profile.volunteer_badges.includes(:badge).recent.first(3).each do |vb| %>
+                        <span class="text-xs" title="<%= vb.badge.name %>">🏅</span>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-right text-sm font-semibold text-indigo-700">
+                <%= profile.metric_value.to_f.zero? ? "—" : profile.metric_value.to_f.round(1) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+  <% end %>
+</turbo-frame>
+
+<div class="mt-6 text-center text-xs text-gray-400">
+  Only volunteers who have opted in to the leaderboard are shown.
+  <% if current_user.volunteer? && current_user.volunteer_profile %>
+    <%= link_to "Update your preferences", edit_volunteer_profile_path(current_user.volunteer_profile), class: "text-indigo-500 hover:underline" %>
+  <% end %>
+</div>

@@ -1,0 +1,38 @@
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">References</h1>
+    <p class="text-sm text-gray-500 mt-1">Volunteer reference letters for <%= @volunteer_profile.full_name %>.</p>
+  </div>
+  <%= link_to "Request Reference", new_volunteer_profile_reference_path(@volunteer_profile),
+      class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700" %>
+</div>
+
+<% if @references.empty? %>
+  <div class="text-center py-16">
+    <p class="text-gray-500 text-sm">No references yet.</p>
+  </div>
+<% else %>
+  <div class="space-y-3">
+    <% @references.each do |ref| %>
+      <div class="bg-white border border-gray-200 rounded-lg p-4 flex justify-between items-center shadow-sm">
+        <div>
+          <p class="text-sm font-medium text-gray-900">
+            Reference #<%= ref.id %>
+            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+              <%= ref.issued? ? 'bg-green-100 text-green-800' : ref.declined? ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %>">
+              <%= ref.status.humanize %>
+            </span>
+          </p>
+          <p class="text-xs text-gray-500 mt-0.5">Requested <%= ref.created_at.strftime("%d %b %Y") %></p>
+        </div>
+        <div class="flex gap-2">
+          <%= link_to "View", volunteer_profile_reference_path(@volunteer_profile, ref), class: "text-sm text-indigo-600 hover:underline" %>
+          <% if ref.issued? %>
+            <%= link_to "Download PDF", export_pdf_volunteer_profile_reference_path(@volunteer_profile, ref), class: "text-sm text-gray-600 hover:underline" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+<% end %>

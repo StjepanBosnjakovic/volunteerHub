@@ -658,6 +658,134 @@ Email campaigns allow you to send targeted bulk emails with optional A/B subject
 
 ---
 
+## Phase 6 — Recognition & Engagement
+
+### Badges
+
+#### Viewing Your Badges (Volunteers)
+1. Go to **My Profile** → **Achievements**.
+2. All earned badges are displayed with the date awarded and the award method (automatic or manual).
+3. Click **Share** on any badge to copy a pre-filled LinkedIn share link to your clipboard.
+
+#### Badge Award Methods
+| Method | Description |
+|--------|-------------|
+| `Hours Reached` | Awarded automatically once cumulative approved hours pass a threshold |
+| `Milestone` | Awarded when you reach a specific milestone level |
+| `Consecutive Months` | Awarded when you have logged hours across a streak of consecutive calendar months |
+| `Manual` | Awarded manually by a coordinator |
+
+#### Awarding a Badge (Coordinators)
+1. Navigate to a volunteer's profile → **Badges** tab.
+2. Click **Award Badge**.
+3. Select a badge from the list (manual badges only appear here for coordinator-initiated awards).
+4. Click **Award**. The badge appears on the volunteer's profile immediately.
+
+#### Managing Badges (Coordinators / Admins)
+1. Go to **Badges** in the navigation menu.
+2. Click **New Badge** to create a custom badge with artwork, criteria, and description.
+3. Edit or delete existing badges from the badge list.
+
+---
+
+### Leaderboard
+
+#### Viewing the Leaderboard
+1. Click **Leaderboard** in the navigation bar.
+2. Use the filter panel to choose:
+   - **Period:** This Week / This Month / This Quarter / This Year / All Time
+   - **Rank By:** Hours / Shifts / Badges
+   - **Program:** filter to a specific program or view all
+3. The top three positions are highlighted with medal icons.
+
+#### Opting In / Out (Volunteers)
+- By default you are **not** shown on the leaderboard.
+- To opt in: go to **My Profile** → **Edit Profile** → tick **Show me on the leaderboard** → **Save**.
+- To opt out: untick the same option. You are removed from the leaderboard immediately.
+
+---
+
+### References
+
+#### Requesting a Reference (Volunteers)
+1. Go to **My Profile** → **References** → **Request Reference**.
+2. Optionally add a note explaining the purpose of the reference (e.g. job application).
+3. Click **Submit Request**. A coordinator is notified.
+
+#### Issuing a Reference (Coordinators)
+1. Go to the volunteer's profile → **References** → open the pending request.
+2. Review the volunteer's verified stats (hours, shifts, badges, programs).
+3. Click **Issue Reference** to generate the reference with a frozen stats snapshot.
+4. Download the **PDF** to share directly with the volunteer or third party.
+
+#### Reference Status
+| Status | Meaning |
+|--------|---------|
+| Requested | Awaiting coordinator review |
+| Issued | Reference generated with verified stats |
+| Declined | Request not fulfilled |
+
+---
+
+### Testimonials
+
+#### Viewing Testimonials
+- Published testimonials are visible to all users under **Testimonials** in the navigation.
+- Click any testimonial card to view the full quote.
+
+#### Creating a Testimonial (Coordinators)
+1. Go to **Testimonials** → **New Testimonial**.
+2. Select the volunteer from the dropdown.
+3. Enter the volunteer's quote **in their own words**.
+4. Tick **Volunteer has given consent** — this is required before the testimonial can be published.
+5. Click **Save Testimonial**.
+
+#### Publishing / Unpublishing
+- From the testimonials list, click **Publish** next to a consented testimonial to make it visible to all users.
+- Click **Unpublish** to hide it without deleting it.
+
+---
+
+### Surveys
+
+#### Completing a Survey (Volunteers)
+- If your organisation uses post-shift surveys, you will receive an email after your shift with a link.
+- Click the link and answer each question (NPS scale, open text, or multiple choice).
+- Click **Submit Feedback**. You cannot submit the same survey twice for the same shift.
+
+#### NPS Rating Guide
+| Score | Label |
+|-------|-------|
+| 9–10 | Promoter — you're very likely to recommend volunteering with us |
+| 7–8 | Passive — satisfied but not enthusiastic |
+| 0–6 | Detractor — you have concerns about your experience |
+
+#### Creating a Survey (Coordinators / Admins)
+1. Go to **Surveys** → **New Survey**.
+2. Enter a title and choose a **trigger**:
+   - **Post-Shift** — automatically sent after each shift ends
+   - **Post-Program** — sent when a volunteer completes a program
+   - **Pulse** — sent on demand to all active volunteers
+   - **Manual** — volunteers are given a direct link
+3. Set the **Grace Period** (hours after shift end before the survey email is sent).
+4. Define questions as a JSON array. Supported types:
+   - `nps` — 0–10 rating scale for Net Promoter Score
+   - `text` — free-text open response
+   - `rating` — 1–5 star rating
+   - `multiple_choice` — select one option from a list
+5. Click **Create Survey**.
+
+#### Feedback Dashboard (Coordinators)
+1. Go to **Surveys** → click **Dashboard** next to a survey.
+2. View:
+   - **Total Responses** — number of completed responses
+   - **Net Promoter Score** — calculated as % Promoters minus % Detractors × 100
+   - **Average NPS Rating** — mean score on the 0–10 scale
+   - **Monthly Trend** — bar chart of responses over the last 6 months
+   - **Recent Responses** — latest submissions with individual answers
+
+---
+
 ## Getting Help
 
 - **In-app help:** Click the **?** icon in the bottom-right corner to access contextual help articles.

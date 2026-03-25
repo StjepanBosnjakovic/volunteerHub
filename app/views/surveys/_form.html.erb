@@ -1,0 +1,59 @@
+<%= form_with model: survey, class: "space-y-6" do |f| %>
+  <% if survey.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% survey.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, "Survey Title", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_field :title, placeholder: "e.g. Post-Shift Feedback",
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <%= f.label :trigger, "Trigger", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :trigger,
+          [["Post-Shift", "post_shift"], ["Post-Program", "post_program"],
+           ["Pulse", "pulse"], ["Manual", "manual"]],
+          {},
+          class: "w-full rounded-md border-gray-300 text-sm shadow-sm" %>
+    </div>
+    <div>
+      <%= f.label :grace_period_hours, "Grace Period (hours)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :grace_period_hours, min: 0, max: 72,
+          class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      <p class="text-xs text-gray-400 mt-1">Hours after shift end before sending.</p>
+    </div>
+    <div class="flex items-end pb-1">
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <%= f.check_box :active, class: "h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+        Active
+      </label>
+    </div>
+  </div>
+
+  <%# Questions JSON editor — simplified textarea for now %>
+  <div>
+    <div class="flex justify-between items-center mb-1">
+      <%= f.label :questions, "Questions (JSON)", class: "block text-sm font-medium text-gray-700" %>
+      <span class="text-xs text-gray-400">Types: text, rating, nps, multiple_choice</span>
+    </div>
+    <% questions_json = survey.questions.is_a?(Array) ? JSON.pretty_generate(survey.questions) : "[]" %>
+    <%= f.text_area :questions, value: questions_json, rows: 10,
+        placeholder: '[{"type": "nps", "label": "How likely are you to recommend us? (0-10)"}, {"type": "text", "label": "What did you enjoy?"}]',
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" %>
+    <p class="text-xs text-gray-400 mt-1">Enter questions as a JSON array. Each object needs <code>type</code> and <code>label</code>.</p>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit survey.persisted? ? "Update Survey" : "Create Survey",
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <%= link_to "Cancel", surveys_path, class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+  </div>
+<% end %>

@@ -187,32 +187,32 @@ Tasks are grouped by phase. Complete each phase before beginning the next. Items
 
 ---
 
-## Phase 6 — Recognition & Engagement
+## Phase 6 — Recognition & Engagement ✅ COMPLETE
 
 ### 6.1 Badges
-- [ ] `Badge` model: `name`, `description`, `artwork` (Active Storage), `criteria_type`, `criteria_value`, `org_id` (nil = system badge)
-- [ ] `VolunteerBadge` join: `awarded_at`, `awarded_by_id`
-- [ ] Badge award job: triggered by milestone, consecutive months, or manual coordinator action
-- [ ] Badge display on volunteer profile
-- [ ] Social share link: generate pre-filled LinkedIn share URL
+- [x] `Badge` model: `name`, `description`, `artwork` (Active Storage), `criteria_type`, `criteria_value`, `org_id` (nil = system badge)
+- [x] `VolunteerBadge` join: `awarded_at`, `awarded_by_id`
+- [x] Badge award job: triggered by milestone, consecutive months, or manual coordinator action
+- [x] Badge display on volunteer profile
+- [x] Social share link: generate pre-filled LinkedIn share URL
 
 ### 6.2 Leaderboards
-- [ ] Opt-in flag on VolunteerProfile
-- [ ] Leaderboard query: scope by program / period / org; rank by hours / shifts / referrals
-- [ ] Leaderboard page with Turbo frame refresh [cached fragment, refreshed on schedule]
+- [x] Opt-in flag on VolunteerProfile
+- [x] Leaderboard query: scope by program / period / org; rank by hours / shifts / referrals
+- [x] Leaderboard page with Turbo frame refresh [cached fragment, refreshed on schedule]
 
 ### 6.3 References & Testimonials
-- [ ] `Reference` model: `volunteer_id`, `coordinator_id`, `stats_snapshot` (JSON), `pdf_attachment`
-- [ ] PDF generation using Prawn with verified stats
-- [ ] Volunteer reference request flow [TURBO]
-- [ ] `Testimonial` model: `quote`, `published` (boolean, requires volunteer consent)
+- [x] `Reference` model: `volunteer_id`, `coordinator_id`, `stats_snapshot` (JSON), `pdf_attachment`
+- [x] PDF generation using Prawn with verified stats
+- [x] Volunteer reference request flow [TURBO]
+- [x] `Testimonial` model: `quote`, `published` (boolean, requires volunteer consent)
 
 ### 6.4 Surveys
-- [ ] `Survey` model: `title`, `trigger` (post_shift/post_program/pulse), `questions` (JSON schema)
-- [ ] `SurveyResponse` model: `volunteer_id`, `survey_id`, `shift_id`, `answers` (JSON)
-- [ ] Auto-send post-shift survey job (runs after shift end + grace period)
-- [ ] NPS score calculation + open text aggregation
-- [ ] Feedback dashboard: trend charts using `chartkick` + `groupdate` [Turbo frame]
+- [x] `Survey` model: `title`, `trigger` (post_shift/post_program/pulse), `questions` (JSON schema)
+- [x] `SurveyResponse` model: `volunteer_id`, `survey_id`, `shift_id`, `answers` (JSON)
+- [x] Auto-send post-shift survey job (runs after shift end + grace period)
+- [x] NPS score calculation + open text aggregation
+- [x] Feedback dashboard: trend charts using custom HTML bar charts [Turbo frame]
 
 ---
 

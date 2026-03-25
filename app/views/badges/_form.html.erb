@@ -1,0 +1,52 @@
+<%= form_with model: badge, class: "space-y-6" do |f| %>
+  <% if badge.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <ul class="list-disc list-inside text-sm text-red-700">
+        <% badge.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :name, "Badge Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_field :name, placeholder: "e.g. 100 Hours Hero",
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div>
+    <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.text_area :description, rows: 3, placeholder: "What does this badge recognise?",
+        class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :criteria_type, "Award Criteria", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.select :criteria_type,
+          [["Hours Reached", "hours_reached"], ["Milestone", "milestone"],
+           ["Consecutive Active Months", "consecutive_months"], ["Manual Award", "manual"]],
+          {},
+          class: "w-full rounded-md border-gray-300 text-sm shadow-sm" %>
+    </div>
+    <div>
+      <%= f.label :criteria_value, "Criteria Value", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= f.number_field :criteria_value, step: 0.5, placeholder: "e.g. 100 (hours) or 3 (months)",
+          class: "w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
+      <p class="text-xs text-gray-400 mt-1">Leave blank for manual awards.</p>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :artwork, "Badge Artwork", class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= f.file_field :artwork, accept: "image/*",
+        class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" %>
+  </div>
+
+  <div class="flex gap-3">
+    <%= f.submit badge.persisted? ? "Update Badge" : "Create Badge",
+        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700 cursor-pointer" %>
+    <%= link_to "Cancel", badges_path, class: "border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm hover:bg-gray-50" %>
+  </div>
+<% end %>

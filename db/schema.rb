@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_23_500005) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_24_000007) do
   enable_extension "pg_catalog.plpgsql"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
@@ -446,6 +446,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_23_500005) do
     t.string "preferred_name"
     t.string "pronouns"
     t.integer "status"
+    t.boolean "show_on_leaderboard", default: false, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["organisation_id"], name: "index_volunteer_profiles_on_organisation_id"
@@ -588,6 +589,85 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_23_500005) do
     t.index ["recipient_id", "read_at"],          name: "idx_notifications_recipient_read"
   end
 
+  # Phase 6 — Recognition & Engagement
+  create_table "badges", force: :cascade do |t|
+    t.bigint  "organisation_id"
+    t.string  "name",           null: false
+    t.text    "description"
+    t.string  "criteria_type",  null: false
+    t.decimal "criteria_value", precision: 8, scale: 2
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["organisation_id"], name: "index_badges_on_organisation_id"
+    t.index ["criteria_type"],   name: "index_badges_on_criteria_type"
+  end
+
+  create_table "volunteer_badges", force: :cascade do |t|
+    t.bigint   "volunteer_profile_id", null: false
+    t.bigint   "badge_id",             null: false
+    t.bigint   "awarded_by_id"
+    t.datetime "awarded_at",           null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["volunteer_profile_id", "badge_id"], name: "index_volunteer_badges_unique", unique: true
+    t.index ["badge_id"],       name: "index_volunteer_badges_on_badge_id"
+    t.index ["awarded_by_id"],  name: "index_volunteer_badges_on_awarded_by_id"
+  end
+
+  create_table "references", force: :cascade do |t|
+    t.bigint   "volunteer_profile_id", null: false
+    t.bigint   "coordinator_id",       null: false
+    t.jsonb    "stats_snapshot",       default: {}
+    t.integer  "status",               default: 0, null: false
+    t.text     "notes"
+    t.datetime "issued_at"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["volunteer_profile_id"], name: "index_references_on_volunteer_profile_id"
+    t.index ["coordinator_id"],       name: "index_references_on_coordinator_id"
+    t.index ["status"],               name: "index_references_on_status"
+  end
+
+  create_table "testimonials", force: :cascade do |t|
+    t.bigint   "volunteer_profile_id", null: false
+    t.bigint   "organisation_id",      null: false
+    t.text     "quote",                null: false
+    t.boolean  "published",            default: false, null: false
+    t.boolean  "consent_given",        default: false, null: false
+    t.datetime "published_at"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["volunteer_profile_id"], name: "index_testimonials_on_volunteer_profile_id"
+    t.index ["organisation_id"],      name: "index_testimonials_on_organisation_id"
+    t.index ["published"],            name: "index_testimonials_on_published"
+  end
+
+  create_table "surveys", force: :cascade do |t|
+    t.bigint   "organisation_id",      null: false
+    t.string   "title",                null: false
+    t.integer  "trigger",              default: 0, null: false
+    t.jsonb    "questions",            default: []
+    t.boolean  "active",               default: true, null: false
+    t.integer  "grace_period_hours",   default: 1
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["organisation_id"], name: "index_surveys_on_organisation_id"
+    t.index ["active"],          name: "index_surveys_on_active"
+  end
+
+  create_table "survey_responses", force: :cascade do |t|
+    t.bigint   "survey_id",            null: false
+    t.bigint   "volunteer_profile_id", null: false
+    t.bigint   "shift_id"
+    t.jsonb    "answers",              default: {}
+    t.integer  "nps_score"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["survey_id", "volunteer_profile_id"], name: "index_survey_responses_unique", unique: true
+    t.index ["shift_id"],    name: "index_survey_responses_on_shift_id"
+    t.index ["nps_score"],   name: "index_survey_responses_on_nps_score"
+  end
+
   add_foreign_key "hour_logs", "attendances"
   add_foreign_key "hour_logs", "organisations"
   add_foreign_key "hour_logs", "programs"
@@ -662,4 +742,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_23_500005) do
   add_foreign_key "notification_preferences", "users"
   add_foreign_key "notifications",            "organisations"
   add_foreign_key "notifications",            "users", column: "recipient_id"
+
+  # Phase 6 — Recognition & Engagement
+  add_foreign_key "volunteer_badges", "volunteer_profiles"
+  add_foreign_key "volunteer_badges", "badges"
+  add_foreign_key "volunteer_badges", "users", column: "awarded_by_id"
+  add_foreign_key "references",       "volunteer_profiles"
+  add_foreign_key "references",       "users", column: "coordinator_id"
+  add_foreign_key "testimonials",     "volunteer_profiles"
+  add_foreign_key "testimonials",     "organisations"
+  add_foreign_key "surveys",          "organisations"
+  add_foreign_key "survey_responses", "surveys"
+  add_foreign_key "survey_responses", "volunteer_profiles"
+  add_foreign_key "survey_responses", "shifts"
 end
