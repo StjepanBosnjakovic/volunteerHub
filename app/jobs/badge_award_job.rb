@@ -16,20 +16,7 @@ class BadgeAwardJob < ApplicationJob
            .each do |badge|
         next if profile.volunteer_badges.exists?(badge: badge)
 
-        earned = case badge.criteria_type
-                 when "hours_reached"
-                   badge.criteria_value.present? && total_hours >= badge.criteria_value
-                 when "milestone"
-                   badge.criteria_value.present? &&
-                     profile.volunteer_milestones
-                            .joins(:milestone)
-                            .where("milestones.threshold_hours >= ?", badge.criteria_value)
-                            .exists?
-                 when "consecutive_months"
-                   badge.criteria_value.present? && months_active >= badge.criteria_value
-                 else
-                   false
-                 end
+        earned = badge_earned?(badge, total_hours, months_active, profile)
 
         next unless earned
 
@@ -45,6 +32,23 @@ class BadgeAwardJob < ApplicationJob
   end
 
   private
+
+  def badge_earned?(badge, total_hours, months_active, profile)
+    case badge.criteria_type
+    when "hours_reached"
+      badge.criteria_value.present? && total_hours >= badge.criteria_value
+    when "milestone"
+      badge.criteria_value.present? &&
+        profile.volunteer_milestones
+               .joins(:milestone)
+               .where("milestones.threshold_hours >= ?", badge.criteria_value)
+               .exists?
+    when "consecutive_months"
+      badge.criteria_value.present? && months_active >= badge.criteria_value
+    else
+      false
+    end
+  end
 
   # Count distinct calendar months in which the volunteer had at least one approved hour log
   def consecutive_active_months(profile)
