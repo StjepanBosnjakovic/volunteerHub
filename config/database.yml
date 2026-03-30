@@ -90,6 +90,8 @@ production:
     database: volunteer_hub_production
     username: volunteer_hub
     password: <%= ENV["VOLUNTEER_HUB_DATABASE_PASSWORD"] %>
+    host: <%= ENV.fetch("DB_HOST", "localhost") %>
+    port: <%= ENV.fetch("DB_PORT", "5432").to_i %>
   cache:
     <<: *primary_production
     database: volunteer_hub_production_cache
