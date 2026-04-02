@@ -30,7 +30,9 @@ services:
     restart: unless-stopped
 
   sidekiq:
-    build: .
+    build:
+      context: .
+      target: worker
     command: bundle exec sidekiq
     environment:
       COOLIFY_BRANCH: main
