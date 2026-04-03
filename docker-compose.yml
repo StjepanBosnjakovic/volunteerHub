@@ -1,6 +1,8 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      target: web
     environment:
       COOLIFY_BRANCH: main
       RAILS_ENV: production
@@ -30,7 +32,9 @@ services:
     restart: unless-stopped
 
   sidekiq:
-    build: .
+    build:
+      context: .
+      target: worker
     command: bundle exec sidekiq
     environment:
       COOLIFY_BRANCH: main
