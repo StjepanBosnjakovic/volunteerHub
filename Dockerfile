@@ -53,9 +53,7 @@ RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
 # Web build stage: compiles Tailwind CSS and fingerprints assets for the web server
 FROM build AS build-web
-# Clear LD_PRELOAD so the Tailwind v4 standalone binary (bundled Node/Bun runtime)
-# is not affected by the jemalloc preload set in the base stage.
-RUN LD_PRELOAD="" SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+RUN LD_PRELOAD="" SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile --trace
 
 # Final stage for the web server image
 FROM base AS web
