@@ -44,7 +44,7 @@ class InactivityNudgeJob < ApplicationJob
         type:       "inactivity_nudge",
         data:       {
           message:       "We miss you! Check out upcoming volunteer opportunities.",
-          dashboard_url: Rails.application.routes.url_helpers.dashboard_url(host: "localhost")
+          dashboard_url: Rails.application.routes.url_helpers.dashboard_url(host: ENV.fetch("APP_HOST", "localhost"))
         }
       )
 
