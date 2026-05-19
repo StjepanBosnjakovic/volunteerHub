@@ -4,7 +4,7 @@ class CreateHourLogs < ActiveRecord::Migration[8.1]
       t.references :volunteer_profile, null: false, foreign_key: true
       t.references :program, null: false, foreign_key: true
       t.references :shift, null: true, foreign_key: true
-      t.references :attendance, null: true, foreign_key: true
+      t.references :attendance, null: true, foreign_key: true, index: { unique: true }
       t.date :date, null: false
       t.decimal :hours, precision: 6, scale: 2, null: false
       t.text :description
@@ -22,6 +22,5 @@ class CreateHourLogs < ActiveRecord::Migration[8.1]
 
     add_index :hour_logs, [:volunteer_profile_id, :date]
     add_index :hour_logs, [:program_id, :status]
-    add_index :hour_logs, :attendance_id, unique: true
   end
 end

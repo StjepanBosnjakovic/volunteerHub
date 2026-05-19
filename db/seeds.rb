@@ -21,6 +21,19 @@ ActsAsTenant.with_tenant(org) do
   end
   puts "Super admin: #{admin.email} / Password1!"
 
+  # Dev shortcut: admin@localhost / admin
+  if Rails.env.development?
+    dev_admin = User.find_or_initialize_by(email: "admin@localhost")
+    unless dev_admin.persisted?
+      dev_admin.password = "admin"
+      dev_admin.organisation = org
+      dev_admin.role = :super_admin
+      dev_admin.confirmed_at = Time.current
+      dev_admin.save!(validate: false)
+    end
+    puts "Dev admin:   admin@localhost / admin"
+  end
+
   # Create coordinator
   coordinator = User.find_or_create_by!(email: "coordinator@example.com") do |u|
     u.password = "Password1!"
