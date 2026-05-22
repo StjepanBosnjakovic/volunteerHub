@@ -1,0 +1,20 @@
+<h1>You've Been Approved!</h1>
+
+<p>Hi <%= @guest_name %>,</p>
+
+<p>Congratulations — you've been approved for <strong><%= @opportunity.title %></strong>!</p>
+
+<% if @opportunity.starts_at %>
+  <p><strong>Date:</strong> <%= @opportunity.starts_at.strftime("%d %B %Y") %></p>
+<% end %>
+
+<p>Click the button below to set up your account and complete your onboarding:</p>
+
+<p style="margin: 24px 0;">
+  <a href="<%= @onboarding_url %>"
+     style="background-color: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+    Start Onboarding
+  </a>
+</p>
+
+<p>We look forward to seeing you!</p>

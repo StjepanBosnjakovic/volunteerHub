@@ -5,6 +5,7 @@ class OpportunitiesController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show embed]
 
   before_action :set_opportunity, only: %i[show edit update destroy publish close embed]
+  before_action :set_skills, only: %i[new create edit update]
 
   def index
     @opportunities = base_scope
@@ -13,10 +14,6 @@ class OpportunitiesController < ApplicationController
   end
 
   def show
-    content_for :title, "#{@opportunity.title} — VolunteerOS"
-    content_for :head do
-      render_to_string partial: "opportunities/seo_tags", locals: { opportunity: @opportunity }
-    end
   end
 
   def embed
@@ -33,6 +30,7 @@ class OpportunitiesController < ApplicationController
     authorize Opportunity
     @opportunity = Opportunity.new(opportunity_params)
     @opportunity.organisation = current_user.organisation
+    @opportunity.onboarding_checklist&.organisation = current_user.organisation
 
     if @opportunity.save
       redirect_to @opportunity, notice: "Opportunity created."
@@ -101,12 +99,21 @@ class OpportunitiesController < ApplicationController
     scope
   end
 
+  def set_skills
+    @skills = policy_scope(Skill)
+  end
+
   def opportunity_params
     params.require(:opportunity).permit(
       :title, :description, :location, :lat, :lng, :starts_at, :ends_at,
       :spots_available, :commitment_level, :status, :category,
       skill_ids: [],
-      application_questions_attributes: [:id, :question_type, :label, :options, :position, :required, :_destroy]
+      application_questions_attributes: [:id, :question_type, :label, :options, :position, :required, :_destroy],
+      onboarding_questions_attributes: [:id, :question_type, :label, :options, :position, :required, :context, :_destroy],
+      onboarding_checklist_attributes: [
+        :id, :title,
+        onboarding_steps_attributes: [:id, :step_type, :title, :description, :content_url, :position, :_destroy]
+      ]
     )
   end
 end

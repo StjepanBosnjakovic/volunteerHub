@@ -1,0 +1,54 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+  <div class="max-w-lg w-full">
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-bold text-indigo-600">VolunteerOS</h1>
+      <p class="mt-1 text-sm text-gray-500">Step 1 of 3 — Let's set up your organisation</p>
+    </div>
+
+    <%= render "setup/progress", current_step: 1 %>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+      <h2 class="text-xl font-semibold text-gray-900 mb-1">Organisation details</h2>
+      <p class="text-sm text-gray-500 mb-6">This is how your organisation appears to volunteers.</p>
+
+      <%= form_with url: setup_update_details_path, method: :patch, class: "space-y-5" do |f| %>
+        <% if @organisation.errors.any? %>
+          <div class="bg-red-50 border border-red-200 rounded-md p-4 text-sm text-red-700">
+            <ul class="list-disc list-inside space-y-1">
+              <% @organisation.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div>
+          <%= label_tag :name, "Organisation name", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= text_field_tag "organisation[name]", @organisation.name,
+                placeholder: "e.g. City Food Bank",
+                class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+        </div>
+
+        <div>
+          <%= label_tag :slug, "URL identifier", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-1">Lowercase letters, numbers, and hyphens only</p>
+          <%= text_field_tag "organisation[slug]", @organisation.slug,
+                placeholder: "city-food-bank",
+                class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+        </div>
+
+        <div>
+          <%= label_tag :timezone, "Timezone", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= select_tag "organisation[timezone]",
+                options_for_select(ActiveSupport::TimeZone.all.map { |tz| [tz.to_s, tz.name] }, @organisation.timezone || "UTC"),
+                class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" %>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <%= submit_tag "Save and continue →",
+                class: "inline-flex items-center px-5 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

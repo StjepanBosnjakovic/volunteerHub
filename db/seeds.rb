@@ -6,7 +6,9 @@ org = Organisation.find_or_create_by!(slug: "demo-org") do |o|
   o.locale = "en"
   o.email_sender_name = "VolunteerOS"
   o.email_sender_address = "noreply@volunteeros.example.com"
+  o.setup_complete = true
 end
+org.update_column(:setup_complete, true) unless org.setup_complete?
 
 puts "Organisation: #{org.name}"
 

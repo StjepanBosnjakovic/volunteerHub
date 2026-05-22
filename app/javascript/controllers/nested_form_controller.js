@@ -3,10 +3,13 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["template", "target", "fields"]
 
+  initialize() {
+    this._index = Date.now()
+  }
+
   add(event) {
     event.preventDefault()
-    const template = this.templateTarget
-    const content = template.innerHTML.replace(/TEMPLATE_RECORD/g, new Date().getTime())
+    const content = this.templateTarget.innerHTML.replace(/TEMPLATE_RECORD/g, this._index++)
     this.targetTarget.insertAdjacentHTML("beforeend", content)
   }
 

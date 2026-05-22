@@ -44,7 +44,7 @@
               <%= link_to "Close", close_opportunity_path(@opportunity), data: { turbo_method: :patch },
                   class: "bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-700 text-center" %>
             <% end %>
-            <%= link_to "Pipeline", opportunity_kanban_path(@opportunity),
+            <%= link_to "Pipeline", kanban_opportunity_path(@opportunity),
                 class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 text-center" %>
           <% end %>
         </div>
@@ -111,9 +111,16 @@
               <% end %>
             </div>
           <% else %>
-            <p class="text-gray-600 mb-3">Sign in to apply for this opportunity.</p>
-            <%= link_to "Sign In to Apply", new_user_session_path,
-                class: "bg-indigo-600 text-white px-6 py-3 rounded-md text-base font-medium hover:bg-indigo-700 inline-block" %>
+            <% if @opportunity.full? %>
+              <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p class="text-gray-600">This opportunity is full.</p>
+                <%= link_to "Join Waitlist", new_opportunity_volunteer_application_path(@opportunity),
+                    class: "mt-2 inline-block bg-gray-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-gray-700" %>
+              </div>
+            <% else %>
+              <%= link_to "Apply Now", new_opportunity_volunteer_application_path(@opportunity),
+                  class: "bg-indigo-600 text-white px-6 py-3 rounded-md text-base font-medium hover:bg-indigo-700 inline-block" %>
+            <% end %>
           <% end %>
         </div>
       <% end %>

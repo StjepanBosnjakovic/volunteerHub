@@ -1,0 +1,26 @@
+<div class="mb-8">
+  <div class="flex items-center justify-between">
+    <% steps = [
+      { label: "Organisation", path: setup_details_path, active: current_step == 1, done: current_step > 1 },
+      { label: "Branding",     path: setup_branding_path, active: current_step == 2, done: current_step > 2 },
+      { label: "Team",         path: setup_team_path, active: current_step == 3, done: current_step > 3 }
+    ] %>
+
+    <% steps.each_with_index do |step, i| %>
+      <div class="flex-1 flex items-center">
+        <div class="flex flex-col items-center">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
+            <%= step[:done] ? 'bg-indigo-600 text-white' : step[:active] ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-500' %>">
+            <% if step[:done] %>&#10003;<% else %><%= i + 1 %><% end %>
+          </div>
+          <span class="mt-1 text-xs font-medium <%= step[:active] ? 'text-indigo-600' : 'text-gray-400' %>">
+            <%= step[:label] %>
+          </span>
+        </div>
+        <% unless i == steps.length - 1 %>
+          <div class="flex-1 h-0.5 mx-2 mb-5 <%= current_step > i + 1 ? 'bg-indigo-600' : 'bg-gray-200' %>"></div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

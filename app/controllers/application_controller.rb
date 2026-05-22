@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
   before_action :authenticate_user!
   before_action :set_current_organisation
+  before_action :check_setup_complete
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
@@ -16,6 +17,13 @@ class ApplicationController < ActionController::Base
   def set_current_organisation
     return unless current_user
     ActsAsTenant.current_tenant = current_user.organisation
+  end
+
+  def check_setup_complete
+    return unless current_user
+    return if devise_controller?
+    return if current_user.organisation.setup_complete?
+    redirect_to setup_details_path
   end
 
   def user_not_authorized

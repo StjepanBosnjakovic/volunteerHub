@@ -20,7 +20,7 @@
   </head>
 
   <body class="bg-gray-50 min-h-screen">
-    <% if user_signed_in? %>
+    <% if user_signed_in? && current_user.organisation&.setup_complete? %>
       <nav class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16">

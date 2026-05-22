@@ -51,10 +51,9 @@ A practical guide for all VolunteerOS users: volunteers, coordinators, program m
 ### Creating an Account
 
 **As a new volunteer:**
-1. Visit your organisation's VolunteerOS link (e.g. `https://yourorg.volunteeros.app`).
+1. Visit the VolunteerOS link shared by your organisation's coordinator.
 2. Click **Sign up** and enter your email address and a password (minimum 8 characters).
-3. Check your email for a confirmation link and click it to activate your account.
-4. Complete your volunteer profile (see [Setting Up Your Profile](#setting-up-your-profile)).
+3. Complete your volunteer profile (see [Setting Up Your Profile](#setting-up-your-profile)).
 
 **As a coordinator or admin:**
 Your account is created by a Super Admin. You will receive an invitation email â€” click the link and set your password.
@@ -63,10 +62,9 @@ Your account is created by a Super Admin. You will receive an invitation email â
 
 ### Logging In
 
-1. Go to your organisation's VolunteerOS URL.
-2. Enter your email and password, then click **Log in**.
-3. If your organisation uses Single Sign-On (SSO), click **Log in with [Provider]** instead.
-4. If you forget your password, click **Forgot your password?** and follow the email instructions.
+1. Go to the VolunteerOS URL (e.g. `http://localhost:3000` in development, or the hosted URL your admin provided).
+2. Enter your email and password, then click **Sign in**.
+3. If you forget your password, click **Forgot password?** and follow the email instructions.
 
 > **Locked out?** After 5 failed attempts your account locks for 30 minutes. Contact your coordinator to unlock it sooner.
 

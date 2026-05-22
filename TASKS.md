@@ -245,6 +245,16 @@ Tasks are grouped by phase. Complete each phase before beginning the next. Items
 
 ## Phase 8 — Organisation Administration & Integrations
 
+### 8.0 Account & Security
+
+- [ ] Two-Factor Authentication (2FA): add `devise-two-factor` gem; TOTP QR code generation for Google Authenticator / Authy [Stimulus controller for setup flow]
+- [ ] 2FA enable/disable UI in Profile → Account Settings [TURBO]
+- [ ] 2FA OTP verification step on login (6-digit code input)
+- [ ] Backup recovery codes: generate, display once, store hashed [model + download]
+- [ ] Enforce 2FA org-wide: org setting that forces all users to enrol on next login
+
+---
+
 ### 8.1 Organisation Settings UI
 - [ ] Branding settings (logo upload, colour picker) [Stimulus live preview]
 - [ ] Timezone/locale settings
@@ -297,6 +307,16 @@ Tasks are grouped by phase. Complete each phase before beginning the next. Items
 - [ ] Background sync: queue check-in events offline, flush on reconnect
 - [ ] Web app manifest: icons, theme colour, `display: standalone`
 - [ ] Push notifications via Web Push API + `webpush` gem
+
+### 9.1b In-App Help Widget
+
+- [ ] `HelpArticle` model: `slug`, `title`, `body` (rich text), `context_key` (maps to page/section)
+- [ ] ? icon (fixed bottom-right) linking to help panel [Stimulus controller, Turbo frame]
+- [ ] Contextual articles: look up `HelpArticle` by `context_key` matching current page [Stimulus]
+- [ ] Admin UI: create/edit/delete help articles
+- [ ] Fallback to generic help content when no contextual article exists
+
+---
 
 ### 9.2 Dark Mode
 - [ ] Tailwind `dark:` class variants throughout

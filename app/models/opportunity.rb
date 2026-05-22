@@ -6,7 +6,13 @@ class Opportunity < ApplicationRecord
   has_many :skills, through: :opportunity_skills
   has_many :volunteer_applications, dependent: :destroy
 
-  has_many :application_questions, -> { order(:position) }, dependent: :destroy
+  has_many :application_questions, -> { application.order(:position) }, class_name: "ApplicationQuestion", dependent: :destroy
+  has_many :onboarding_questions, -> { onboarding.order(:position) }, class_name: "ApplicationQuestion", dependent: :destroy
+  accepts_nested_attributes_for :application_questions, allow_destroy: true, reject_if: :all_blank
+  accepts_nested_attributes_for :onboarding_questions, allow_destroy: true, reject_if: :all_blank
+
+  has_one :onboarding_checklist, dependent: :destroy
+  accepts_nested_attributes_for :onboarding_checklist, allow_destroy: true, reject_if: proc { |attrs| attrs[:title].blank? && attrs[:onboarding_steps_attributes].blank? }
 
   enum :status, { draft: 0, published: 1, closed: 2 }
 

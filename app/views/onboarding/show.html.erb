@@ -1,0 +1,152 @@
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-2xl mx-auto px-4">
+    <!-- Header -->
+    <div class="mb-8 text-center">
+      <h1 class="text-2xl font-bold text-gray-900">Welcome — <%= @opportunity.title %></h1>
+      <p class="text-gray-500 mt-1">Complete the steps below to finish your onboarding.</p>
+    </div>
+
+    <% if notice.present? %>
+      <div class="mb-6 bg-green-50 border border-green-200 text-green-800 rounded-md px-4 py-3 text-sm">
+        <%= notice %>
+      </div>
+    <% end %>
+    <% if alert.present? %>
+      <div class="mb-6 bg-red-50 border border-red-200 text-red-800 rounded-md px-4 py-3 text-sm">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <!-- Step 1: Set password (guests only, if not yet set) -->
+    <% if @application.needs_password_setup? %>
+      <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-bold flex items-center justify-center">1</span>
+          <h2 class="text-base font-semibold text-gray-900">Create your account password</h2>
+        </div>
+
+        <% if @password_errors.present? %>
+          <ul class="mb-4 text-sm text-red-600 list-disc list-inside">
+            <% @password_errors.each do |e| %>
+              <li><%= e %></li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <%= form_with url: onboard_set_password_path(@token), method: :post, class: "space-y-4" do |f| %>
+          <div>
+            <%= label_tag :password, "Password", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= password_field_tag :password, nil, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm", autocomplete: "new-password", minlength: 8 %>
+          </div>
+          <div>
+            <%= label_tag :password_confirmation, "Confirm password", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= password_field_tag :password_confirmation, nil, class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm", autocomplete: "new-password" %>
+          </div>
+          <%= f.submit "Set Password", class: "bg-indigo-600 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 cursor-pointer" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% step_offset = @application.needs_password_setup? ? 2 : 1 %>
+
+    <!-- Step: Onboarding info fields -->
+    <% if @onboarding_questions.any? %>
+      <% info_answered = @onboarding_questions.all? { |q| @answered[q.id].present? } %>
+      <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <span class="flex-shrink-0 w-7 h-7 rounded-full <%= info_answered ? 'bg-green-500' : 'bg-indigo-600' %> text-white text-sm font-bold flex items-center justify-center">
+              <%= info_answered ? "✓" : step_offset %>
+            </span>
+            <h2 class="text-base font-semibold text-gray-900">Additional information</h2>
+          </div>
+          <% if info_answered %>
+            <span class="text-xs text-green-600 font-medium">Complete</span>
+          <% end %>
+        </div>
+
+        <%= form_with url: onboard_submit_info_path(@token), method: :post, class: "space-y-4" do |f| %>
+          <% @onboarding_questions.each do |question| %>
+            <div>
+              <%= label_tag "answers[#{question.id}][value]", question.label, class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <% existing_value = @answered[question.id]&.value %>
+              <% if question.question_type == "multiple_choice" && question.options.present? %>
+                <%= select_tag "answers[#{question.id}][value]",
+                    options_for_select(question.options, existing_value),
+                    include_blank: "Select…",
+                    class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+              <% else %>
+                <%= text_field_tag "answers[#{question.id}][value]", existing_value,
+                    class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm",
+                    required: question.required? %>
+              <% end %>
+            </div>
+          <% end %>
+          <%= f.submit "Save Information", class: "bg-indigo-600 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 cursor-pointer" %>
+        <% end %>
+      </div>
+      <% step_offset += 1 %>
+    <% end %>
+
+    <!-- Checklist steps -->
+    <% if @checklist_steps.any? %>
+      <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <div class="flex items-center gap-3 mb-5">
+          <span class="flex-shrink-0 w-7 h-7 rounded-full bg-indigo-600 text-white text-sm font-bold flex items-center justify-center"><%= step_offset %></span>
+          <h2 class="text-base font-semibold text-gray-900">Checklist</h2>
+        </div>
+
+        <ol class="space-y-4">
+          <% @checklist_steps.each do |step| %>
+            <% progress = @progress[step] %>
+            <% done = progress&.completed_at.present? %>
+            <li class="flex items-start gap-4 p-4 rounded-lg border <%= done ? 'border-green-200 bg-green-50' : 'border-gray-200' %>">
+              <div class="flex-shrink-0 mt-0.5">
+                <% if done %>
+                  <span class="inline-flex w-6 h-6 rounded-full bg-green-500 text-white items-center justify-center text-xs font-bold">✓</span>
+                <% else %>
+                  <span class="inline-flex w-6 h-6 rounded-full border-2 border-gray-300"></span>
+                <% end %>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-sm font-medium text-gray-900"><%= step.title %></p>
+                  <span class="text-xs text-gray-400 capitalize"><%= step.step_type %></span>
+                </div>
+                <% if step.description.present? %>
+                  <p class="text-sm text-gray-500 mt-0.5"><%= step.description %></p>
+                <% end %>
+                <% if step.content_url.present? %>
+                  <%= link_to "Open", step.content_url, target: "_blank", rel: "noopener",
+                      class: "text-sm text-indigo-600 hover:underline mt-1 inline-block" %>
+                <% end %>
+                <% unless done || @application.volunteer_profile.nil? %>
+                  <%= form_with url: onboard_complete_step_path(@token, step_id: step.id), method: :post, class: "mt-2 inline" do %>
+                    <%= submit_tag "Mark complete", class: "text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1 rounded cursor-pointer hover:bg-indigo-100" %>
+                  <% end %>
+                <% end %>
+              </div>
+            </li>
+          <% end %>
+        </ol>
+      </div>
+      <% step_offset += 1 %>
+    <% end %>
+
+    <!-- Finish -->
+    <% all_steps_done = @checklist_steps.all? { |s| @progress[s]&.completed_at.present? } %>
+    <% info_done = @onboarding_questions.empty? || @onboarding_questions.all? { |q| @answered[q.id].present? } %>
+    <% password_done = !@application.needs_password_setup? %>
+
+    <% if password_done && info_done && all_steps_done %>
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-gray-700 font-medium mb-4">All steps complete — you're ready to go!</p>
+        <%= form_with url: onboard_finish_path(@token), method: :post do %>
+          <%= submit_tag "Finish Onboarding", class: "bg-green-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-green-700 cursor-pointer" %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-center text-sm text-gray-400">Complete all steps above to finish onboarding.</p>
+    <% end %>
+  </div>
+</div>

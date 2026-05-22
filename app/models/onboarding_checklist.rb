@@ -2,7 +2,9 @@ class OnboardingChecklist < ApplicationRecord
   acts_as_tenant :organisation
 
   belongs_to :organisation
+  belongs_to :opportunity, optional: true
   has_many :onboarding_steps, -> { order(:position) }, dependent: :destroy
+  accepts_nested_attributes_for :onboarding_steps, allow_destroy: true, reject_if: :all_blank
 
   validates :title, presence: true
 

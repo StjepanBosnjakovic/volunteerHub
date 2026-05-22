@@ -1,6 +1,6 @@
 <h1>Application Update</h1>
 
-<p>Hi <%= @volunteer.first_name %>,</p>
+<p>Hi <%= @volunteer ? @volunteer.first_name : @application.guest_name %>,</p>
 
 <p>Your application for <strong><%= @opportunity.title %></strong> has been updated.</p>
 

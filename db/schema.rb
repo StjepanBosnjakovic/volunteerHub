@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_24_000007) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -78,6 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_000007) do
   end
 
   create_table "application_questions", force: :cascade do |t|
+    t.integer "context", default: 0, null: false
     t.datetime "created_at", null: false
     t.string "label", null: false
     t.bigint "opportunity_id", null: false
@@ -347,10 +348,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_000007) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.text "description"
+    t.bigint "opportunity_id"
     t.bigint "organisation_id", null: false
     t.string "target_role"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["opportunity_id"], name: "index_onboarding_checklists_on_opportunity_id"
     t.index ["organisation_id"], name: "index_onboarding_checklists_on_organisation_id"
   end
 
@@ -408,6 +411,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_000007) do
     t.string "locale"
     t.string "name"
     t.string "primary_colour"
+    t.boolean "setup_complete", default: false, null: false
     t.string "slug"
     t.string "timezone"
     t.datetime "updated_at", null: false
@@ -605,12 +609,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_000007) do
 
   create_table "volunteer_applications", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "guest_email"
+    t.string "guest_name"
     t.text "notes"
+    t.datetime "onboarding_completed_at"
+    t.string "onboarding_token"
     t.bigint "opportunity_id", null: false
     t.integer "position"
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
-    t.bigint "volunteer_profile_id", null: false
+    t.bigint "volunteer_profile_id"
+    t.index ["guest_email", "opportunity_id"], name: "index_volunteer_applications_on_guest_email_and_opportunity", unique: true, where: "(guest_email IS NOT NULL)"
+    t.index ["onboarding_token"], name: "index_volunteer_applications_on_onboarding_token", unique: true
     t.index ["opportunity_id"], name: "index_volunteer_applications_on_opportunity_id"
     t.index ["status"], name: "index_volunteer_applications_on_status"
     t.index ["volunteer_profile_id", "opportunity_id"], name: "index_volunteer_applications_unique", unique: true
@@ -730,6 +740,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_000007) do
   add_foreign_key "notification_preferences", "users"
   add_foreign_key "notifications", "organisations"
   add_foreign_key "notifications", "users", column: "recipient_id"
+  add_foreign_key "onboarding_checklists", "opportunities"
   add_foreign_key "onboarding_checklists", "organisations"
   add_foreign_key "onboarding_steps", "onboarding_checklists"
   add_foreign_key "opportunities", "organisations"

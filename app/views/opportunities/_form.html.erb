@@ -86,7 +86,6 @@
   <div class="bg-white shadow rounded-lg p-6">
     <h2 class="text-lg font-medium text-gray-900 mb-4">Required Skills</h2>
     <div class="flex flex-wrap gap-3">
-      <% @skills ||= policy_scope(Skill) %>
       <% @skills.each do |skill| %>
         <label class="flex items-center gap-2 text-sm text-gray-700">
           <%= f.check_box :skill_ids, { multiple: true, checked: opportunity.skill_ids.include?(skill.id) }, skill.id, nil %>
@@ -108,7 +107,7 @@
     </div>
 
     <template data-nested-form-target="template">
-      <%= f.fields_for :application_questions, ApplicationQuestion.new, index: "TEMPLATE_RECORD" do |qf| %>
+      <%= f.fields_for :application_questions, ApplicationQuestion.new, child_index: "TEMPLATE_RECORD" do |qf| %>
         <%= render "opportunities/question_fields", f: qf %>
       <% end %>
     </template>
@@ -116,6 +115,62 @@
     <div data-nested-form-target="target" class="space-y-4">
       <%= f.fields_for :application_questions do |qf| %>
         <%= render "opportunities/question_fields", f: qf %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Onboarding Steps -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-medium text-gray-900 mb-1">Onboarding Steps</h2>
+    <p class="text-sm text-gray-500 mb-4">Steps volunteers must complete after being approved (e.g. watch a video, sign a document).</p>
+
+    <%= f.fields_for :onboarding_checklist, opportunity.onboarding_checklist || opportunity.build_onboarding_checklist(title: "Onboarding", organisation: opportunity.organisation) do |cf| %>
+      <%= cf.hidden_field :id %>
+      <%= cf.hidden_field :title, value: cf.object.title.presence || "Onboarding" %>
+
+      <div data-controller="nested-form" class="space-y-3">
+        <template data-nested-form-target="template">
+          <%= cf.fields_for :onboarding_steps, OnboardingStep.new, child_index: "TEMPLATE_RECORD" do |sf| %>
+            <%= render "opportunities/onboarding_step_fields", f: sf %>
+          <% end %>
+        </template>
+
+        <div data-nested-form-target="target" class="space-y-3">
+          <%= cf.fields_for :onboarding_steps do |sf| %>
+            <%= render "opportunities/onboarding_step_fields", f: sf %>
+          <% end %>
+        </div>
+
+        <button type="button" data-action="nested-form#add"
+                data-nested-form-target="addButton"
+                class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+          + Add Step
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Onboarding Info Fields -->
+  <div class="bg-white shadow rounded-lg p-6" data-controller="nested-form">
+    <div class="flex justify-between items-center mb-1">
+      <h2 class="text-lg font-medium text-gray-900">Onboarding Info Fields</h2>
+      <button type="button" data-action="nested-form#add"
+              data-nested-form-target="addButton"
+              class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+        + Add Field
+      </button>
+    </div>
+    <p class="text-sm text-gray-500 mb-4">Extra information to collect from the volunteer during onboarding (after approval).</p>
+
+    <template data-nested-form-target="template">
+      <%= f.fields_for :onboarding_questions, ApplicationQuestion.new(context: :onboarding), child_index: "TEMPLATE_RECORD" do |qf| %>
+        <%= render "opportunities/onboarding_question_fields", f: qf %>
+      <% end %>
+    </template>
+
+    <div data-nested-form-target="target" class="space-y-4">
+      <%= f.fields_for :onboarding_questions do |qf| %>
+        <%= render "opportunities/onboarding_question_fields", f: qf %>
       <% end %>
     </div>
   </div>

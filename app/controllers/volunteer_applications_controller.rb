@@ -39,13 +39,14 @@ class VolunteerApplicationsController < ApplicationController
     if user_signed_in? && current_user.volunteer_profile.present?
       @application.volunteer_profile = current_user.volunteer_profile
     else
-      redirect_to new_user_session_path, alert: "Please sign in or create an account to apply."
-      return
+      @application.guest_name = params[:guest_name]
+      @application.guest_email = params[:guest_email]
     end
 
     build_answers
 
     if @application.save
+      create_pending_guest_profile(@application) if @application.guest_email.present?
       VolunteerApplicationMailer.confirmation(@application).deliver_later
       respond_to do |format|
         format.html { redirect_to opportunity_path(@opportunity), notice: "Application submitted!" }
@@ -61,6 +62,10 @@ class VolunteerApplicationsController < ApplicationController
       @questions = @opportunity.application_questions
       render :new, status: :unprocessable_entity
     end
+  rescue ActiveRecord::RecordNotUnique
+    @questions = @opportunity.application_questions
+    @application.errors.add(:base, "You have already applied to this opportunity.")
+    render :new, status: :unprocessable_entity
   end
 
   def update
@@ -70,10 +75,22 @@ class VolunteerApplicationsController < ApplicationController
       old_status = @application.status
       @application.update(status: params[:volunteer_application][:status],
                           position: params[:volunteer_application][:position])
-      VolunteerApplicationMailer.status_changed(@application, old_status).deliver_later if @application.status != old_status
+
+      if @application.status != old_status
+        if @application.status == "approved"
+          if @application.guest_email.present?
+            link_or_invite_guest(@application)
+          else
+            @application.generate_onboarding_token!
+            VolunteerApplicationMailer.status_changed(@application.reload, old_status).deliver_later
+          end
+        else
+          VolunteerApplicationMailer.status_changed(@application, old_status).deliver_later
+        end
+      end
 
       respond_to do |format|
-        format.html { redirect_to opportunity_kanban_path(@opportunity), notice: "Application updated." }
+        format.html { redirect_to kanban_opportunity_path(@opportunity), notice: "Application updated." }
         format.turbo_stream do
           render turbo_stream: [
             turbo_stream.replace("application_#{@application.id}",
@@ -90,7 +107,7 @@ class VolunteerApplicationsController < ApplicationController
   def destroy
     authorize @application
     @application.destroy
-    redirect_to opportunity_kanban_path(@opportunity), notice: "Application removed."
+    redirect_to kanban_opportunity_path(@opportunity), notice: "Application removed."
   end
 
   def bulk_update
@@ -107,7 +124,7 @@ class VolunteerApplicationsController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { redirect_to opportunity_kanban_path(@opportunity), notice: "#{applications.count} applications updated." }
+      format.html { redirect_to kanban_opportunity_path(@opportunity), notice: "#{applications.count} applications updated." }
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
           "kanban_board",
@@ -146,6 +163,51 @@ class VolunteerApplicationsController < ApplicationController
         answer.value = answer_params[:value]
       end
     end
+  end
+
+  def create_pending_guest_profile(application)
+    org = application.opportunity.organisation
+    email = application.guest_email
+    name_parts = application.guest_name.to_s.split
+    first_name = name_parts.first || "Volunteer"
+    last_name = name_parts.drop(1).join(" ").presence || first_name
+
+    existing_user = ActsAsTenant.without_tenant { User.find_by(email: email, organisation: org) }
+
+    if existing_user
+      profile = existing_user.volunteer_profile || ActsAsTenant.with_tenant(org) {
+        VolunteerProfile.create!(user: existing_user, organisation: org,
+                                 first_name: first_name, last_name: last_name, status: :pending)
+      }
+    else
+      new_user = ActsAsTenant.with_tenant(org) {
+        User.create!(email: email, organisation: org, role: :volunteer, password: SecureRandom.hex(16))
+      }
+      new_user.confirm
+      profile = ActsAsTenant.with_tenant(org) {
+        VolunteerProfile.create!(user: new_user, organisation: org,
+                                 first_name: first_name, last_name: last_name, status: :pending)
+      }
+    end
+
+    application.update_column(:volunteer_profile_id, profile.id)
+  end
+
+  def link_or_invite_guest(application)
+    profile = application.volunteer_profile
+
+    unless profile
+      create_pending_guest_profile(application)
+      profile = application.reload.volunteer_profile
+    end
+
+    profile.update_column(:status, VolunteerProfile.statuses[:active])
+
+    application.generate_onboarding_token!
+
+    raw, hashed = Devise.token_generator.generate(User, :reset_password_token)
+    profile.user.update_columns(reset_password_token: hashed, reset_password_sent_at: Time.current)
+    VolunteerApplicationMailer.approved_invite(application.reload, raw).deliver_later
   end
 
   def reload_kanban

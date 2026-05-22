@@ -1,5 +1,17 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: { registrations: "users/registrations" }
+
+  # Organisation setup wizard (post-registration)
+  scope :setup, as: :setup do
+    get  "details",  to: "setup#details",        as: :details
+    patch "details", to: "setup#update_details", as: :update_details
+    get  "branding", to: "setup#branding",       as: :branding
+    patch "branding", to: "setup#update_branding", as: :update_branding
+    get  "team",     to: "setup#team",           as: :team
+    post "team",     to: "setup#invite_team",    as: :invite_team
+    get  "done",     to: "setup#done",           as: :done
+    post "finish",   to: "setup#finish",         as: :finish
+  end
 
   authenticated :user do
     root to: "dashboard#index", as: :authenticated_root
@@ -173,5 +185,14 @@ Rails.application.routes.draw do
       get :dashboard
     end
     resources :survey_responses, only: %i[new create]
+  end
+
+  # Volunteer onboarding wizard (public, token-based)
+  scope "/onboard/:token", as: :onboard do
+    get  "/",        to: "onboarding#show",         as: ""
+    post "/password", to: "onboarding#set_password", as: "_set_password"
+    post "/info",    to: "onboarding#submit_info",   as: "_submit_info"
+    post "/steps/:step_id/complete", to: "onboarding#complete_step", as: "_complete_step"
+    post "/finish",  to: "onboarding#finish",        as: "_finish"
   end
 end
