@@ -54,8 +54,9 @@ class Shift < ApplicationRecord
   end
 
   def qr_checkin_url
-    Rails.application.routes.url_helpers.checkin_shift_url(qr_token: qr_token, host: "localhost")
-  rescue
+    host = ENV.fetch("APP_HOST", "localhost")
+    Rails.application.routes.url_helpers.checkin_shift_url(qr_token: qr_token, host: host)
+  rescue StandardError
     nil
   end
 
