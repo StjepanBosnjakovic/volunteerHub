@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :organisation do
-    name { Faker::Company.name }
+    sequence(:name) { |n| "#{Faker::Company.name} #{n}" }
     slug { nil } # auto-generated from name
     primary_colour { "#4F46E5" }
     timezone { "UTC" }
