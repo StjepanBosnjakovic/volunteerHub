@@ -3,9 +3,9 @@ Rails.application.routes.draw do
 
   # Organisation setup wizard (post-registration)
   scope :setup, as: :setup do
-    get  "details",  to: "setup#details",        as: :details
+    get "details",   to: "setup#details",        as: :details
     patch "details", to: "setup#update_details", as: :update_details
-    get  "branding", to: "setup#branding",       as: :branding
+    get "branding",  to: "setup#branding",       as: :branding
     patch "branding", to: "setup#update_branding", as: :update_branding
     get  "team",     to: "setup#team",           as: :team
     post "team",     to: "setup#invite_team",    as: :invite_team
