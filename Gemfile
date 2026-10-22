@@ -43,6 +43,9 @@ gem "prawn-table"
 gem "caxlsx"
 gem "caxlsx_rails"
 
+# CSV import/export (no longer a default gem since Ruby 3.4)
+gem "csv"
+
 # Audit logging
 gem "paper_trail"
 
