@@ -7,5 +7,10 @@ FactoryBot.define do
     locale { "en" }
     email_sender_name { "VolunteerOS" }
     email_sender_address { Faker::Internet.email }
+    setup_complete { true }
+
+    trait :not_set_up do
+      setup_complete { false }
+    end
   end
 end
