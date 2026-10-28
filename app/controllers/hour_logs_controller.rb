@@ -7,28 +7,30 @@ class HourLogsController < ApplicationController
     authorize HourLog
     @tab = params[:tab] || (current_user.admin? ? "pending" : "mine")
 
-    logs = policy_scope(HourLog).includes(:volunteer_profile, :program, :shift).ordered
-
-    logs = case @tab
-    when "pending"  then logs.pending
-    when "approved" then logs.approved
-    when "rejected" then logs.rejected
-    when "disputed" then logs.disputed
-    else logs
-    end
+    filtered = policy_scope(HourLog).includes(:volunteer_profile, :program, :shift).ordered
 
     if params[:program_id].present?
-      logs = logs.where(program_id: params[:program_id])
+      filtered = filtered.where(program_id: params[:program_id])
     end
 
     if params[:from].present? && params[:to].present?
-      logs = logs.in_period(Date.parse(params[:from]), Date.parse(params[:to]))
+      filtered = filtered.in_period(Date.parse(params[:from]), Date.parse(params[:to]))
     end
+
+    by_tab = {
+      "pending" => filtered.pending,
+      "approved" => filtered.approved,
+      "rejected" => filtered.rejected,
+      "disputed" => filtered.disputed
+    }
+    logs = by_tab.fetch(@tab, filtered)
 
     respond_to do |format|
       format.html do
         @pagy, @hour_logs = pagy(logs, items: 25)
         @programs = policy_scope(Program).ordered
+        @tab_counts = by_tab.transform_values(&:count).merge("mine" => filtered.count)
+        load_stats
       end
       format.csv do
         send_data generate_csv(logs), filename: "hour-logs-#{Date.current}.csv", type: "text/csv"
@@ -138,6 +140,21 @@ class HourLogsController < ApplicationController
   end
 
   private
+
+  def load_stats
+    scope = policy_scope(HourLog)
+    this_month = scope.approved.in_period(Date.current.beginning_of_month, Date.current.end_of_month)
+    last_month = scope.approved.in_period(1.month.ago.to_date.beginning_of_month, 1.month.ago.to_date.end_of_month)
+    pending = scope.pending
+    @stats = {
+      month_hours: this_month.sum(:hours),
+      last_month_hours: last_month.sum(:hours),
+      pending: pending.count,
+      pending_volunteers: pending.distinct.count(:volunteer_profile_id),
+      total_hours: scope.approved.sum(:hours),
+      active_volunteers: this_month.distinct.count(:volunteer_profile_id)
+    }
+  end
 
   def set_hour_log
     @hour_log = policy_scope(HourLog).find(params[:id])

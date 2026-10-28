@@ -19,61 +19,34 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50 min-h-screen">
-    <% if user_signed_in? && current_user.organisation&.setup_complete? %>
-      <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between h-16">
-            <div class="flex">
-              <div class="flex-shrink-0 flex items-center">
-                <span class="text-xl font-bold text-indigo-600">VolunteerOS</span>
-              </div>
-              <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <%= link_to "Dashboard", dashboard_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "Volunteers", volunteer_profiles_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "Opportunities", opportunities_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "Onboarding", onboarding_checklists_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "Programs", programs_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "Hours", hour_logs_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "Messages", conversations_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <%= link_to "Announcements", announcements_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <% if current_user.admin? %>
-                  <%= link_to "Broadcasts", broadcast_messages_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Swap Requests", swap_requests_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Milestones", milestones_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                  <%= link_to "Organisation", organisation_path, class: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" %>
-                <% end %>
-              </div>
-            </div>
-            <div class="flex items-center space-x-4">
-              <%# Phase 5 — Notification Bell %>
-              <%= render "shared/notification_bell" %>
-              <span class="text-sm text-gray-500"><%= current_user.display_name %></span>
-              <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "text-sm text-gray-500 hover:text-gray-700" %>
-            </div>
+  <% if user_signed_in? && current_user.organisation&.setup_complete? %>
+    <body class="bg-gray-50 text-gray-900">
+      <div class="flex h-screen">
+        <%= render "layouts/sidebar" %>
+
+        <div class="flex min-w-0 flex-1 flex-col">
+          <div class="flex-1 overflow-y-auto overflow-x-hidden">
+            <%= render "layouts/topbar" %>
+            <%= render "layouts/flash" %>
+
+            <% if content_for?(:full_bleed) %>
+              <%= yield %>
+            <% else %>
+              <main class="max-w-7xl px-4 py-7 sm:px-7">
+                <%= yield %>
+              </main>
+            <% end %>
           </div>
         </div>
-      </nav>
-    <% end %>
-
-    <% if notice.present? %>
-      <div class="max-w-7xl mx-auto px-4 pt-4">
-        <div class="bg-green-50 border border-green-200 text-green-800 rounded-md p-4" data-controller="flash">
-          <%= notice %>
-        </div>
       </div>
-    <% end %>
+    </body>
+  <% else %>
+    <body class="bg-gray-50 min-h-screen">
+      <%= render "layouts/flash" %>
 
-    <% if alert.present? %>
-      <div class="max-w-7xl mx-auto px-4 pt-4">
-        <div class="bg-red-50 border border-red-200 text-red-800 rounded-md p-4">
-          <%= alert %>
-        </div>
-      </div>
-    <% end %>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <%= yield %>
-    </main>
-  </body>
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <%= yield %>
+      </main>
+    </body>
+  <% end %>
 </html>

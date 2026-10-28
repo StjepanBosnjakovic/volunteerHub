@@ -1,66 +1,54 @@
-<div class="flex justify-between items-center mb-6">
-  <div>
-    <h1 class="text-2xl font-bold text-gray-900">Broadcast Messages</h1>
-    <p class="text-sm text-gray-500 mt-1">Send messages to filtered segments of volunteers.</p>
-  </div>
-  <%= link_to "New Broadcast", new_broadcast_message_path,
-      class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm hover:bg-indigo-700" %>
-</div>
+<% content_for :title, "Broadcasts — VolunteerOS" %>
+<% content_for :page_title, "Broadcasts" %>
+<% content_for :page_subtitle, "Send updates to many volunteers at once." %>
 
-<% if @broadcasts.empty? %>
-  <div class="text-center py-16">
-    <p class="text-gray-400 text-sm">No broadcasts sent yet.</p>
-  </div>
-<% else %>
-  <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Channel</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Segment</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipients</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent</th>
-          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
+<% status_tones = { "draft" => :neutral, "sending" => :warn, "sent" => :ok, "failed" => :danger } %>
+<% channel_labels = { "in_app" => "In-app", "email" => "Email", "sms" => "SMS", "whatsapp" => "WhatsApp" } %>
+
+<div class="grid gap-6 lg:grid-cols-2">
+  <% if policy(BroadcastMessage).create? %>
+    <div><%= render "form", broadcast: @broadcast, programs: @programs, inline: true %></div>
+  <% end %>
+
+  <section>
+    <div class="mb-3.5 flex items-center justify-between">
+      <h2 class="text-xl font-semibold text-gray-900">Recent broadcasts</h2>
+    </div>
+    <% if @broadcasts.empty? %>
+      <div class="<%= card_classes %> p-10 text-center text-sm text-gray-500">No broadcasts sent yet.</div>
+    <% else %>
+      <div class="grid gap-3">
         <% @broadcasts.each do |broadcast| %>
-          <tr>
-            <td class="px-4 py-3">
-              <p class="text-sm font-medium text-gray-900"><%= broadcast.subject %></p>
-            </td>
-            <td class="px-4 py-3">
-              <span class="text-sm text-gray-600 capitalize"><%= broadcast.channel.humanize %></span>
-            </td>
-            <td class="px-4 py-3 text-sm text-gray-600">
-              <%= broadcast.segment_filters.any? ? broadcast.segment_filters.map { |k, v| "#{k}: #{v}" }.join(", ") : "All" %>
-            </td>
-            <td class="px-4 py-3">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
-                   <%= { 'draft' => 'bg-gray-100 text-gray-600', 'sending' => 'bg-yellow-100 text-yellow-700',
-                         'sent' => 'bg-green-100 text-green-700', 'failed' => 'bg-red-100 text-red-600' }[broadcast.status] %>">
-                <%= broadcast.status.humanize %>
-              </span>
-            </td>
-            <td class="px-4 py-3 text-sm text-gray-600"><%= broadcast.recipient_count %></td>
-            <td class="px-4 py-3 text-sm text-gray-400">
-              <%= broadcast.sent_at ? broadcast.sent_at.strftime("%d %b") : "—" %>
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex gap-3">
-                <%= link_to "View", broadcast_message_path(broadcast), class: "text-sm text-gray-600 hover:underline" %>
-                <% if policy(broadcast).send_broadcast? %>
-                  <%= button_to "Send", send_broadcast_broadcast_message_path(broadcast), method: :patch,
-                      data: { turbo_confirm: "Send this broadcast?" },
-                      class: "text-sm text-indigo-600 hover:underline bg-transparent border-0 p-0 cursor-pointer" %>
-                <% end %>
+          <div class="<%= card_classes %> p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <%= pill "#{broadcast.segment_filters.compact_blank.any? ? broadcast.segment_filters.compact_blank.map { |k, v| "#{k.humanize}: #{v}" }.join(', ') : 'Everyone'} · #{broadcast.recipient_count}", tone: :accent, dot: false %>
+                </div>
+                <h3 class="mt-2.5 text-[15px] font-semibold text-gray-900">
+                  <%= link_to broadcast.subject, broadcast_message_path(broadcast), class: "hover:text-indigo-600" %>
+                </h3>
+                <div class="mt-1 text-sm leading-normal text-gray-700"><%= broadcast.body.truncate(140) %></div>
               </div>
-            </td>
-          </tr>
+              <div class="flex-none font-mono text-[11px] text-gray-500">
+                <%= broadcast.sent_at ? broadcast.sent_at.strftime("%b %-d · %-l:%M %p") : "Not sent" %>
+              </div>
+            </div>
+            <div class="mt-3 flex flex-wrap items-center gap-3 border-t border-gray-100 pt-3">
+              <%= pill broadcast.status.humanize, tone: status_tones[broadcast.status] %>
+              <%= pill channel_labels[broadcast.channel], tone: :info, dot: false, css: "text-[11px]" %>
+              <span class="flex-1"></span>
+              <%= button_link "View", broadcast_message_path(broadcast), variant: :ghost, size: :sm %>
+              <% if policy(broadcast).send_broadcast? && broadcast.draft? %>
+                <%= button_to send_broadcast_broadcast_message_path(broadcast), method: :patch,
+                    data: { turbo_confirm: "Send this broadcast?" }, class: button_classes(:primary, :sm) do %>
+                  <%= button_content "Send", "send", nil, :sm %>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
         <% end %>
-      </tbody>
-    </table>
-  </div>
-<% end %>
+      </div>
+    <% end %>
+  </section>
+</div>

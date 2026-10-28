@@ -1,60 +1,62 @@
 <% content_for :title, "Volunteer Opportunities — VolunteerOS" %>
+<% content_for :page_title, "Opportunities" %>
+<% content_for :page_subtitle, "Public listings and application pipeline." %>
 
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold text-gray-900">Volunteer Opportunities</h1>
+<% unless user_signed_in? %>
+  <h1 class="mb-6 text-2xl font-bold text-gray-900">Volunteer Opportunities</h1>
+<% end %>
+
+<% field_class = "h-8 rounded-lg border border-gray-300 bg-white px-2 text-[13px]" %>
+<% tab_actions = capture do %>
   <% if user_signed_in? && policy(Opportunity).create? %>
-    <%= link_to "New Opportunity", new_opportunity_path,
-        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
+    <%= button_link "New opportunity", new_opportunity_path, size: :sm, icon: "plus" %>
   <% end %>
-</div>
+<% end %>
 
-<!-- Filters -->
-<div id="filters" data-controller="opportunity-filter">
-  <%= turbo_frame_tag "opportunity_filters" do %>
-    <%= form_with url: opportunities_path, method: :get, data: { turbo_frame: "opportunities_list" }, class: "bg-white shadow rounded-lg p-4 mb-6" do |f| %>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">Commitment Level</label>
-          <%= f.select :commitment_level,
-              options_for_select(Opportunity::COMMITMENT_LEVELS.map { |l| [l.humanize, l] }, params[:commitment_level]),
-              { include_blank: "Any commitment" },
-              class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">From Date</label>
-          <%= f.date_field :from, value: params[:from],
-              class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-500 mb-1">To Date</label>
-          <%= f.date_field :to, value: params[:to],
-              class: "block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" %>
-        </div>
-        <div class="flex items-end">
-          <%= f.submit "Filter", class: "w-full bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 cursor-pointer" %>
-          <%= link_to "Clear", opportunities_path, class: "ml-2 text-sm text-gray-500 hover:text-gray-700" %>
-        </div>
-      </div>
-    <% end %>
+<% filter_params = params.permit(:commitment_level, :from, :to).to_h.symbolize_keys %>
+<% tabs = [["all", "All listings", nil], ["published", "Published", "published"], ["draft", "Drafts", "draft"], ["closed", "Closed", "closed"]] %>
+<% tabs = tabs.first(1) unless user_signed_in? && policy(Opportunity).create? %>
+<%= render "shared/tabs", actions: tab_actions, tabs: tabs.map { |key, label, status|
+  { label: label, count: @status_counts.fetch(key, 0), active: @status == status,
+    path: opportunities_path(**filter_params, status: status) }
+} %>
+
+<%= form_with url: opportunities_path, method: :get, class: "mb-4 flex flex-wrap items-end gap-3", data: { turbo_frame: "opportunities_list", turbo_action: "advance" } do |f| %>
+  <%= f.hidden_field :status, value: @status %>
+  <div>
+    <label class="mb-1 block text-xs font-medium text-gray-600">Commitment</label>
+    <%= f.select :commitment_level,
+        options_for_select(Opportunity::COMMITMENT_LEVELS.map { |l| [l.humanize, l] }, params[:commitment_level]),
+        { include_blank: "Any commitment" }, class: "#{field_class} py-0" %>
+  </div>
+  <div>
+    <label class="mb-1 block text-xs font-medium text-gray-600">From</label>
+    <%= f.date_field :from, value: params[:from], class: field_class %>
+  </div>
+  <div>
+    <label class="mb-1 block text-xs font-medium text-gray-600">To</label>
+    <%= f.date_field :to, value: params[:to], class: field_class %>
+  </div>
+  <%= f.button class: button_classes(:secondary, :sm) do %>
+    <%= button_content "Filter", "filter", nil, :sm %>
   <% end %>
-</div>
+  <%= link_to "Clear", opportunities_path(status: @status), class: "self-center text-[13px] text-gray-500 hover:underline" %>
+<% end %>
 
 <%= turbo_frame_tag "opportunities_list" do %>
   <% if @opportunities.any? %>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid gap-3">
       <% @opportunities.each do |opportunity| %>
-        <%= render "opportunities/card", opportunity: opportunity %>
+        <%= render "opportunities/card", opportunity: opportunity, applications: @application_counts.fetch(opportunity.id, 0) %>
       <% end %>
     </div>
-    <div class="mt-6">
-      <%= pagy_nav(@pagy) if @pagy.pages > 1 %>
-    </div>
+    <%= render "shared/pagination", pagy: @pagy %>
   <% else %>
-    <div class="text-center py-16 bg-white rounded-lg shadow">
-      <div class="text-4xl mb-4">🙌</div>
-      <p class="text-gray-500 text-lg">No opportunities found.</p>
+    <div class="<%= card_classes %> py-16 text-center">
+      <%= icon "sparkles", size: 32, css: "mx-auto mb-3 text-gray-300" %>
+      <p class="text-gray-500">No opportunities found.</p>
       <% if user_signed_in? && policy(Opportunity).create? %>
-        <p class="mt-2"><%= link_to "Create the first opportunity", new_opportunity_path, class: "text-indigo-600 hover:text-indigo-800" %></p>
+        <p class="mt-2"><%= link_to "Create the first opportunity", new_opportunity_path, class: "text-indigo-600 hover:text-indigo-800", data: { turbo_frame: "_top" } %></p>
       <% end %>
     </div>
   <% end %>

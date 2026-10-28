@@ -3,9 +3,7 @@ class ConversationsController < ApplicationController
 
   def index
     authorize Conversation
-    @conversations = policy_scope(Conversation).for_user(current_user)
-                                               .includes(:participants, messages: :sender)
-                                               .ordered
+    load_inbox
   end
 
   def show
@@ -13,6 +11,7 @@ class ConversationsController < ApplicationController
     @messages = @conversation.messages.ordered.includes(:sender, :rich_text_body)
     @conversation.mark_read_for!(current_user)
     @message = Message.new
+    load_inbox
   end
 
   def new
@@ -47,6 +46,12 @@ class ConversationsController < ApplicationController
   end
 
   private
+
+  def load_inbox
+    @conversations = policy_scope(Conversation).for_user(current_user)
+                                               .includes(:participants, messages: :sender)
+                                               .ordered
+  end
 
   def set_conversation
     @conversation = policy_scope(Conversation).for_user(current_user).find(params[:id])

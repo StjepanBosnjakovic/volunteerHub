@@ -4,6 +4,8 @@ class BroadcastMessagesController < ApplicationController
   def index
     authorize BroadcastMessage
     @broadcasts = policy_scope(BroadcastMessage).ordered
+    @broadcast = BroadcastMessage.new(channel: :in_app)
+    @programs = policy_scope(Program).ordered
   end
 
   def show

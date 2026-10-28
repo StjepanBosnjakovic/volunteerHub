@@ -1,78 +1,71 @@
 <% content_for :title, "Volunteers — VolunteerOS" %>
+<% content_for :page_title, "Volunteers" %>
+<% content_for :page_subtitle, "#{pluralize(@pagy.count, 'person', plural: 'people')} in your community." %>
+<% content_for :full_bleed, true %>
 
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-bold text-gray-900">Volunteers</h1>
-  <div class="flex gap-3">
-    <% if policy(VolunteerProfile).export_csv? %>
-      <%= link_to "Export CSV", export_csv_volunteer_profiles_path(format: :csv),
-          class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
-    <% end %>
-    <% if policy(VolunteerProfile).import? %>
-      <%= link_to "Import CSV", import_volunteer_profiles_path,
-          class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
-    <% end %>
-    <%= link_to "Add Volunteer", new_volunteer_profile_path,
-        class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
-  </div>
-</div>
+<% status_tones = { "active" => :ok, "pending" => :warn, "inactive" => :neutral } %>
 
-<div class="bg-white shadow rounded-lg overflow-hidden">
-  <table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
-      <tr>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skills</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      <% @volunteer_profiles.each do |profile| %>
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <div class="flex items-center">
-              <% if profile.avatar.attached? %>
-                <%= image_tag profile.avatar.variant(resize_to_fill: [40, 40]), class: "h-10 w-10 rounded-full mr-3" %>
-              <% else %>
-                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                  <span class="text-indigo-600 font-medium text-sm"><%= profile.first_name[0] %><%= profile.last_name[0] %></span>
-                </div>
-              <% end %>
-              <div>
-                <div class="font-medium text-gray-900"><%= profile.full_name %></div>
-                <% if profile.minor? %>
-                  <span class="text-xs text-orange-600 font-medium">MINOR</span>
-                <% end %>
-              </div>
-            </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= profile.user.email %></td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <% status_classes = { "active" => "bg-green-100 text-green-800", "pending" => "bg-yellow-100 text-yellow-800", "inactive" => "bg-gray-100 text-gray-800" } %>
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= status_classes[profile.status] %>">
-              <%= profile.status.capitalize %>
-            </span>
-          </td>
-          <td class="px-6 py-4 text-sm text-gray-500">
-            <%= profile.skills.limit(3).map(&:name).join(", ") %>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <%= link_to "View", volunteer_profile_path(profile), class: "text-indigo-600 hover:text-indigo-900 mr-3" %>
-            <% if policy(profile).update? %>
-              <%= link_to "Edit", edit_volunteer_profile_path(profile), class: "text-gray-600 hover:text-gray-900" %>
-            <% end %>
-          </td>
-        </tr>
+<%= turbo_frame_tag "volunteers", target: "_top", class: "grid lg:grid-cols-[1fr_380px]" do %>
+  <div class="min-w-0 px-4 py-7 sm:px-7">
+    <div class="mb-4 flex flex-wrap gap-3">
+      <%= form_with url: volunteer_profiles_path, method: :get, class: "min-w-60 flex-1", data: { turbo_frame: "volunteers", turbo_action: "advance" } do |f| %>
+        <label class="flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-gray-400 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/15">
+          <%= icon "search", size: 16 %>
+          <%= f.search_field :q, value: params[:q], placeholder: "Search by name or email",
+              class: "w-full border-0 bg-transparent p-0 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0" %>
+        </label>
       <% end %>
-    </tbody>
-  </table>
-</div>
+      <% if policy(VolunteerProfile).export_csv? %>
+        <%= button_link nil, export_csv_volunteer_profiles_path(format: :csv), variant: :secondary, size: :icon, icon: "download", title: "Export CSV", aria: { label: "Export CSV" } %>
+      <% end %>
+      <% if policy(VolunteerProfile).import? %>
+        <%= button_link nil, import_volunteer_profiles_path, variant: :secondary, size: :icon, icon: "upload", title: "Import CSV", aria: { label: "Import CSV" } %>
+      <% end %>
+      <%= button_link "Add volunteer", new_volunteer_profile_path, icon: "user-plus" %>
+    </div>
 
-<% if @volunteer_profiles.empty? %>
-  <div class="text-center py-12 text-gray-500">
-    No volunteer profiles found.
+    <div class="<%= card_classes %> overflow-hidden">
+      <div class="hidden grid-cols-[1fr_180px_110px_24px] gap-3 border-b border-gray-100 px-4.5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500 md:grid lg:hidden xl:grid">
+        <div>Volunteer</div><div>Skills</div><div>Shifts this year</div><div></div>
+      </div>
+      <% @volunteer_profiles.each do |profile| %>
+        <% selected = profile == @selected %>
+        <%= link_to volunteer_profiles_path(selected: profile.id, q: params[:q], page: params[:page]),
+            data: { turbo_frame: "volunteers", turbo_action: "advance" },
+            class: "grid grid-cols-[1fr_24px] items-center gap-3 border-b border-l-3 border-b-gray-100 px-4.5 py-3 last:border-b-0 md:grid-cols-[1fr_180px_110px_24px] lg:grid-cols-[1fr_24px] xl:grid-cols-[1fr_180px_110px_24px] #{selected ? 'border-l-indigo-600 bg-indigo-50/60' : 'border-l-transparent hover:bg-gray-50'}" do %>
+          <div class="flex min-w-0 items-center gap-3">
+            <% if profile.avatar.attached? %>
+              <%= image_tag profile.avatar.variant(resize_to_fill: [36, 36]), class: "h-9 w-9 rounded-full" %>
+            <% else %>
+              <%= avatar profile.full_name %>
+            <% end %>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <%= profile.full_name %>
+                <% if profile.minor? %><%= pill "Minor", tone: :accent, dot: false, css: "text-[10px]" %><% end %>
+                <% unless profile.status_active? %><%= pill profile.status.capitalize, tone: status_tones[profile.status], css: "text-[10px]" %><% end %>
+              </div>
+              <div class="truncate text-xs text-gray-500"><%= profile.user.email %></div>
+            </div>
+          </div>
+          <div class="hidden flex-wrap gap-1 md:flex lg:hidden xl:flex">
+            <% profile.skills.first(2).each do |skill| %>
+              <%= pill skill.name, dot: false, css: "text-[11px]" %>
+            <% end %>
+          </div>
+          <div class="hidden text-[13px] text-gray-900 md:block lg:hidden xl:block"><%= pluralize(@shifts_this_year.fetch(profile.id, 0), "shift") %></div>
+          <div class="flex justify-end text-gray-400"><%= icon "chevron-right", size: 16 %></div>
+        <% end %>
+      <% end %>
+      <% if @volunteer_profiles.empty? %>
+        <div class="py-12 text-center text-sm text-gray-500">No volunteer profiles found.</div>
+      <% end %>
+    </div>
+
+    <%= render "shared/pagination", pagy: @pagy %>
   </div>
-<% end %>
 
-<%= pagy_nav(@pagy) if @pagy.pages > 1 %>
+  <% if @selected %>
+    <%= render "volunteer_profiles/drawer", profile: @selected, status_tone: status_tones[@selected.status] %>
+  <% end %>
+<% end %>

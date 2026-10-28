@@ -1,27 +1,35 @@
-<div class="flex justify-between items-center mb-6">
-  <div>
-    <h1 class="text-2xl font-bold text-gray-900">Shifts</h1>
-    <p class="text-sm text-gray-500 mt-1"><%= link_to @program.name, program_path(@program), class: "text-indigo-600 hover:underline" %></p>
-  </div>
-  <% if policy(Shift).create? %>
-    <%= link_to "New Shift", new_program_shift_path(@program), class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
-  <% end %>
-</div>
+<% content_for :title, "Shifts — #{@program.name} — VolunteerOS" %>
+<% content_for :page_title, "Shifts" %>
+<% content_for :page_subtitle do %>
+  <%= link_to @program.name, program_path(@program), class: "text-indigo-600 hover:underline" %> · Plan and fill volunteer shifts.
+<% end %>
 
-<div class="mb-4 flex gap-3">
-  <%= form_with url: program_shifts_path(@program), method: :get, data: { turbo_frame: "shifts_list" }, class: "flex gap-3" do |f| %>
-    <%= f.date_field :from, value: params[:from], class: "rounded-md border-gray-300 shadow-sm text-sm" %>
-    <span class="self-center text-gray-500">to</span>
-    <%= f.date_field :to, value: params[:to], class: "rounded-md border-gray-300 shadow-sm text-sm" %>
-    <%= f.submit "Filter", class: "bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-200 cursor-pointer" %>
+<% tab_actions = capture do %>
+  <%= form_with url: program_shifts_path(@program), method: :get, class: "flex items-center gap-2" do |f| %>
+    <%= f.hidden_field :fill, value: @fill %>
+    <%= f.date_field :from, value: params[:from], class: "h-8 rounded-lg border border-gray-300 px-2 text-[13px]" %>
+    <span class="text-[13px] text-gray-500">to</span>
+    <%= f.date_field :to, value: params[:to], class: "h-8 rounded-lg border border-gray-300 px-2 text-[13px]" %>
+    <%= f.button class: button_classes(:secondary, :sm) do %>
+      <%= button_content "Filter", "filter", nil, :sm %>
+    <% end %>
   <% end %>
-</div>
+  <% if policy(Shift).create? %>
+    <%= button_link "New shift", new_program_shift_path(@program), size: :sm, icon: "plus" %>
+  <% end %>
+<% end %>
+
+<%= render "shared/tabs", actions: tab_actions, tabs: [
+  { label: "All shifts", count: @fill_counts[:all], path: program_shifts_path(@program, from: params[:from], to: params[:to]), active: @fill.blank? },
+  { label: "Needs filling", count: @fill_counts[:needs], path: program_shifts_path(@program, fill: "needs", from: params[:from], to: params[:to]), active: @fill == "needs" },
+  { label: "Filled", count: @fill_counts[:filled], path: program_shifts_path(@program, fill: "filled", from: params[:from], to: params[:to]), active: @fill == "filled" }
+] %>
 
 <%= turbo_frame_tag "shifts_list" do %>
   <% if @shifts.empty? %>
-    <div class="text-center py-12 text-gray-500">No shifts found.</div>
+    <div class="py-12 text-center text-gray-500">No shifts found.</div>
   <% else %>
-    <div class="space-y-4">
+    <div class="grid gap-3">
       <% @shifts.each do |shift| %>
         <%= render "shifts/shift_card", shift: shift, program: @program %>
       <% end %>
