@@ -42,11 +42,15 @@
     </body>
   <% else %>
     <body class="bg-gray-50 min-h-screen">
-      <%= render "layouts/flash" %>
-
-      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <% if content_for?(:full_bleed) %>
         <%= yield %>
-      </main>
+      <% else %>
+        <%= render "layouts/flash" %>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <%= yield %>
+        </main>
+      <% end %>
     </body>
   <% end %>
 </html>

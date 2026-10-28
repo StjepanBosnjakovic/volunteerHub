@@ -1,9 +1,9 @@
 <% if resource.errors.any? %>
-  <div class="bg-red-50 border border-red-200 rounded-md p-4">
-    <p class="text-sm font-medium text-red-800 mb-1">
+  <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+    <p class="mb-1 text-sm font-semibold text-red-800">
       <%= pluralize(resource.errors.count, "error") %> prevented this from being saved:
     </p>
-    <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+    <ul class="list-inside list-disc space-y-1 text-sm text-red-700">
       <% resource.errors.full_messages.each do |message| %>
         <li><%= message %></li>
       <% end %>

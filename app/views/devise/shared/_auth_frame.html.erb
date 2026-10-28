@@ -1,0 +1,62 @@
+<%# Split screen for the signed-out pages. locals: title, subtitle %>
+<% content_for :full_bleed, true %>
+<div class="flex min-h-screen bg-gray-50">
+  <aside class="hidden w-[44%] max-w-xl flex-none flex-col justify-between bg-gray-900 px-10 py-10 text-white lg:flex">
+    <div class="flex items-center gap-2.5">
+      <%= image_tag "/icon.png", alt: "", class: "h-9 w-9 rounded-lg" %>
+      <div class="text-lg font-bold tracking-tight">VolunteerOS</div>
+    </div>
+
+    <div>
+      <%= eyebrow "Volunteer management", css: "text-white/55" %>
+      <h2 class="mt-3 text-3xl font-bold leading-tight tracking-tight">Run every shift, hour and message from one place.</h2>
+      <ul class="mt-8 flex flex-col gap-4">
+        <% [["calendar-days", "Schedule shifts", "See which shifts need volunteers at a glance."],
+            ["clock", "Track hours", "Approve logged hours and export reports."],
+            ["megaphone", "Reach your team", "Send broadcasts by email or in-app notification."]].each do |icon_name, heading, text| %>
+          <li class="flex items-start gap-3">
+            <span class="inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300">
+              <%= icon icon_name, size: 16 %>
+            </span>
+            <div>
+              <div class="text-sm font-semibold"><%= heading %></div>
+              <div class="text-[13px] text-white/60"><%= text %></div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <div class="text-[11px] text-white/40">&copy; <%= Date.current.year %> VolunteerOS</div>
+  </aside>
+
+  <main class="flex flex-1 items-center justify-center px-4 py-12 sm:px-7">
+    <div class="w-full max-w-md">
+      <div class="mb-6 flex items-center gap-2.5 lg:hidden">
+        <%= image_tag "/icon.png", alt: "", class: "h-8 w-8 rounded-lg" %>
+        <div class="text-[17px] font-bold tracking-tight text-gray-900">VolunteerOS</div>
+      </div>
+
+      <h1 class="text-2xl font-bold tracking-tight text-gray-900"><%= title %></h1>
+      <p class="mt-1 text-[13px] text-gray-500"><%= subtitle %></p>
+
+      <% if notice.present? %>
+        <div class="mt-5 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+          <%= icon "circle-check", size: 16 %>
+          <%= notice %>
+        </div>
+      <% end %>
+      <% if alert.present? %>
+        <div class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><%= alert %></div>
+      <% end %>
+
+      <div class="<%= card_classes %> mt-6 p-6">
+        <%= yield %>
+      </div>
+
+      <% if content_for?(:auth_footer) %>
+        <p class="mt-5 text-center text-[13px] text-gray-500"><%= yield :auth_footer %></p>
+      <% end %>
+    </div>
+  </main>
+</div>
