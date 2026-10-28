@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   root to: redirect("/users/sign_in")
 
   get "up" => "rails/health#show", as: :rails_health_check
+  get "metrics" => "metrics#show", as: :metrics
 
   resource :organisation, only: [:show, :edit, :update]
 
