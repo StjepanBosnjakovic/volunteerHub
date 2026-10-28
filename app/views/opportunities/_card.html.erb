@@ -1,61 +1,58 @@
-<div class="bg-white shadow rounded-lg overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-  <div class="p-6 flex-1">
-    <div class="flex justify-between items-start mb-2">
-      <% if opportunity.category.present? %>
-        <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full"><%= opportunity.category %></span>
-      <% end %>
-      <% unless opportunity.published? %>
-        <span class="text-xs font-medium bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full"><%= opportunity.status.capitalize %></span>
+<% status_tones = { "published" => :ok, "draft" => :info, "closed" => :neutral } %>
+<% applications = local_assigns.fetch(:applications, 0) %>
+<div class="<%= card_classes(hover: true) %> p-5">
+  <div class="grid items-start gap-4 sm:grid-cols-[1fr_auto]">
+    <div class="min-w-0">
+      <div class="mb-1.5 flex flex-wrap items-center gap-2">
+        <%= pill opportunity.status.capitalize, tone: status_tones[opportunity.status], dot: false %>
+        <% if opportunity.category.present? %>
+          <span class="text-xs text-gray-500">· <%= opportunity.category %></span>
+        <% end %>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900">
+        <%= link_to opportunity.title, opportunity_path(opportunity), class: "hover:text-indigo-600", data: { turbo_frame: "_top" } %>
+      </h3>
+      <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-gray-500">
+        <% if opportunity.commitment_level.present? %>
+          <%= icon "clock", size: 13 %> <span><%= opportunity.commitment_level.humanize %></span>
+        <% end %>
+        <% if opportunity.starts_at %>
+          <span class="text-gray-300">·</span>
+          <%= icon "calendar", size: 13 %>
+          <span><%= opportunity.starts_at.strftime("%b %-d, %Y") %><%= " – #{opportunity.ends_at.strftime('%b %-d, %Y')}" if opportunity.ends_at %></span>
+        <% end %>
+        <% if opportunity.location.present? %>
+          <span class="text-gray-300">·</span>
+          <%= icon "map-pin", size: 13 %> <span><%= opportunity.location %></span>
+        <% end %>
+      </div>
+      <% if opportunity.skills.any? %>
+        <div class="mt-2.5 flex flex-wrap gap-1.5">
+          <% opportunity.skills.each do |skill| %>
+            <%= pill skill.name, dot: false, css: "text-[11px]" %>
+          <% end %>
+        </div>
       <% end %>
     </div>
 
-    <h3 class="text-lg font-semibold text-gray-900 mt-2">
-      <%= link_to opportunity.title, opportunity_path(opportunity), class: "hover:text-indigo-600", data: { turbo_frame: "_top" } %>
-    </h3>
-
-    <% if opportunity.location.present? %>
-      <p class="text-sm text-gray-500 mt-1">
-        📍 <%= opportunity.location %>
-      </p>
-    <% end %>
-
-    <% if opportunity.starts_at %>
-      <p class="text-sm text-gray-500 mt-1">
-        📅 <%= opportunity.starts_at.strftime("%d %B %Y") %>
-        <% if opportunity.ends_at %>
-          — <%= opportunity.ends_at.strftime("%d %B %Y") %>
+    <div class="flex min-w-40 flex-col gap-2.5 sm:items-end">
+      <% if user_signed_in? && policy(opportunity).update? %>
+        <div class="sm:text-right">
+          <div class="text-[22px] font-bold leading-none text-gray-900">
+            <%= applications %><% if opportunity.spots_available %><span class="text-sm font-medium text-gray-500"> / <%= opportunity.spots_available %> spots</span><% end %>
+          </div>
+          <div class="mt-1 text-[11px] font-semibold uppercase tracking-wider text-gray-500">Applications</div>
+        </div>
+        <div class="flex gap-2">
+          <%= button_link "Share", embed_opportunity_path(opportunity), variant: :secondary, size: :sm, icon: "copy", data: { turbo_frame: "_top" } %>
+          <%= button_link "Review", kanban_opportunity_path(opportunity), variant: :secondary, size: :sm, icon: "users", data: { turbo_frame: "_top" } %>
+        </div>
+      <% else %>
+        <% if opportunity.spots_available.present? %>
+          <div class="text-[13px] text-gray-500"><%= opportunity.spots_remaining || opportunity.spots_available %> spots remaining</div>
         <% end %>
-      </p>
-    <% end %>
-
-    <% if opportunity.commitment_level.present? %>
-      <p class="text-sm text-gray-500 mt-1">
-        🕒 <%= opportunity.commitment_level.humanize %>
-      </p>
-    <% end %>
-
-    <% if opportunity.description.present? %>
-      <p class="text-sm text-gray-600 mt-3 line-clamp-2"><%= opportunity.description.truncate(120) %></p>
-    <% end %>
-
-    <% if opportunity.skills.any? %>
-      <div class="flex flex-wrap gap-1 mt-3">
-        <% opportunity.skills.each do |skill| %>
-          <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded"><%= skill.name %></span>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-    <% if opportunity.spots_available.present? %>
-      <span class="text-sm text-gray-500">
-        <%= opportunity.spots_remaining || opportunity.spots_available %> spots remaining
-      </span>
-    <% else %>
-      <span></span>
-    <% end %>
-    <%= link_to "View Details", opportunity_path(opportunity),
-        class: "text-sm text-indigo-600 font-medium hover:text-indigo-800", data: { turbo_frame: "_top" } %>
+        <%= button_link "View details", opportunity_path(opportunity), variant: :secondary, size: :sm, icon_right: "arrow-right", data: { turbo_frame: "_top" } %>
+      <% end %>
+    </div>
   </div>
 </div>

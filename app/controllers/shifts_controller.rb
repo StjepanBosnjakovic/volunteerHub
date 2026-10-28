@@ -1,15 +1,27 @@
 class ShiftsController < ApplicationController
   include Pagy::Method
 
+  CONFIRMED_COUNT_SQL = "(SELECT COUNT(*) FROM shift_assignments " \
+    "WHERE shift_assignments.shift_id = shifts.id " \
+    "AND shift_assignments.status = #{ShiftAssignment.statuses[:confirmed]})".freeze
+
   before_action :set_program
   before_action :set_shift, only: %i[show edit update destroy clone checkin export_pdf ical]
 
   def index
     authorize Shift
-    @shifts = @program.shifts.ordered.includes(:shift_assignments, :shift_roles)
+    @shifts = @program.shifts.ordered.includes(:shift_roles, :coordinator, shift_assignments: :volunteer_profile)
 
     @shifts = @shifts.where("starts_at >= ?", Date.parse(params[:from])) if params[:from].present?
     @shifts = @shifts.where("starts_at <= ?", Date.parse(params[:to])) if params[:to].present?
+
+    @fill = params[:fill].presence_in(%w[needs filled])
+    by_fill = {
+      "needs" => @shifts.where.not(capacity: nil).where("#{CONFIRMED_COUNT_SQL} < shifts.capacity"),
+      "filled" => @shifts.where.not(capacity: nil).where("#{CONFIRMED_COUNT_SQL} >= shifts.capacity")
+    }
+    @fill_counts = { all: @shifts.count, needs: by_fill["needs"].count, filled: by_fill["filled"].count }
+    @shifts = by_fill[@fill] if @fill
 
     respond_to do |format|
       format.html do

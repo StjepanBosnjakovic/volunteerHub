@@ -1,43 +1,39 @@
-<tr id="hour_log_<%= hour_log.id %>" class="<%= hour_log.disputed? ? 'bg-yellow-50' : '' %>">
-  <td class="px-4 py-3 text-sm text-gray-900">
-    <% if current_user.admin? %>
-      <%= link_to hour_log.volunteer_profile.full_name,
-          volunteer_profile_path(hour_log.volunteer_profile),
-          class: "text-indigo-600 hover:underline" %>
-    <% else %>
-      <%= hour_log.volunteer_profile.full_name %>
-    <% end %>
-  </td>
-  <td class="px-4 py-3 text-sm text-gray-700"><%= hour_log.program.name %></td>
-  <td class="px-4 py-3 text-sm text-gray-700">
-    <%= hour_log.date.strftime("%b %-d, %Y") %>
-  </td>
-  <td class="px-4 py-3 text-sm text-gray-900 font-medium"><%= hour_log.hours %>h</td>
-  <td class="px-4 py-3 text-sm text-gray-500 max-w-xs truncate"><%= hour_log.description %></td>
-  <td class="px-4 py-3">
-    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-      <%= hour_log.approved? ? 'bg-green-100 text-green-800' :
-          hour_log.rejected? ? 'bg-red-100 text-red-800' :
-          'bg-yellow-100 text-yellow-800' %>">
-      <%= hour_log.disputed? ? 'Disputed' : hour_log.status.capitalize %>
-    </span>
-    <span class="ml-1 text-xs text-gray-400 capitalize">(<%= hour_log.source.to_s.humanize %>)</span>
-  </td>
-  <td class="px-4 py-3 text-sm">
+<% source = { "auto" => ["Check-in", :brand], "self_logged" => ["Self-logged", :warn], "bulk" => ["CSV import", :info] }[hour_log.source.to_s] %>
+<% status_tone = hour_log.approved? ? :ok : hour_log.rejected? ? :danger : :warn %>
+<div id="hour_log_<%= hour_log.id %>"
+     class="grid grid-cols-[1fr_auto] items-center gap-3 px-4.5 py-3.5 md:grid-cols-[1fr_140px_110px_80px_190px] <%= hour_log.disputed? ? 'bg-yellow-50' : '' %>">
+  <div class="flex min-w-0 items-center gap-3">
+    <%= avatar hour_log.volunteer_profile.full_name %>
+    <div class="min-w-0">
+      <div class="text-sm font-semibold text-gray-900">
+        <% if current_user.admin? %>
+          <%= link_to hour_log.volunteer_profile.full_name, volunteer_profile_path(hour_log.volunteer_profile),
+              class: "hover:text-indigo-600", data: { turbo_frame: "_top" } %>
+        <% else %>
+          <%= hour_log.volunteer_profile.full_name %>
+        <% end %>
+      </div>
+      <div class="truncate text-xs text-gray-500">
+        <%= [hour_log.shift&.title || hour_log.program.name, hour_log.description.presence].compact.join(" · ") %>
+      </div>
+    </div>
+  </div>
+  <div class="hidden md:block"><%= pill source[0], tone: source[1], dot: false %></div>
+  <div class="hidden text-[13px] text-gray-600 md:block"><%= hour_log.date.strftime("%b %-d, %Y") %></div>
+  <div class="text-lg font-bold text-gray-900"><%= number_with_precision(hour_log.hours, precision: 2, strip_insignificant_zeros: true) %>h</div>
+  <div class="col-span-2 flex flex-wrap items-center justify-end gap-1.5 md:col-span-1">
     <% if policy(hour_log).approve? && hour_log.pending? %>
-      <%= button_to "Approve", approve_hour_log_path(hour_log),
-          method: :patch,
-          class: "text-green-700 hover:text-green-900 mr-2" %>
-      <%= button_to "Reject", reject_hour_log_path(hour_log),
-          method: :patch,
-          params: { rejection_reason: "Not approved." },
-          class: "text-red-600 hover:text-red-800" %>
+      <%= button_to "Reject", reject_hour_log_path(hour_log), method: :patch,
+          params: { rejection_reason: "Not approved." }, class: button_classes(:ghost, :sm) %>
+      <%= button_to approve_hour_log_path(hour_log), method: :patch, class: button_classes(:primary, :sm) do %>
+        <%= button_content "Approve", "check", nil, :sm %>
+      <% end %>
+    <% else %>
+      <%= pill(hour_log.disputed? ? "Disputed" : hour_log.status.capitalize, tone: hour_log.disputed? ? :warn : status_tone) %>
     <% end %>
     <% if policy(hour_log).dispute? && hour_log.auto? && !hour_log.disputed? %>
-      <%= button_to "Dispute", dispute_hour_log_path(hour_log),
-          method: :patch,
-          params: { dispute_note: "Hours are incorrect." },
-          class: "text-yellow-600 hover:text-yellow-800 text-xs" %>
+      <%= button_to "Dispute", dispute_hour_log_path(hour_log), method: :patch,
+          params: { dispute_note: "Hours are incorrect." }, class: button_classes(:ghost, :sm) %>
     <% end %>
-  </td>
-</tr>
+  </div>
+</div>

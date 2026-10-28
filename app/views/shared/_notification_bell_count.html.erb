@@ -1,6 +1,6 @@
 <span id="notification_bell_count"
-      class="<%= count > 0 ? '' : 'hidden' %>
-             absolute -top-0.5 -right-0.5 inline-flex items-center justify-center
-             h-4 w-4 text-xs font-bold text-white bg-red-500 rounded-full">
+      class="<%= count > 0 ? 'inline-flex' : 'hidden' %>
+             absolute -top-1.5 -right-1.5 items-center justify-center
+             h-4 min-w-4 px-1 text-[10px] font-bold text-white bg-orange-500 rounded-full ring-2 ring-white">
   <%= count %>
 </span>

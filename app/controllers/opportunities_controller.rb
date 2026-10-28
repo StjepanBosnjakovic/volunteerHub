@@ -8,9 +8,14 @@ class OpportunitiesController < ApplicationController
   before_action :set_skills, only: %i[new create edit update]
 
   def index
-    @opportunities = base_scope
-    @opportunities = filter_opportunities(@opportunities)
+    filtered = filter_opportunities(base_scope)
+    @status = params[:status].presence_in(Opportunity.statuses.keys)
+    @status_counts = filtered.reorder(nil).group(:status).count
+    @status_counts["all"] = @status_counts.values.sum
+    @opportunities = @status ? filtered.where(status: @status) : filtered
     @pagy, @opportunities = pagy(@opportunities, items: 12)
+    @application_counts = VolunteerApplication.where(opportunity_id: @opportunities.map(&:id))
+                                              .group(:opportunity_id).count
   end
 
   def show

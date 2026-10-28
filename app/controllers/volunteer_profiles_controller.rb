@@ -5,10 +5,27 @@ class VolunteerProfilesController < ApplicationController
 
   def index
     authorize VolunteerProfile
-    @pagy, @volunteer_profiles = pagy(
-      policy_scope(VolunteerProfile).includes(:user, :skills, :interest_categories)
-        .order(:last_name, :first_name)
-    )
+    profiles = policy_scope(VolunteerProfile).includes(:user, :skills, :interest_categories)
+      .order(:last_name, :first_name)
+    if params[:q].present?
+      term = "%#{VolunteerProfile.sanitize_sql_like(params[:q].strip)}%"
+      profiles = profiles.joins(:user).where(
+        "volunteer_profiles.first_name ILIKE :term OR volunteer_profiles.last_name ILIKE :term " \
+        "OR CONCAT(volunteer_profiles.first_name, ' ', volunteer_profiles.last_name) ILIKE :term " \
+        "OR users.email ILIKE :term", term: term
+      )
+    end
+    @pagy, @volunteer_profiles = pagy(profiles)
+
+    @shifts_this_year = ShiftAssignment.confirmed.joins(:shift)
+      .where(volunteer_profile_id: @volunteer_profiles.map(&:id), shifts: { starts_at: Time.current.all_year })
+      .group(:volunteer_profile_id).count
+    @selected = if params[:selected].present?
+      policy_scope(VolunteerProfile).find_by(id: params[:selected])
+    else
+      @volunteer_profiles.first
+    end
+    load_drawer_stats(@selected) if @selected
   end
 
   def show
@@ -84,6 +101,16 @@ class VolunteerProfilesController < ApplicationController
   end
 
   private
+
+  def load_drawer_stats(profile)
+    confirmed = profile.shift_assignments.confirmed.joins(:shift)
+    @drawer_stats = {
+      year: confirmed.where(shifts: { starts_at: Time.current.all_year }).count,
+      lifetime: confirmed.count,
+      hours: profile.total_approved_hours
+    }
+    @drawer_upcoming = profile.confirmed_shifts.upcoming.ordered.includes(:program).limit(3)
+  end
 
   def set_volunteer_profile
     @volunteer_profile = policy_scope(VolunteerProfile).find(params[:id])

@@ -1,42 +1,119 @@
 <% content_for :title, "Dashboard — VolunteerOS" %>
+<% content_for :page_title, "Dashboard" %>
+<% content_for :page_subtitle, @organisation.name %>
 
-<div class="mb-8">
-  <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-  <p class="text-gray-500 mt-1"><%= @organisation.name %></p>
-</div>
+<% capacity_shifts = @upcoming_shifts.select(&:capacity) %>
+<% needed = capacity_shifts.sum(&:capacity) %>
+<% filled = capacity_shifts.sum { |s| [confirmed_roster(s).size, s.capacity].min } %>
+<% pct = needed.zero? ? 0 : ((filled.to_f / needed) * 100).round %>
+<% next_shift = @upcoming_shifts.first %>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Volunteers</div>
-    <div class="mt-2 text-3xl font-bold text-gray-900"><%= @total_volunteers %></div>
+<div class="grid gap-6">
+  <%# Hero: the next 30 days at a glance %>
+  <div class="<%= card_classes %> overflow-hidden">
+    <div class="grid items-center gap-6 bg-[radial-gradient(120%_100%_at_0%_0%,var(--color-indigo-50),transparent_60%)] px-7 py-6 lg:grid-cols-[1fr_auto]">
+      <div>
+        <% if next_shift %>
+          <%= eyebrow "Next shift · in #{distance_of_time_in_words(Time.current, next_shift.starts_at)}" %>
+          <h2 class="mt-1.5 mb-1 text-3xl font-bold tracking-tight text-gray-900"><%= next_shift.title %></h2>
+          <div class="flex flex-wrap items-center gap-1.5 text-sm text-gray-600">
+            <%= icon "calendar", size: 14, css: "text-gray-400" %>
+            <%= next_shift.program.name %> · <%= next_shift.starts_at.strftime("%a, %b %-d") %> · <%= shift_time_range(next_shift) %>
+            <% if next_shift.location.present? %>
+              <%= icon "map-pin", size: 14, css: "ml-1 text-gray-400" %> <%= next_shift.location %>
+            <% end %>
+          </div>
+        <% else %>
+          <%= eyebrow "Next 30 days" %>
+          <h2 class="mt-1.5 mb-1 text-3xl font-bold tracking-tight text-gray-900">No upcoming shifts</h2>
+          <div class="text-sm text-gray-600">Create a shift in a program to start filling your schedule.</div>
+        <% end %>
+      </div>
+      <% if current_user.admin? %>
+        <div class="flex flex-wrap gap-2.5">
+          <%= button_link "Share opportunities", opportunities_path, variant: :secondary, icon: "share-2" %>
+          <%= button_link "Send broadcast", new_broadcast_message_path, icon: "megaphone" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="grid items-center gap-5 border-t border-gray-100 px-7 py-4.5 sm:grid-cols-[auto_auto_1fr_auto]">
+      <div>
+        <div class="text-3xl font-bold leading-none tracking-tight text-gray-900"><%= @upcoming_shifts.size %></div>
+        <div class="mt-1 text-xs text-gray-500">Shifts in the next 30 days</div>
+      </div>
+      <div>
+        <div class="text-3xl font-bold leading-none tracking-tight text-gray-900"><%= filled %></div>
+        <div class="mt-1 text-xs text-gray-500">Volunteers signed up · of <%= needed %> needed</div>
+      </div>
+      <div>
+        <%= progress_bar pct, height: "h-2" %>
+        <div class="mt-1.5 text-xs text-gray-500"><%= pct %>% filled · <%= needed - filled %> more needed</div>
+      </div>
+      <%= button_link "View programs", programs_path, variant: :ghost, icon_right: "arrow-right" %>
+    </div>
   </div>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Active</div>
-    <div class="mt-2 text-3xl font-bold text-green-600"><%= @active_volunteers %></div>
+  <%# Volunteer KPIs %>
+  <div class="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+    <%= render "shared/kpi_card", label: "Total volunteers", value: @total_volunteers, icon: "users" %>
+    <%= render "shared/kpi_card", label: "Active", value: @active_volunteers, icon: "circle-check", value_class: "text-green-600" %>
+    <%= render "shared/kpi_card", label: "Pending", value: @pending_volunteers, icon: "hourglass", value_class: "text-yellow-600" %>
+    <%= render "shared/kpi_card", label: "Expiring credentials", value: @expiring_credentials, icon: "award", value_class: "text-red-600", delta: "Within 30 days" %>
   </div>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Pending</div>
-    <div class="mt-2 text-3xl font-bold text-yellow-600"><%= @pending_volunteers %></div>
+  <div class="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+    <section>
+      <div class="mb-3.5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">Shifts needing volunteers</h2>
+        <%= button_link "All programs", programs_path, variant: :ghost, size: :sm, icon_right: "arrow-right" %>
+      </div>
+      <% if @shifts_needing.any? %>
+        <div class="grid gap-3">
+          <% @shifts_needing.each do |shift| %>
+            <%= render "dashboard/shift_row", shift: shift %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="<%= card_classes %> p-8 text-center text-sm text-gray-500">
+          <%= icon "circle-check", size: 32, css: "mx-auto mb-2 text-green-500" %>
+          Every upcoming shift is filled.
+        </div>
+      <% end %>
+    </section>
+
+    <section>
+      <div class="mb-3.5 flex items-baseline justify-between">
+        <h2 class="text-xl font-semibold text-gray-900">Recent sign-ups</h2>
+      </div>
+      <div class="<%= card_classes %> divide-y divide-gray-100">
+        <% @recent_signups.each do |assignment| %>
+          <div class="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3">
+            <%= avatar assignment.volunteer_profile.full_name, size: :md %>
+            <div class="min-w-0">
+              <div class="text-[13px] text-gray-900">
+                <strong class="font-semibold"><%= assignment.volunteer_profile.full_name %></strong>
+                <span class="text-gray-600"><%= { "confirmed" => "signed up", "waitlisted" => "joined the waitlist", "cancelled" => "dropped" }[assignment.status] %></span>
+              </div>
+              <div class="mt-0.5 truncate text-xs text-gray-500"><%= assignment.shift.title %> · <%= assignment.shift.starts_at.strftime("%a %b %-d") %></div>
+            </div>
+            <div class="font-mono text-[11px] text-gray-500"><%= time_ago_in_words(assignment.created_at) %></div>
+          </div>
+        <% end %>
+        <% if @recent_signups.empty? %>
+          <div class="px-4 py-8 text-center text-sm text-gray-500">No sign-ups yet.</div>
+        <% end %>
+      </div>
+    </section>
   </div>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Expiring Credentials</div>
-    <div class="mt-2 text-3xl font-bold text-red-600"><%= @expiring_credentials %></div>
-  </div>
-</div>
-
-<div class="flex gap-4">
-  <%= link_to "View All Volunteers", volunteer_profiles_path,
-      class: "bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700" %>
   <% if current_user.role_volunteer? %>
-    <% if current_user.volunteer_profile %>
-      <%= link_to "My Profile", volunteer_profile_path(current_user.volunteer_profile),
-          class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
-    <% else %>
-      <%= link_to "Create My Profile", new_volunteer_profile_path,
-          class: "bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50" %>
-    <% end %>
+    <div class="flex gap-3">
+      <% if current_user.volunteer_profile %>
+        <%= button_link "My profile", volunteer_profile_path(current_user.volunteer_profile), variant: :secondary, icon: "user" %>
+      <% else %>
+        <%= button_link "Create my profile", new_volunteer_profile_path, icon: "user-plus" %>
+      <% end %>
+    </div>
   <% end %>
 </div>

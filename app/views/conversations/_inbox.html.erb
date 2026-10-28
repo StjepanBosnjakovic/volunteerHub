@@ -1,0 +1,17 @@
+<aside class="<%= local_assigns[:current] ? 'hidden md:block' : 'block' %> overflow-y-auto border-r border-gray-200 bg-white/60">
+  <div class="flex items-center justify-between px-4 pt-4 pb-2">
+    <div class="text-base font-bold text-gray-900">Inbox</div>
+    <%= link_to new_conversation_path, class: button_classes(:ghost, :icon), title: "New conversation", aria: { label: "New conversation" } do %>
+      <%= icon "square-pen", size: 16 %>
+    <% end %>
+  </div>
+  <% conversations.each do |conversation| %>
+    <%= render "conversations/conversation", conversation: conversation, active: conversation == local_assigns[:current] %>
+  <% end %>
+  <% if conversations.empty? %>
+    <div class="px-4 py-8 text-center text-[13px] text-gray-500">
+      No conversations yet.
+      <%= link_to "Start a conversation", new_conversation_path, class: "mt-1 block text-indigo-600 hover:underline" %>
+    </div>
+  <% end %>
+</aside>

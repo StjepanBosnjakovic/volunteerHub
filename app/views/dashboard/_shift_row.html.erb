@@ -1,0 +1,33 @@
+<% roster = confirmed_roster(shift) %>
+<% tone, label, pct = shift_fill_status(shift) %>
+<div class="<%= card_classes(hover: true) %> p-5">
+  <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+    <div class="min-w-0">
+      <div class="mb-1 flex flex-wrap items-center gap-2.5">
+        <h3 class="text-[17px] font-semibold text-gray-900">
+          <%= link_to shift.title, program_shift_path(shift.program, shift), class: "hover:text-indigo-600" %>
+        </h3>
+        <%= pill label, tone: tone %>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5 text-[13px] text-gray-500">
+        <%= icon "clock", size: 13 %>
+        <span class="whitespace-nowrap"><%= shift.starts_at.strftime("%a %b %-d") %> · <%= shift_time_range(shift) %></span>
+        <% if shift.location.present? %>
+          <span class="text-gray-300">·</span>
+          <%= icon "map-pin", size: 13 %>
+          <span><%= shift.location %></span>
+        <% end %>
+      </div>
+      <div class="mt-3 grid grid-cols-[1fr_auto] items-center gap-3">
+        <%= progress_bar pct, tone: tone %>
+        <div class="font-mono text-xs text-gray-500"><%= roster.size %>/<%= shift.capacity %></div>
+      </div>
+    </div>
+    <div class="flex flex-none flex-col items-end gap-2.5">
+      <%= avatar_stack roster, size: :sm, max: 4 %>
+      <% if policy(Shift).assign? %>
+        <%= button_link "Assign", program_shift_path(shift.program, shift), variant: :secondary, size: :sm, icon: "user-plus" %>
+      <% end %>
+    </div>
+  </div>
+</div>

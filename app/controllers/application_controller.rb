@@ -6,6 +6,10 @@ class ApplicationController < ActionController::Base
   stale_when_importmap_changes
 
   include Pundit::Authorization
+
+  # The layout and shared partials use these on every page.
+  helper UiHelper, NavigationHelper, NotificationsHelper, ShiftsHelper
+
   before_action :authenticate_user!
   before_action :set_current_organisation
   before_action :check_setup_complete

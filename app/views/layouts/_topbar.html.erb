@@ -1,0 +1,35 @@
+<header class="sticky top-0 z-10 flex items-center gap-4 border-b border-gray-200 bg-gray-50/85 px-4 py-4 backdrop-blur sm:px-7">
+  <details class="relative md:hidden">
+    <summary class="flex h-9.5 w-9.5 cursor-pointer list-none items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700" aria-label="Menu">
+      <%= icon "menu" %>
+    </summary>
+    <nav class="absolute left-0 top-full z-20 mt-2 flex w-60 flex-col gap-0.5 rounded-xl bg-gray-900 p-2 shadow-lg">
+      <%= render "layouts/nav_items", items: primary_nav_items + secondary_nav_items %>
+    </nav>
+  </details>
+
+  <div class="min-w-0 flex-1">
+    <% if content_for?(:page_title) %>
+      <h1 class="truncate text-2xl font-bold tracking-tight text-gray-900"><%= yield :page_title %></h1>
+    <% end %>
+    <% if content_for?(:page_subtitle) %>
+      <div class="mt-0.5 truncate text-[13px] text-gray-500"><%= yield :page_subtitle %></div>
+    <% end %>
+  </div>
+
+  <% if policy(VolunteerProfile).index? %>
+    <%= form_with url: volunteer_profiles_path, method: :get, class: "hidden w-70 lg:block", data: { turbo_frame: "_top" } do |f| %>
+      <label class="flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-gray-400 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/15">
+        <%= icon "search", size: 16 %>
+        <%= f.search_field :q, value: params[:q], placeholder: "Search volunteers…",
+            class: "w-full border-0 bg-transparent p-0 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0" %>
+      </label>
+    <% end %>
+  <% end %>
+
+  <%= render "shared/notification_bell" %>
+
+  <%= yield :page_actions %>
+
+  <%= avatar current_user.display_name, size: :lg %>
+</header>

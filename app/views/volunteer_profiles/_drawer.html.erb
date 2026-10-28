@@ -1,0 +1,73 @@
+<aside class="border-t border-gray-200 bg-white p-6 lg:sticky lg:top-0 lg:h-[calc(100vh-87px)] lg:overflow-y-auto lg:border-t-0 lg:border-l">
+  <div class="flex flex-col items-center pt-2 text-center">
+    <% if profile.avatar.attached? %>
+      <%= image_tag profile.avatar.variant(resize_to_fill: [72, 72]), class: "h-18 w-18 rounded-full" %>
+    <% else %>
+      <%= avatar profile.full_name, size: :xl %>
+    <% end %>
+    <h2 class="mt-3 mb-0.5 text-[22px] font-bold text-gray-900"><%= profile.full_name %></h2>
+    <div class="text-[13px] text-gray-500"><%= profile.user.email %></div>
+    <div class="mt-2"><%= pill profile.status.capitalize, tone: status_tone %></div>
+    <div class="mt-3.5 flex flex-wrap justify-center gap-2">
+      <% if policy(Conversation).create? && profile.user != current_user %>
+        <%= button_to conversations_path, params: { conversation_type: "direct", recipient_id: profile.user_id },
+            class: button_classes(:primary, :sm), form: { data: { turbo_frame: "_top" } } do %>
+          <%= button_content "Message", "message-circle", nil, :sm %>
+        <% end %>
+      <% end %>
+      <%= button_link "View profile", volunteer_profile_path(profile), variant: :secondary, size: :sm, icon: "user" %>
+      <% if policy(profile).update? %>
+        <%= button_link "Edit", edit_volunteer_profile_path(profile), variant: :secondary, size: :sm, icon: "square-pen" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="my-5 grid grid-cols-3 gap-2.5">
+    <% [["Year", @drawer_stats[:year], "shifts"], ["Lifetime", @drawer_stats[:lifetime], "shifts"], ["Hours", number_with_precision(@drawer_stats[:hours], precision: 1, strip_insignificant_zeros: true), "approved"]].each do |label, value, unit| %>
+      <div class="rounded-xl bg-gray-50 p-3 text-center">
+        <div class="text-2xl font-bold leading-none text-gray-900"><%= value %></div>
+        <div class="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500"><%= label %></div>
+        <div class="text-[10px] text-gray-400"><%= unit %></div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-4.5">
+    <%= eyebrow "Skills", css: "mb-2.5" %>
+    <div class="flex flex-wrap gap-1.5">
+      <% profile.skills.each do |skill| %>
+        <%= pill skill.name, tone: :brand, dot: false %>
+      <% end %>
+      <% if profile.skills.empty? %>
+        <span class="text-[13px] text-gray-500">No skills listed.</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="mt-4.5">
+    <%= eyebrow "Upcoming shifts", css: "mb-2.5" %>
+    <div class="divide-y divide-gray-100">
+      <% @drawer_upcoming.each do |shift| %>
+        <div class="flex items-center justify-between gap-3 py-2.5">
+          <div class="min-w-0">
+            <div class="truncate text-sm font-medium text-gray-900">
+              <%= link_to shift.title, program_shift_path(shift.program, shift), class: "hover:text-indigo-600" %>
+            </div>
+            <div class="text-xs text-gray-500"><%= shift.starts_at.strftime("%a %b %-d · %-l:%M %p") %></div>
+          </div>
+          <%= pill "Confirmed", tone: :ok %>
+        </div>
+      <% end %>
+      <% if @drawer_upcoming.empty? %>
+        <div class="py-2 text-[13px] text-gray-500">No upcoming shifts.</div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if profile.bio.present? %>
+    <div class="mt-4.5">
+      <%= eyebrow "Bio", css: "mb-2.5" %>
+      <div class="text-[13px] leading-relaxed text-gray-600"><%= profile.bio %></div>
+    </div>
+  <% end %>
+</aside>

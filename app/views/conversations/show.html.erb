@@ -1,32 +1,38 @@
-<div class="flex flex-col h-[calc(100vh-12rem)]">
-  <%# Header %>
-  <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
-    <%= link_to conversations_path, class: "text-gray-400 hover:text-gray-600" do %>
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    <% end %>
-    <div>
-      <h2 class="text-lg font-semibold text-gray-900">
-        <%= @conversation.display_title(current_user) %>
-      </h2>
-      <p class="text-xs text-gray-500">
-        <%= @conversation.participants.map(&:display_name).join(", ") %>
-      </p>
+<% title = @conversation.display_title(current_user) %>
+<% content_for :title, "#{title} — Messages — VolunteerOS" %>
+<% content_for :page_title, "Messages" %>
+<% content_for :page_subtitle, "Direct conversations with volunteers and coordinators." %>
+<% content_for :full_bleed, true %>
+
+<div class="grid h-[calc(100vh-87px)] md:grid-cols-[300px_1fr]">
+  <%= render "conversations/inbox", conversations: @conversations, current: @conversation %>
+
+  <section class="flex min-h-0 flex-col bg-gray-50">
+    <header class="flex items-center gap-3 border-b border-gray-200 bg-gray-50/85 px-5.5 py-3.5 backdrop-blur">
+      <%= link_to conversations_path, class: "text-gray-400 hover:text-gray-600 md:hidden", aria: { label: "Back to inbox" } do %>
+        <%= icon "arrow-left" %>
+      <% end %>
+      <%= avatar title %>
+      <div class="min-w-0 flex-1">
+        <div class="truncate text-[15px] font-semibold text-gray-900"><%= title %></div>
+        <div class="truncate text-xs text-gray-500"><%= @conversation.participants.map(&:display_name).join(", ") %></div>
+      </div>
+      <% other = @conversation.direct? && @conversation.participants.find { |u| u != current_user } %>
+      <% if other&.volunteer_profile && policy(other.volunteer_profile).show? %>
+        <%= button_link "View profile", volunteer_profile_path(other.volunteer_profile), variant: :secondary, size: :sm, icon: "user" %>
+      <% end %>
+    </header>
+
+    <%= turbo_stream_from "conversation_#{@conversation.id}" %>
+
+    <div id="messages" class="flex flex-1 flex-col gap-3 overflow-y-auto px-5.5 pt-5.5 pb-3" data-controller="message-composer">
+      <% @messages.each do |message| %>
+        <%= render "messages/message", message: message %>
+      <% end %>
     </div>
-  </div>
 
-  <%# Messages area %>
-  <%= turbo_stream_from "conversation_#{@conversation.id}" %>
-
-  <div id="messages" class="flex-1 overflow-y-auto space-y-4 pb-4 pr-1" data-controller="message-composer">
-    <% @messages.each do |message| %>
-      <%= render "messages/message", message: message %>
-    <% end %>
-  </div>
-
-  <%# Composer %>
-  <div id="message_form" class="mt-4 border-t border-gray-200 pt-4">
-    <%= render "messages/form", conversation: @conversation, message: @message %>
-  </div>
+    <div id="message_form" class="px-5.5 pt-3 pb-5.5">
+      <%= render "messages/form", conversation: @conversation, message: @message %>
+    </div>
+  </section>
 </div>
